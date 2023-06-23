@@ -1,2 +1,1 @@
-# tt-tool
-Transcribe &amp; Translation Tool for Video Files
+# TT-Tool: Transcribe &amp; Translation Tool for Video Files
