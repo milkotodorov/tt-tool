@@ -1,0 +1,135 @@
+#transcribeRootWidget, 
+#translateRootWidget, 
+#configRootWidget {
+  padding: 5px;
+  align-items: 'center';
+}
+
+#audioFileRootWidget,
+#translateFileRootWidget {
+  padding: 15px;
+}
+
+#transcribeTitleWidget, 
+#translateTitleWidget, 
+#configTitleWidget {
+  padding: 10px;
+  width: '100%';
+  border: 2px ridge #bdbdbd;
+  align-items: 'center';
+}
+
+#transcribeTopLabel, 
+#translateTopLabel, 
+#configTopLabel {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#whisperConfigLabel, 
+#deeplConfigLabel {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  padding-top: 15px;
+}
+
+#deeplConfigLabel {
+  padding-top: 25px;
+}
+
+#audioFileTopWidget, 
+#whisperCLIConfigWidget, 
+#translateFileTopWidget,
+#deeplAPIKeyWidget {
+  flex-direction: row;
+  width: '94%';
+}
+
+#translateFileSpacerLabel {
+  margin-right: 17px;
+}
+
+#transcribeButtonsSpacer1Label,
+#transcribeButtonsSpacer2Label {
+  margin-left: 10px;
+}
+
+#audioFileLanguageLabel {
+  margin-left: 35px;
+}
+
+#translateFileArrowLabel {
+  font-size: 18px;
+}
+
+#audioFileComboBox,
+#translateFileComboBox {
+  padding: 5px;
+}
+
+#whisperCLIPathLabel {
+  margin-right: 2px;
+}
+
+#deeplAPIKeyLabel {
+  margin-right: 2px;
+}
+
+#saveConfigWidget {
+  padding: 15px;
+  margin-top: 50px;
+}
+
+#selectAudioFileButton {
+  width: 80px;
+  height: 25px;
+  margin-left: 4px;
+}
+
+#selectTranslateFileButton {
+  width: 80px;
+  height: 25px;
+  margin-left: 4px;
+}
+
+#whisperOptionsToolButton {
+  align-self: 'center';
+  font-size: 12px;
+  padding: 5px;
+}
+
+#whisperOptionsWidget {
+  padding: 10px;
+  flex-direction: row;
+}
+
+#whisperCLILineEdit {
+  width: '92%';
+}
+
+#deeplAPIKeyLineEdit {
+  width: 318px;
+}
+
+#whisperDataModelWidget, 
+#whisperOutputFormatWidget, 
+#whisperSegmentsLengthWidget {
+  padding: 15px;
+  align-items: 'center';
+}
+
+#actionButtonsWidget {
+  flex-direction: row;
+  padding: 15px;
+}
+
+#transcribeStartButton,
+#transcribeCancelButton,
+#transferToTranslateButton {
+  padding: 15px;
+}
+
+#transcribeStartButton {
+  padding-top: 25px;
+}
