@@ -1,6 +1,3 @@
-// ============================================================================
-// 'Config Tab' Elements
-
 import { FlexLayout, QIcon, QLabel, QLineEdit, QPushButton, QWidget } from "@nodegui/nodegui";
 import * as fs from 'fs';
 
@@ -35,17 +32,20 @@ export class Config {
   private saveConfigLayout: FlexLayout;
 
   // Configuration Objects
-  public whisperCLIFolder: String;
-  public whisperCLI: String;
+  private readonly configFile: string = 'tt-tool-config.json';
+  public whisperCLIFolder: string;
+  public whisperCLI: string;
+  public deeplAPIKey: string;
 
   constructor() {
     // Root Widgets
     this.configRootWidget = new QWidget();
     this.configTabLayout = new FlexLayout();
 
-    // Configuration
-    this.whisperCLIFolder = '/Users/.../whisper.cpp/';
-    this.whisperCLI = this.whisperCLIFolder + 'main';
+    // Empty Configuration
+    this.whisperCLI = '';
+    this.whisperCLIFolder = '';
+    this.deeplAPIKey = '';
 
     this.configRootWidget.setObjectName("configRootWidget");
     this.configRootWidget.setLayout(this.configTabLayout);
@@ -121,15 +121,81 @@ export class Config {
     this.configRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'));
 
     this.readConfigFile();
+
+    // Add event listeners
+    this.saveConfigButtonEventListener();
   }
 
-  private readConfigFile() {
-    this.whisperCLILineEdit.setText('/Users/.../whisper.cpp/main');
+  private readConfigFile(): void {
+    if (!fs.existsSync(this.configFile))
+      return;
+
+    // Read configuration
+    let configBuffer: Buffer;
+    let configJSON: any;
+
+    try {
+      configBuffer = fs.readFileSync(this.configFile);
+    } catch (error) {
+      console.log("Error while reading the configuration file 'tt-tool-config.json': ", error);
+      throw new Error();
+    }
+
+    try{
+      configJSON = JSON.parse(configBuffer.toString());
+    } catch(error) {
+      console.log("Error while parsing the configuration file 'tt-tool-config.json': ", error);
+      throw new Error();
+    }
+
+    this.whisperCLIFolder = configJSON.whisperCLIFolder;
+    this.whisperCLI = this.whisperCLIFolder + configJSON.whisperCLIExecutable;
+    this.deeplAPIKey = configJSON.deeplAPIKey;
+
+    // Set loaded configuration into the UI
+    this.whisperCLILineEdit.setText(this.whisperCLI);
+    this.deeplAPIKeyLineEdit.setText(this.deeplAPIKey);
   }
 
-  public isDataModelExist(dataModelName: String): boolean {
-    let whisperRootPath: String = this.whisperCLIFolder;
-    let whisperModelsPath = whisperRootPath + 'models/ggml-' + dataModelName + '.bin';
+  private saveConfiguration(): void {
+    let whisperCLI: string = this.whisperCLILineEdit.text();
+    let whisperCLIExecutable: string = '';
+    let whisperCLIFolder: string = '';
+
+    // Split whisperCLIExecutable & whisperCLIFolder
+
+    // MacOS & Linux
+    if (process.platform == 'darwin' || process.platform == 'linux') {
+      whisperCLIExecutable = whisperCLI.substring(whisperCLI.lastIndexOf('/') + 1, whisperCLI.length);
+      whisperCLIFolder = whisperCLI.substring(0, whisperCLI.lastIndexOf('/') + 1);
+    }
+    // Windows
+    if (process.platform == 'win32') {
+      whisperCLIExecutable = whisperCLI.substring(whisperCLI.lastIndexOf('\\') + 1, whisperCLI.length);
+      whisperCLIFolder = whisperCLI.substring(0, whisperCLI.lastIndexOf('\\') + 1);
+    }
+
+    let config: any = {
+      "whisperCLIFolder": whisperCLIFolder,
+      "whisperCLIExecutable": whisperCLIExecutable,
+      "deeplAPIKey": this.deeplAPIKeyLineEdit.text()
+    }
+
+    try {
+      fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2), 'utf8');
+      console.log('Configuration file updated.');
+    } catch (error) {
+      console.log('Error while saving the configuration file: ', error);
+    }
+
+    // Set the current configuration active
+    this.whisperCLIFolder = config.whisperCLIFolder;
+    this.whisperCLI = config.whisperCLIFolder + config.whisperCLIExecutable;
+    this.deeplAPIKey = config.deeplAPIKey;
+  }
+
+  public isDataModelExist(dataModelName: string): boolean {
+    let whisperModelsPath: string = this.whisperCLIFolder + 'models/ggml-' + dataModelName + '.bin';
     if (fs.existsSync(whisperModelsPath)) {
       return true;
     }
@@ -137,10 +203,16 @@ export class Config {
     return false;
   }
 
-  public getDataModelIcon(dataModelName: String): QIcon {
+  public getDataModelIcon(dataModelName: string): QIcon {
     if (this.isDataModelExist(dataModelName))
       return new QIcon('assets/green-dot-icon.png');
     else 
       return new QIcon('assets/gray-dot-icon.png')
+  }
+
+  private saveConfigButtonEventListener(): void {
+    this.saveConfigButton.addEventListener('clicked', () => {
+      this.saveConfiguration();
+    });
   }
 };

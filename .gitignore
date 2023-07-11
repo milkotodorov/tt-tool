@@ -142,3 +142,4 @@ package-lock.json
 deploy
 
 .DS_Store
+tt-tool-config.json
