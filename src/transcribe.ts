@@ -1,11 +1,28 @@
-import { FileMode, FlexLayout, QComboBox, QFileDialog, QIcon, QLabel,
-  QLineEdit, QPushButton, QToolButton, QWidget } from "@nodegui/nodegui";
+import {
+  DialogLabel,
+  FileMode,
+  FlexLayout,
+  Option,
+  QComboBox,
+  QFileDialog,
+  QIcon,
+  QLabel,
+  QLineEdit,
+  QPushButton,
+  QToolButton,
+  QWidget
+} from "@nodegui/nodegui";
 import * as fs from 'fs';
 import { Config } from './config';
+import { spawn } from 'node:child_process';
+import localeCode from 'iso-639-1';
 
 export class Transcribe {
   // Configuration
   private config: Config;
+
+  // Whisper Process
+  private whisperPrc: any;
 
   // Whisper Languages
   private readonly whisperLanguages: string[];
@@ -68,15 +85,16 @@ export class Transcribe {
     this.config = config;
 
     this.whisperLanguages = [
-      'Spanish', 
-      'Italian', 
-      'English', 
-      'Portuguese', 
-      'German', 
-      'Japanese',
-      'Polish', 
-      'Russian', 
-      'Dutch'
+        'auto',
+        'Spanish',
+        'Italian',
+        'English',
+        'Portuguese',
+        'German',
+        'Japanese',
+        'Polish',
+        'Russian',
+        'Dutch'
     ];
     //ToDo: Fill the rest languages: https://raw.githubusercontent.com/openai/whisper/main/language-breakdown.svg
 
@@ -115,9 +133,9 @@ export class Transcribe {
     this.audioFileLanguageComboBox = new QComboBox();
     this.audioFileLanguageComboBox.setObjectName('audioFileLanguageComboBox')
     this.audioFileLanguageComboBox.addItems(this.whisperLanguages);
-    this.audioFileLanguageComboBox.setCurrentText('English');
+    this.audioFileLanguageComboBox.setCurrentText('auto');
     this.audioFileLanguageComboBox.setToolTip('Sorted by Word Error Rate accurancy.\n' 
-        + 'More info: https://raw.githubusercontent.com/openai/whisper/main/language-breakdown.svg');
+        + 'More info: https://github.com/openai/whisper#available-models-and-languages');
 
     this.audioFileRootWidget = new QWidget();
     this.audioFileRootLayout = new FlexLayout();
@@ -156,7 +174,7 @@ export class Transcribe {
     this.whisperModelComboBox.addItem(config.getDataModelIcon('tiny'), 'tiny');
     this.whisperModelComboBox.addItem(config.getDataModelIcon('tiny.en'), 'tiny.en');
     this.whisperModelComboBox.addItem(config.getDataModelIcon('base'), 'base');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('base.en'), 'bade.en');
+    this.whisperModelComboBox.addItem(config.getDataModelIcon('base.en'), 'base.en');
     this.whisperModelComboBox.addItem(config.getDataModelIcon('small'), 'small');
     this.whisperModelComboBox.addItem(config.getDataModelIcon('small.en'), 'small.en');
     this.whisperModelComboBox.addItem(config.getDataModelIcon('medium'), 'medium');
@@ -165,7 +183,7 @@ export class Transcribe {
     this.whisperModelComboBox.addItem(config.getDataModelIcon('large'), 'large');
     this.whisperModelComboBox.setCurrentText('medium.en');
     this.whisperModelComboBox.setToolTip('Data model will be automatically selected upon language change as follows:\n' 
-        + '"meduim-en" for English and "large" for everything else.');
+        + '"medium-en" for English and "large" for everything else.');
     this.whisperModelComboBox.setToolTipDuration(30000);
     this.whisperModelComboBox.setMaximumWidth(140);
     this.whisperDataModelWidget = new QWidget();
@@ -195,7 +213,7 @@ export class Transcribe {
     this.textSegmentsLeengthLabel.setText('Text segments length:');
     this.textSegmentsLeengthQLineEdit = new QLineEdit();
     this.textSegmentsLeengthQLineEdit.setObjectName('textSegmentsLeengthQLineEdit');
-    this.textSegmentsLeengthQLineEdit.setText('150');
+    this.textSegmentsLeengthQLineEdit.setText('0');
     this.textSegmentsLeengthQLineEdit.setMaximumWidth(37);
 
     this.whisperSegmentsLengthWidget = new QWidget();
@@ -256,18 +274,40 @@ export class Transcribe {
     this.transcribeButtonEventListener();
     this.transcribeCancelButtonEventListener();
     this.transferToTranslateButtonEventListener();
+
+    // Disable Cancel Transcribe Button when not transcribing
+    this.transcribeCancelButton.setEnabled(false);
+    // Transcribe Button disabled when no file is selected
+    this.transcribeStartButton.setEnabled(false);
   }
 
   private audioFileButtonEventListener(): void {
     this.selectAudioFileButton.addEventListener('clicked', () => {
-      const fileDialog: QFileDialog = new QFileDialog();
-      fileDialog.setFileMode(FileMode.ExistingFile);
-      // ToDo: Filter non-relevant files
-      // fileDialog.setNameFilter('Videos/Audios (*.mp4 *.wav)'); 
-      fileDialog.exec();
-      this.audioFileComboBox.addItem(new QIcon('assets/audio-file-icon.png'),
-        fileDialog.selectedFiles()[0]);
-    });
+    const fileDialog: QFileDialog = new QFileDialog();
+    fileDialog.setFileMode(FileMode.ExistingFile);
+    fileDialog.setOption(Option.ReadOnly);
+    fileDialog.setLabelText(DialogLabel.Accept, 'Select');
+    // fileDialog.setOption(Option.DontUseNativeDialog);
+    // fileDialog.setNameFilter('Audios/Videos (*.mp4 *.wav)');
+    //ToDo: Filter non-relevant files
+    if (fileDialog.exec()) {
+      let isFileAlreadyAdded: boolean = false;
+      let selectedFile: string = fileDialog.selectedFiles()[0];
+
+      for (let i: number = 0; i < this.audioFileComboBox.count(); i++) {
+        this.audioFileComboBox.setCurrentIndex(i);
+        if (this.audioFileComboBox.currentText() == selectedFile) {
+          console.log(selectedFile);
+          isFileAlreadyAdded = true;
+          break;
+        }
+      }
+      if (selectedFile != null && !isFileAlreadyAdded) {
+        this.audioFileComboBox.addItem(new QIcon('assets/audio-file-icon.png'), selectedFile);
+        this.transcribeStartButton.setEnabled(true);
+      }
+    }
+  });
   }
 
   private whisperOptionsButtonEventListener(): void {
@@ -282,43 +322,65 @@ export class Transcribe {
   private whisperModelComboBoxEventListener(): void {
     this.whisperModelComboBox.addEventListener('currentTextChanged', (text) => {
       console.log('Model selected: ' + text);
+      //ToDo: Implement automatic download + Initial Download??
     });  
   }
 
 
   private transcribeButtonEventListener(): void {
     this.transcribeStartButton.addEventListener('clicked', () => {
-      const { spawn } = require('node:child_process');
-      let prc: any;
-      
+      this.transcribeStartButton.setEnabled(false);
+      this.transcribeCancelButton.setEnabled(true);
+
+      let sourceLanguage: string = 'auto';
+      if (this.audioFileLanguageComboBox.currentText() != 'auto')
+        sourceLanguage = localeCode.getCode(this.audioFileLanguageComboBox.currentText());
+
+      // Windows
       if (process.platform == 'win32') {
-        prc = spawn('');
+        this.whisperPrc = spawn(this.config.whisperCLI,
+            ['--model', 'models\\ggml-' + this.whisperModelComboBox.currentText() + '.bin',
+              '--language', sourceLanguage,
+              '-o' + this.whisperOutputFormatComboBox.currentText(),
+              '-ml', this.textSegmentsLeengthQLineEdit.text(),
+              '-pc', '-pp', this.audioFileComboBox.currentText()],
+            {cwd: this.config.whisperCLIFolder}
+        );
       }
-      
-      if (process.platform == 'darwin') {
-        console.log('MacOS detected');
-        prc = spawn(this.config.whisperCLI, 
-                ['-pc', '-f', 'samples/jfk.wav'], 
+
+      // MacOS & Linux
+      if (process.platform == 'darwin' || process.platform == 'linux') {
+        this.whisperPrc = spawn(this.config.whisperCLI,
+                ['--model', 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin',
+                  '--language', sourceLanguage,
+                  '-o' + this.whisperOutputFormatComboBox.currentText(),
+                  '-ml', this.textSegmentsLeengthQLineEdit.text(),
+                  '-pc', '-pp', this.audioFileComboBox.currentText()],
                 {cwd: this.config.whisperCLIFolder}
               );
       }
-    
-      prc.stdout.on('data', (data: any) => {
+
+      this.whisperPrc.stdout.on('data', (data: any) => {
         console.log(data.toString());
       });
-    
-      prc.stderr.on('data', (data: any) => {
+
+      this.whisperPrc.stderr.on('data', (data: any) => {
         console.error(data.toString());
       });
-    
-      prc.on('exit', (code: any) => {
+
+      this.whisperPrc.on('exit', (code: any) => {
         console.log(`Child exited with code ${code}`);
+        this.transcribeStartButton.setEnabled(true);
+        this.transcribeCancelButton.setEnabled(false);
       });
     });
   }
 
   private transcribeCancelButtonEventListener(): void {
+    //ToDo: Disable Cancel Button when not transcribing
     this.transcribeCancelButton.addEventListener('clicked', () => {
+      console.log('Killing Whisper process requested...');
+      this.whisperPrc.kill();
     });
   }
 
@@ -326,4 +388,4 @@ export class Transcribe {
     this.transferToTranslateButton.addEventListener('clicked', () => {
     });  
   }
-};
+}

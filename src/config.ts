@@ -1,4 +1,15 @@
-import { FlexLayout, QIcon, QLabel, QLineEdit, QPushButton, QWidget } from "@nodegui/nodegui";
+import {
+  DialogLabel,
+  FileMode,
+  FlexLayout,
+  Option,
+  QFileDialog,
+  QIcon,
+  QLabel,
+  QLineEdit,
+  QPushButton,
+  QWidget
+} from "@nodegui/nodegui";
 import * as fs from 'fs';
 
 export class Config {
@@ -124,6 +135,7 @@ export class Config {
 
     // Add event listeners
     this.saveConfigButtonEventListener();
+    this.selectWhisperCLIButtonEventListener();
   }
 
   private readConfigFile(): void {
@@ -192,15 +204,13 @@ export class Config {
     this.whisperCLIFolder = config.whisperCLIFolder;
     this.whisperCLI = config.whisperCLIFolder + config.whisperCLIExecutable;
     this.deeplAPIKey = config.deeplAPIKey;
+
+    //ToDo: Write a notification (status bar - pop-up) upon successful save
   }
 
   public isDataModelExist(dataModelName: string): boolean {
     let whisperModelsPath: string = this.whisperCLIFolder + 'models/ggml-' + dataModelName + '.bin';
-    if (fs.existsSync(whisperModelsPath)) {
-      return true;
-    }
-
-    return false;
+    return fs.existsSync(whisperModelsPath);
   }
 
   public getDataModelIcon(dataModelName: string): QIcon {
@@ -210,9 +220,25 @@ export class Config {
       return new QIcon('assets/gray-dot-icon.png')
   }
 
+  private selectWhisperCLIButtonEventListener(): void {
+    this.selectWhisperCLIButton.addEventListener('clicked', () => {
+      const fileDialog: QFileDialog = new QFileDialog();
+      fileDialog.setFileMode(FileMode.ExistingFile);
+      fileDialog.setOption(Option.ReadOnly);
+      fileDialog.setLabelText(DialogLabel.Accept, 'Select');
+      // fileDialog.setOption(Option.DontUseNativeDialog);
+      //ToDo: Filter only executable files
+      if (fileDialog.exec()) {
+        let selectedFile: string = fileDialog.selectedFiles()[0];
+        if (selectedFile != null)
+          this.whisperCLILineEdit.setText(selectedFile);
+      }
+    });
+  }
+
   private saveConfigButtonEventListener(): void {
     this.saveConfigButton.addEventListener('clicked', () => {
       this.saveConfiguration();
     });
   }
-};
+}

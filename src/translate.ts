@@ -1,5 +1,15 @@
-import { FileMode, FlexLayout, QComboBox, QFileDialog, QIcon, QLabel,
-    QLineEdit, QPushButton, QToolButton, QWidget } from "@nodegui/nodegui";
+import {
+  DialogLabel,
+  FileMode,
+  FlexLayout,
+  Option,
+  QComboBox,
+  QFileDialog,
+  QIcon,
+  QLabel,
+  QPushButton,
+  QWidget
+} from "@nodegui/nodegui";
 import * as fs from 'fs';
 import { Config } from './config';
 
@@ -90,9 +100,7 @@ export class Translate {
     this.translateTitleWidget.setLayout(this.translateTitleLayout);
     this.translateTitleLayout.addWidget(this.translateTopLabel);
 
-
-
-    // Substitle File for Translation Selection Widget
+    // Subtitle File for Translation Selection Widget
     this.selectTranslateFileLabel = new QLabel();
     this.selectTranslateFileLabel.setObjectName('selectTranslateFileLabel');
     this.selectTranslateFileLabel.setText('Subtitle file:');
@@ -149,8 +157,48 @@ export class Translate {
 
     // Apply the Stylesheet
     this.translateRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'));
+
+    // Add the event listeners
+    this.selectTranslateFileButtonEventListener();
+    this.translateButtonEventListener();
+
+    // Disable Translate Button when no file is selected
+    this.translateButton.setEnabled(false);
   }
-};
+
+  private selectTranslateFileButtonEventListener(): void {
+    this.selectTranslateFileButton.addEventListener('clicked', () => {
+      const fileDialog: QFileDialog = new QFileDialog();
+      fileDialog.setFileMode(FileMode.ExistingFile);
+      fileDialog.setOption(Option.ReadOnly);
+      fileDialog.setLabelText(DialogLabel.Accept, 'Select');
+      fileDialog.setNameFilter('Subtitle/Text (*.srt *.txt *.vtt *.wts *.csv)');
+      if (fileDialog.exec()) {
+        let isFileAlreadyAdded: boolean = false;
+        let selectedFile: string = fileDialog.selectedFiles()[0];
+
+        for (let i: number = 0; i < this.translateFileComboBox.count(); i++) {
+          this.translateFileComboBox.setCurrentIndex(i);
+          if (this.translateFileComboBox.currentText() == selectedFile) {
+            console.log(selectedFile);
+            isFileAlreadyAdded = true;
+            break;
+          }
+        }
+
+        if (selectedFile != null && !isFileAlreadyAdded) {
+          this.translateFileComboBox.addItem(new QIcon('assets/subtitle-file-icon.png'), selectedFile);
+          this.translateButton.setEnabled(true);
+        }
+      }
+    });
+  }
+
+  private translateButtonEventListener(): void {
+    this.translateButton.addEventListener('clicked', () => {
+    });
+  }
+}
 
 
 

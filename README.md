@@ -8,9 +8,8 @@ The `Transcribe & Translate Tool (TT-Tool` is a simple [NodeGUI](https://docs.no
 
 The following two things are required before you can use the `tt-tool`:
 
-- Whisper Command-Line Interface (CLI) in order to do the transcribing. You have the following three options to choose from:
-  - The official [OpenAI Whisper in Python](https://github.com/openai/whisper).
-  - The C++ port of the OpenAI's Whisper called [Whisper.cpp](https://github.com/ggerganov/whisper.cpp).
+- Whisper Command-Line Interface (CLI) in order to do the transcribing. You have the following two options to choose from:
+  - The C++ port of the official [OpenAI Whisper in Python](https://github.com/openai/whisper) called [Whisper.cpp](https://github.com/ggerganov/whisper.cpp).
   - [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper) with GPU acceleration support.
 
   As of now the last two works faster than the original Python implementation. This will certainly change with time.

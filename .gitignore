@@ -141,5 +141,21 @@ package-lock.json
 # npx build
 deploy
 
+# Audio Samples
+mm1.wav
+gb0.ogg
+gb1.ogg
+hp0.ogg
+
+# MacOS Specific
 .DS_Store
+
+# Configration File
 tt-tool-config.json
+
+# Output format subtitles files
+.srt
+.txt
+.vtt
+.wts
+.csv

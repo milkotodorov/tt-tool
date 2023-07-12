@@ -1,5 +1,4 @@
 import { QMainWindow, QTabWidget, QIcon } from '@nodegui/nodegui';
-import ISO6391 from 'iso-639-1';
 import { Config } from './config';
 import { Transcribe } from './transcribe';
 import { Translate } from "./translate";
