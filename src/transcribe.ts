@@ -3,6 +3,7 @@ import {
   FileMode,
   FlexLayout,
   Option,
+  QCheckBox,
   QComboBox,
   QFileDialog,
   QIcon,
@@ -14,11 +15,12 @@ import {
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
-import {Config} from './config';
-import {spawn} from 'node:child_process';
+import * as os from "os";
 import localeCode from 'iso-639-1';
-import {FileData, fileNamePathSplit} from "./util";
-import {Translate} from "./translate";
+import { spawn } from 'node:child_process';
+import { Config } from './config';
+import { FileData, fileNamePathSplit } from "./util";
+import { Translate } from "./translate";
 
 export class Transcribe {
   // Root Tab Widget
@@ -60,6 +62,10 @@ export class Transcribe {
   private whisperOptionsToolButton: QToolButton;
   private whisperOptionsWidget: QWidget;
   private whisperOptionsLayout: FlexLayout;
+  private whisperOptionsL1Widget: QWidget;
+  private whisperOptionsL1Layout: FlexLayout;
+  private whisperOptionsL2Widget: QWidget;
+  private whisperOptionsL2Layout: FlexLayout;
 
   // Whisper Additional Parameters
 
@@ -81,6 +87,36 @@ export class Transcribe {
   private whisperSegmentsLengthWidget: QWidget;
   private whisperSegmentsLengthLayout: FlexLayout;
 
+  // Whisper CPUs to use
+  private whisperCPUsLabel: QLabel;
+  private whisperCPUsComboBox: QComboBox;
+  private whisperCPUsWidget: QWidget;
+  private whisperCPUsLayout: FlexLayout;
+
+  // Whisper Threads to use
+  private whisperThreadsLabel: QLabel;
+  private whisperThreadsComboBox: QComboBox;
+  private whisperThreadsWidget: QWidget;
+  private whisperThreadsLayout: FlexLayout;
+
+  // Whisper Duration to process
+  private whisperDurationLabel: QLabel;
+  private whisperDurationLineEdit: QLineEdit;
+  private whisperDurationWidget: QWidget;
+  private whisperDurationLayout: FlexLayout;
+
+  // Whisper stereo audio diarization
+  private whisperDiarizeLabel: QLabel;
+  private whisperDiarizeCheckBox: QCheckBox;
+  private whisperDiarizeWidget: QWidget;
+  private whisperDiarizeLayout: FlexLayout;
+
+  // Whisper custom parameters
+  private whisperCustomParamsLabel: QLabel;
+  private whisperCustomParamsLineEdit: QLineEdit;
+  private whisperCustomParamsWidget: QWidget;
+  private whisperCustomParamsLayout: FlexLayout;
+
   // Action Buttons
   private transcribeStartButton: QPushButton;
   private transcribeCancelButton: QPushButton;
@@ -96,6 +132,41 @@ export class Transcribe {
     this.config = config;
     this.tabWidget = tabWidget;
     this.translate = translate;
+
+    const whisperParameters: string = '\n' +
+        'options:\n' +
+        '  -h,        --help              [default] show this help message and exit\n' +
+        '  -t N,      --threads N         [4      ] number of threads to use during computation\n' +
+        '  -p N,      --processors N      [1      ] number of processors to use during computation\n' +
+        '  -ot N,     --offset-t N        [0      ] time offset in milliseconds\n' +
+        '  -on N,     --offset-n N        [0      ] segment index offset\n' +
+        '  -d  N,     --duration N        [0      ] duration of audio to process in milliseconds\n' +
+        '  -mc N,     --max-context N     [-1     ] maximum number of text context tokens to store\n' +
+        '  -ml N,     --max-len N         [0      ] maximum segment length in characters\n' +
+        '  -bo N,     --best-of N         [5      ] number of best candidates to keep\n' +
+        '  -bs N,     --beam-size N       [-1     ] beam size for beam search\n' +
+        '  -wt N,     --word-thold N      [0.01   ] word timestamp probability threshold\n' +
+        '  -et N,     --entropy-thold N   [2.40   ] entropy threshold for decoder fail\n' +
+        '  -lpt N,    --logprob-thold N   [-1.00  ] log probability threshold for decoder fail\n' +
+        '  -su,       --speed-up          [false  ] speed up audio by x2 (reduced accuracy)\n' +
+        '  -tr,       --translate         [false  ] translate from source language to english\n' +
+        '  -tdrz,     --tinydiarize       [false  ] enable tinydiarize (requires a tdrz model)\n' +
+        '  -di,       --diarize           [false  ] stereo audio diarization\n' +
+        '  -nf,       --no-fallback       [false  ] do not use temperature fallback while decoding\n' +
+        '  -otxt,     --output-txt        [false  ] output result in a text file\n' +
+        '  -ovtt,     --output-vtt        [false  ] output result in a vtt file\n' +
+        '  -osrt,     --output-srt        [false  ] output result in a srt file\n' +
+        '  -owts,     --output-words      [false  ] output script for generating karaoke video\n' +
+        '  -ocsv,     --output-csv        [false  ] output result in a CSV file\n' +
+        '  -of FNAME, --output-file FNAME [       ] output file path (without file extension)\n' +
+        '  -ps,       --print-special     [false  ] print special tokens\n' +
+        '  -pc,       --print-colors      [false  ] print colors\n' +
+        '  -pp,       --print-progress    [false  ] print progress\n' +
+        '  -nt,       --no-timestamps     [true   ] do not print timestamps\n' +
+        '  -l LANG,   --language LANG     [en     ] spoken language (\'auto\' for auto-detect)\n' +
+        '             --prompt PROMPT     [       ] initial prompt\n' +
+        '  -m FNAME,  --model FNAME       [models/ggml-base.en.bin] model path\n' +
+        '  -f FNAME,  --file FNAME        [       ] input WAV file path';
 
     this.whisperLanguages = [
         'auto',
@@ -146,7 +217,7 @@ export class Transcribe {
     this.audioFileLanguageComboBox = new QComboBox();
     this.audioFileLanguageComboBox.setObjectName('audioFileLanguageComboBox')
     this.audioFileLanguageComboBox.addItems(this.whisperLanguages);
-    this.audioFileLanguageComboBox.setCurrentText('auto');
+    this.audioFileLanguageComboBox.setCurrentText('English');
     this.audioFileLanguageComboBox.setToolTip('Sorted by Word Error Rate accurancy.\n' 
         + 'More info: https://github.com/openai/whisper#available-models-and-languages');
 
@@ -174,10 +245,19 @@ export class Transcribe {
     this.whisperOptionsToolButton.setCheckable(true);
     this.whisperOptionsToolButton.setChecked(false);
 
+    // Whisper Additional Parameters
     this.whisperOptionsWidget = new QWidget();
     this.whisperOptionsLayout = new FlexLayout();
     this.whisperOptionsWidget.setObjectName('whisperOptionsWidget');
     this.whisperOptionsWidget.setLayout(this.whisperOptionsLayout);
+    this.whisperOptionsL1Widget = new QWidget();
+    this.whisperOptionsL1Layout = new FlexLayout();
+    this.whisperOptionsL1Widget.setObjectName('whisperOptionsL1Widget');
+    this.whisperOptionsL1Widget.setLayout(this.whisperOptionsL1Layout);
+    this.whisperOptionsL2Widget = new QWidget();
+    this.whisperOptionsL2Layout = new FlexLayout();
+    this.whisperOptionsL2Widget.setObjectName('whisperOptionsL2Widget');
+    this.whisperOptionsL2Widget.setLayout(this.whisperOptionsL2Layout);
 
     // Whisper Data Model
     this.whisperModelLabel = new QLabel();
@@ -220,14 +300,14 @@ export class Transcribe {
     this.whisperOutputFormatLayout.addWidget(this.whisperOutputFormatLabel);
     this.whisperOutputFormatLayout.addWidget(this.whisperOutputFormatComboBox);
 
-    // Whisper Additional Parameters
+    // Whisper Segments Length
     this.whisperSegmentsLengthLabel = new QLabel();
     this.whisperSegmentsLengthLabel.setObjectName('textSegmentsLengthLabel');
     this.whisperSegmentsLengthLabel.setText('Text segments length:');
     this.whisperSegmentsLengthLineEdit = new QLineEdit();
     this.whisperSegmentsLengthLineEdit.setObjectName('textSegmentsLengthQLineEdit');
     this.whisperSegmentsLengthLineEdit.setText('0');
-    this.whisperSegmentsLengthLineEdit.setMaximumWidth(37);
+    this.whisperSegmentsLengthLineEdit.setFixedWidth(37);
 
     this.whisperSegmentsLengthWidget = new QWidget();
     this.whisperSegmentsLengthLayout = new FlexLayout();
@@ -236,10 +316,94 @@ export class Transcribe {
     this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLabel);
     this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLineEdit);
 
-    this.whisperOptionsLayout.addWidget(this.whisperDataModelWidget);
-    this.whisperOptionsLayout.addWidget(this.whisperOutputFormatWidget);
-    this.whisperOptionsLayout.addWidget(this.whisperSegmentsLengthWidget);
-    this.whisperOptionsWidget.hide(); 
+    // Whisper Options L1 Widget
+    this.whisperOptionsL1Layout.addWidget(this.whisperDataModelWidget);
+    this.whisperOptionsL1Layout.addWidget(this.whisperOutputFormatWidget);
+    this.whisperOptionsL1Layout.addWidget(this.whisperSegmentsLengthWidget);
+
+    // Whisper CPUs to use
+    const cpuCount: number = os.cpus().length;
+    this.whisperCPUsLabel = new QLabel();
+    this.whisperCPUsLabel.setObjectName('whisperCPUsLabel');
+    this.whisperCPUsLabel.setText('CPUs:')
+    this.whisperCPUsComboBox = new QComboBox();
+    for(let i: number = 1; i <= cpuCount; i++)
+      this.whisperCPUsComboBox.addItem(undefined, i.toString());
+    this.whisperCPUsComboBox.setCurrentText('1');
+    this.whisperCPUsWidget = new QWidget();
+    this.whisperCPUsLayout = new FlexLayout();
+    this.whisperCPUsWidget.setObjectName('whisperCPUsWidget')
+    this.whisperCPUsWidget.setLayout(this.whisperCPUsLayout);
+    this.whisperCPUsLayout.addWidget(this.whisperCPUsLabel);
+    this.whisperCPUsLayout.addWidget(this.whisperCPUsComboBox);
+
+    // Whisper Threads to use
+    this.whisperThreadsLabel = new QLabel();
+    this.whisperThreadsLabel.setObjectName('whisperThreadsLabel');
+    this.whisperThreadsLabel.setText('Threads:')
+    this.whisperThreadsComboBox = new QComboBox();
+    for(let i: number = 1; i <= cpuCount*4; i++)
+      if (i % 4 == 0)
+        this.whisperThreadsComboBox.addItem(undefined, i.toString());
+    this.whisperThreadsComboBox.setCurrentText('4');
+    this.whisperThreadsWidget = new QWidget();
+    this.whisperThreadsLayout = new FlexLayout();
+    this.whisperThreadsWidget.setObjectName('whisperThreadsWidget')
+    this.whisperThreadsWidget.setLayout(this.whisperThreadsLayout);
+    this.whisperThreadsLayout.addWidget(this.whisperThreadsLabel);
+    this.whisperThreadsLayout.addWidget(this.whisperThreadsComboBox);
+
+    // Whisper Duration to process
+    this.whisperDurationLabel = new QLabel();
+    this.whisperDurationLabel.setObjectName('whisperDurationLabel');
+    this.whisperDurationLabel.setText('Duration to process:')
+    this.whisperDurationLineEdit = new QLineEdit();
+    this.whisperDurationLineEdit.setObjectName('whisperDurationLineEdit');
+    this.whisperDurationLineEdit.setText('0');
+    this.whisperDurationLineEdit.setFixedWidth(72);
+    this.whisperDurationLineEdit.setToolTip('Value in milliseconds');
+    this.whisperDurationLineEdit.setToolTipDuration(15000);
+    this.whisperDurationWidget = new QWidget();
+    this.whisperDurationLayout = new FlexLayout();
+    this.whisperDurationWidget.setObjectName('whisperDurationWidget');
+    this.whisperDurationWidget.setLayout(this.whisperDurationLayout);
+    this.whisperDurationLayout.addWidget(this.whisperDurationLabel);
+    this.whisperDurationLayout.addWidget(this.whisperDurationLineEdit);
+
+    // Whisper stereo audio diarization
+    this.whisperDiarizeLabel = new QLabel();
+    this.whisperDiarizeCheckBox = new QCheckBox();
+    this.whisperDiarizeCheckBox.setObjectName('whisperDiarizeCheckBox');
+    this.whisperDiarizeCheckBox.setText('Stereo audio\n diarization');
+    this.whisperDiarizeWidget = new QWidget();
+    this.whisperDiarizeLayout = new FlexLayout();
+
+    // Whisper Options L2 Widget
+    this.whisperOptionsL2Layout.addWidget(this.whisperCPUsWidget);
+    this.whisperOptionsL2Layout.addWidget(this.whisperThreadsWidget);
+    this.whisperOptionsL2Layout.addWidget(this.whisperDiarizeCheckBox);
+    this.whisperOptionsL2Layout.addWidget(this.whisperDurationWidget);
+
+    // Whisper custom parameters
+    this.whisperCustomParamsLabel = new QLabel();
+    this.whisperCustomParamsLabel.setObjectName('whisperCustomParamsLabel');
+    this.whisperCustomParamsLabel.setText('Custom parameters:');
+    this.whisperCustomParamsLineEdit = new QLineEdit();
+    this.whisperCustomParamsLineEdit.setObjectName('whisperCustomParamsLineEdit');
+    this.whisperCustomParamsLineEdit.setToolTip('Space separated additional parameters.\n' +
+        'All parameters: https://github.com/ggerganov/whisper.cpp#quick-start\n' + whisperParameters);
+    this.whisperCustomParamsLineEdit.setToolTipDuration(120000);
+    this.whisperCustomParamsWidget = new QWidget();
+    this.whisperCustomParamsLayout = new FlexLayout();
+    this.whisperCustomParamsWidget.setObjectName('whisperCustomParamsWidget');
+    this.whisperCustomParamsWidget.setLayout(this.whisperCustomParamsLayout);
+    this.whisperCustomParamsLayout.addWidget(this.whisperCustomParamsLabel);
+    this.whisperCustomParamsLayout.addWidget(this.whisperCustomParamsLineEdit);
+
+    this.whisperOptionsLayout.addWidget(this.whisperOptionsL1Widget);
+    this.whisperOptionsLayout.addWidget(this.whisperOptionsL2Widget);
+    this.whisperOptionsLayout.addWidget(this.whisperCustomParamsWidget);
+    this.whisperOptionsWidget.hide();
 
     // Action Buttons
     this.transcribeStartButton = new QPushButton();
@@ -249,7 +413,7 @@ export class Transcribe {
     this.transcribeCancelButton.setText('Cancel\nTranscribe')
 
     this.transferToTranslateButton = new QPushButton();
-    this.transferToTranslateButton.setText('Tranlate\nTranscribed File')
+    this.transferToTranslateButton.setText('Translate\nTranscribed File')
 
     // Space between the buttons - to be improved
     this.transcribeButtonsSpacer1Label = new QLabel();
@@ -267,7 +431,6 @@ export class Transcribe {
     this.actionButtonsLayout.addWidget(this.transcribeCancelButton);
     this.actionButtonsLayout.addWidget(this.transcribeButtonsSpacer2Label);
     this.actionButtonsLayout.addWidget(this.transferToTranslateButton);
-
 
     // Fill the tab root layout
     this.transcribeTabLayout.addWidget(this.transcribeTitleWidget);
@@ -289,6 +452,7 @@ export class Transcribe {
     this.transferToTranslateButtonEventListener();
     this.whisperOutputFormatComboBoxEventListener();
     this.audioFileComboBoxEvenListener();
+    this.audioFileLanguageComboBoxEventListener();
 
     // Disable Cancel Transcribe Button when not transcribing
     this.transcribeCancelButton.setEnabled(false);
@@ -341,25 +505,39 @@ export class Transcribe {
   }
 
   private audioFileComboBoxEvenListener(): void {
-    this.audioFileComboBox.addEventListener('currentTextChanged', (text) => {
+    this.audioFileComboBox.addEventListener('currentTextChanged', () => {
+      if (fs.existsSync(this.audioFileComboBox.currentText()))
+        this.transcribeStartButton.setEnabled(true);
+      else
+        this.transcribeStartButton.setEnabled(false);
+
       this.checkTransferToTranslateButton();
     });
   }
 
   private whisperOutputFormatComboBoxEventListener(): void {
-    this.whisperOutputFormatComboBox.addEventListener('currentTextChanged', (text) => {
+    this.whisperOutputFormatComboBox.addEventListener('currentTextChanged', () => {
       this.checkTransferToTranslateButton();
     });
   }
 
   private whisperModelComboBoxEventListener(): void {
-    this.whisperModelComboBox.addEventListener('currentTextChanged', (text) => {
+    this.whisperModelComboBox.addEventListener('currentTextChanged', (text: string) => {
       console.log('Model selected: ' + text);
       //ToDo: Implement automatic download + Initial Download??
       // Use https://github.com/TylerLeonhardt/wgetjs
     });  
   }
 
+  private audioFileLanguageComboBoxEventListener(): void {
+    this.audioFileLanguageComboBox.addEventListener('currentTextChanged', (text: string) => {
+      if (text == 'English') {
+        this.whisperModelComboBox.setCurrentText('medium.en');
+      }
+      else
+        this.whisperModelComboBox.setCurrentText('large');
+    });
+  }
 
   private transcribeButtonEventListener(): void {
     this.transcribeStartButton.addEventListener('clicked', () => {
@@ -376,31 +554,39 @@ export class Transcribe {
         outputFile = outputFileData?.filePath + outputFileData?.fileName
       let audioFile: string = this.whisperOutputFormatComboBox.currentText();
 
+      let whisperArgs: string[] = [
+        '--language', sourceLanguage,
+        '--output-' + ((audioFile == 'wts') ? 'words' : audioFile),
+        '--max-len', this.whisperSegmentsLengthLineEdit.text(),
+        '--processors', this.whisperCPUsComboBox.currentText(),
+        '--threads', this.whisperThreadsComboBox.currentText(),
+        '--duration', this.whisperDurationLineEdit.text(),
+        '--print-colors', '--print-progress',
+        '--output-file', outputFile,
+        '--file', this.audioFileComboBox.currentText()
+      ];
+
+      if (this.whisperDiarizeCheckBox.isChecked())
+        whisperArgs.push('--diarize');
+
+      if (this.whisperCustomParamsLineEdit.text())
+        whisperArgs.push(this.whisperCustomParamsLineEdit.text());
+
       // Windows
       if (process.platform == 'win32') {
-        this.whisperPrc = spawn(this.config.whisperCLI,
-            ['--model', 'models\\ggml-' + this.whisperModelComboBox.currentText() + '.bin',
-              '--language', sourceLanguage,
-              '--output-' + ((audioFile == 'wts') ? 'words' : audioFile),
-              '--max-len', this.whisperSegmentsLengthLineEdit.text(),
-              '--output-file', outputFile,
-              '--print-colors', '--print-progress', this.audioFileComboBox.currentText()],
-            {cwd: this.config.whisperCLIFolder}
-        );
+        const model: string = 'models\\ggml-' + this.whisperModelComboBox.currentText() + '.bin'
+        whisperArgs.push('--model', model);
       }
 
       // MacOS & Linux
       if (process.platform == 'darwin' || process.platform == 'linux') {
-        this.whisperPrc = spawn(this.config.whisperCLI,
-                ['--model', 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin',
-                  '--language', sourceLanguage,
-                  '--output-' + ((audioFile == 'wts') ? 'words' : audioFile),
-                  '--max-len', this.whisperSegmentsLengthLineEdit.text(),
-                  '--output-file', outputFile,
-                  '--print-colors', '--print-progress', this.audioFileComboBox.currentText()],
-                {cwd: this.config.whisperCLIFolder}
-              );
+        const model: string = 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin';
+        whisperArgs.push('--model', model);
       }
+
+      this.whisperPrc = spawn(this.config.whisperCLI, whisperArgs,
+          {cwd: this.config.whisperCLIFolder}
+      );
 
       this.whisperPrc.stdout.on('data', (data: any) => {
         console.log(data.toString());
@@ -420,7 +606,6 @@ export class Transcribe {
   }
 
   private transcribeCancelButtonEventListener(): void {
-    //ToDo: Disable Cancel Button when not transcribing
     this.transcribeCancelButton.addEventListener('clicked', () => {
       console.log('Killing Whisper process requested...');
       this.whisperPrc.kill();

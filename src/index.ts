@@ -24,7 +24,7 @@ tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), '
 const mainWindow: QMainWindow = new QMainWindow();
 
 mainWindow.setWindowTitle("Transcribe & Translate Tool");
-mainWindow.setFixedSize(470, 390);
+mainWindow.setFixedSize(470, 450);
 mainWindow.setCentralWidget(tabWidget);
 
 mainWindow.show();

@@ -78,7 +78,7 @@
 
 #saveConfigWidget {
   padding: 15px;
-  margin-top: 50px;
+  margin-top: 105px;
 }
 
 #selectAudioFileButton {
@@ -101,6 +101,12 @@
 
 #whisperOptionsWidget {
   padding: 10px;
+  align-items: 'center';
+}
+
+#whisperOptionsL1Widget,
+#whisperOptionsL2Widget,
+#whisperCustomParamsWidget {
   flex-direction: row;
 }
 
@@ -113,23 +119,40 @@
 }
 
 #whisperDataModelWidget, 
-#whisperOutputFormatWidget, 
+#whisperOutputFormatWidget,
 #whisperSegmentsLengthWidget {
-  padding: 15px;
+  padding-top: 5px;
+  padding-bottom: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
   align-items: 'center';
+}
+
+#whisperCPUsWidget,
+#whisperThreadsWidget,
+#whisperDurationWidget,
+#whisperDiarizeWidget {
+  padding-left: 15px;
+  padding-right: 15px;
+  align-items: 'center';
+}
+
+#whisperCustomParamsWidget {
+  padding-top: 5px;
+  padding-bottom: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  align-items: 'center';
+}
+
+#whisperCustomParamsLineEdit {
+  width: '72%';
+}
+
+#whisperCustomParamsLabel {
+  margin-right: 2px;
 }
 
 #actionButtonsWidget {
   flex-direction: row;
-  padding: 15px;
-}
-
-#transcribeStartButton,
-#transcribeCancelButton,
-#transferToTranslateButton {
-  padding: 15px;
-}
-
-#transcribeStartButton {
-  padding-top: 25px;
 }
