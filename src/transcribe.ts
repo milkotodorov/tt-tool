@@ -9,15 +9,24 @@ import {
   QLabel,
   QLineEdit,
   QPushButton,
+  QTabWidget,
   QToolButton,
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
-import { Config } from './config';
-import { spawn } from 'node:child_process';
+import {Config} from './config';
+import {spawn} from 'node:child_process';
 import localeCode from 'iso-639-1';
+import {FileData, fileNamePathSplit} from "./util";
+import {Translate} from "./translate";
 
 export class Transcribe {
+  // Root Tab Widget
+  private readonly tabWidget: QTabWidget;
+
+  // Translate Class
+  private readonly translate: Translate;
+
   // Configuration
   private config: Config;
 
@@ -52,6 +61,8 @@ export class Transcribe {
   private whisperOptionsWidget: QWidget;
   private whisperOptionsLayout: FlexLayout;
 
+  // Whisper Additional Parameters
+
   // Whisper Data Model
   private whisperModelLabel: QLabel;
   private whisperModelComboBox: QComboBox;
@@ -64,11 +75,11 @@ export class Transcribe {
   private whisperOutputFormatWidget: QWidget;
   private whisperOutputFormatLayout: FlexLayout;
 
-  // Whisper Additional Parameters
-  private textSegmentsLeengthLabel: QLabel;
-  private textSegmentsLeengthQLineEdit: QLineEdit;
+  // Whisper Segments Length
+  private whisperSegmentsLengthLabel: QLabel;
+  private whisperSegmentsLengthLineEdit: QLineEdit;
   private whisperSegmentsLengthWidget: QWidget;
-  private whisperSegmentsLengthLayout: FlexLayout;  
+  private whisperSegmentsLengthLayout: FlexLayout;
 
   // Action Buttons
   private transcribeStartButton: QPushButton;
@@ -81,8 +92,10 @@ export class Transcribe {
   private actionButtonsWidget: QWidget;
   private actionButtonsLayout: FlexLayout;
 
-  constructor(config: Config) {
+  constructor(config: Config, tabWidget: QTabWidget, translate: Translate) {
     this.config = config;
+    this.tabWidget = tabWidget;
+    this.translate = translate;
 
     this.whisperLanguages = [
         'auto',
@@ -198,7 +211,7 @@ export class Transcribe {
     this.whisperOutputFormatLabel.setObjectName('whisperOutputFormatLabel');
     this.whisperOutputFormatLabel.setText('Output format:');
     this.whisperOutputFormatComboBox = new QComboBox();
-    this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt', 'wts', 'csv']);
+    this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt', 'wts', 'json', 'csv']);
     this.whisperOutputFormatComboBox.setCurrentText('srt');
     this.whisperOutputFormatWidget = new QWidget();
     this.whisperOutputFormatLayout = new FlexLayout();
@@ -208,20 +221,20 @@ export class Transcribe {
     this.whisperOutputFormatLayout.addWidget(this.whisperOutputFormatComboBox);
 
     // Whisper Additional Parameters
-    this.textSegmentsLeengthLabel = new QLabel();
-    this.textSegmentsLeengthLabel.setObjectName('textSegmentsLeengthLabel');
-    this.textSegmentsLeengthLabel.setText('Text segments length:');
-    this.textSegmentsLeengthQLineEdit = new QLineEdit();
-    this.textSegmentsLeengthQLineEdit.setObjectName('textSegmentsLeengthQLineEdit');
-    this.textSegmentsLeengthQLineEdit.setText('0');
-    this.textSegmentsLeengthQLineEdit.setMaximumWidth(37);
+    this.whisperSegmentsLengthLabel = new QLabel();
+    this.whisperSegmentsLengthLabel.setObjectName('textSegmentsLengthLabel');
+    this.whisperSegmentsLengthLabel.setText('Text segments length:');
+    this.whisperSegmentsLengthLineEdit = new QLineEdit();
+    this.whisperSegmentsLengthLineEdit.setObjectName('textSegmentsLengthQLineEdit');
+    this.whisperSegmentsLengthLineEdit.setText('0');
+    this.whisperSegmentsLengthLineEdit.setMaximumWidth(37);
 
     this.whisperSegmentsLengthWidget = new QWidget();
     this.whisperSegmentsLengthLayout = new FlexLayout();
     this.whisperSegmentsLengthWidget.setObjectName('whisperSegmentsLengthWidget');
     this.whisperSegmentsLengthWidget.setLayout(this.whisperSegmentsLengthLayout);
-    this.whisperSegmentsLengthLayout.addWidget(this.textSegmentsLeengthLabel);
-    this.whisperSegmentsLengthLayout.addWidget(this.textSegmentsLeengthQLineEdit);
+    this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLabel);
+    this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLineEdit);
 
     this.whisperOptionsLayout.addWidget(this.whisperDataModelWidget);
     this.whisperOptionsLayout.addWidget(this.whisperOutputFormatWidget);
@@ -274,11 +287,15 @@ export class Transcribe {
     this.transcribeButtonEventListener();
     this.transcribeCancelButtonEventListener();
     this.transferToTranslateButtonEventListener();
+    this.whisperOutputFormatComboBoxEventListener();
+    this.audioFileComboBoxEvenListener();
 
     // Disable Cancel Transcribe Button when not transcribing
     this.transcribeCancelButton.setEnabled(false);
     // Transcribe Button disabled when no file is selected
     this.transcribeStartButton.setEnabled(false);
+    // Check for transferToTranslateButton Enable/Disable
+    this.checkTransferToTranslateButton();
   }
 
   private audioFileButtonEventListener(): void {
@@ -297,16 +314,20 @@ export class Transcribe {
       for (let i: number = 0; i < this.audioFileComboBox.count(); i++) {
         this.audioFileComboBox.setCurrentIndex(i);
         if (this.audioFileComboBox.currentText() == selectedFile) {
-          console.log(selectedFile);
           isFileAlreadyAdded = true;
           break;
         }
       }
       if (selectedFile != null && !isFileAlreadyAdded) {
+        let currentIndex: number = this.audioFileComboBox.currentIndex();
         this.audioFileComboBox.addItem(new QIcon('assets/audio-file-icon.png'), selectedFile);
+        if (currentIndex != -1)
+          this.audioFileComboBox.setCurrentIndex(currentIndex + 1);
         this.transcribeStartButton.setEnabled(true);
       }
     }
+
+    this.checkTransferToTranslateButton();
   });
   }
 
@@ -319,10 +340,23 @@ export class Transcribe {
     });    
   }
 
+  private audioFileComboBoxEvenListener(): void {
+    this.audioFileComboBox.addEventListener('currentTextChanged', (text) => {
+      this.checkTransferToTranslateButton();
+    });
+  }
+
+  private whisperOutputFormatComboBoxEventListener(): void {
+    this.whisperOutputFormatComboBox.addEventListener('currentTextChanged', (text) => {
+      this.checkTransferToTranslateButton();
+    });
+  }
+
   private whisperModelComboBoxEventListener(): void {
     this.whisperModelComboBox.addEventListener('currentTextChanged', (text) => {
       console.log('Model selected: ' + text);
       //ToDo: Implement automatic download + Initial Download??
+      // Use https://github.com/TylerLeonhardt/wgetjs
     });  
   }
 
@@ -336,14 +370,21 @@ export class Transcribe {
       if (this.audioFileLanguageComboBox.currentText() != 'auto')
         sourceLanguage = localeCode.getCode(this.audioFileLanguageComboBox.currentText());
 
+      let outputFileData: FileData | null = fileNamePathSplit(this.audioFileComboBox.currentText());
+      let outputFile: string = '';
+      if (outputFileData != null)
+        outputFile = outputFileData?.filePath + outputFileData?.fileName
+      let audioFile: string = this.whisperOutputFormatComboBox.currentText();
+
       // Windows
       if (process.platform == 'win32') {
         this.whisperPrc = spawn(this.config.whisperCLI,
             ['--model', 'models\\ggml-' + this.whisperModelComboBox.currentText() + '.bin',
               '--language', sourceLanguage,
-              '-o' + this.whisperOutputFormatComboBox.currentText(),
-              '-ml', this.textSegmentsLeengthQLineEdit.text(),
-              '-pc', '-pp', this.audioFileComboBox.currentText()],
+              '--output-' + ((audioFile == 'wts') ? 'words' : audioFile),
+              '--max-len', this.whisperSegmentsLengthLineEdit.text(),
+              '--output-file', outputFile,
+              '--print-colors', '--print-progress', this.audioFileComboBox.currentText()],
             {cwd: this.config.whisperCLIFolder}
         );
       }
@@ -353,9 +394,10 @@ export class Transcribe {
         this.whisperPrc = spawn(this.config.whisperCLI,
                 ['--model', 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin',
                   '--language', sourceLanguage,
-                  '-o' + this.whisperOutputFormatComboBox.currentText(),
-                  '-ml', this.textSegmentsLeengthQLineEdit.text(),
-                  '-pc', '-pp', this.audioFileComboBox.currentText()],
+                  '--output-' + ((audioFile == 'wts') ? 'words' : audioFile),
+                  '--max-len', this.whisperSegmentsLengthLineEdit.text(),
+                  '--output-file', outputFile,
+                  '--print-colors', '--print-progress', this.audioFileComboBox.currentText()],
                 {cwd: this.config.whisperCLIFolder}
               );
       }
@@ -372,6 +414,7 @@ export class Transcribe {
         console.log(`Child exited with code ${code}`);
         this.transcribeStartButton.setEnabled(true);
         this.transcribeCancelButton.setEnabled(false);
+        this.checkTransferToTranslateButton();
       });
     });
   }
@@ -386,6 +429,56 @@ export class Transcribe {
 
   private transferToTranslateButtonEventListener():void {
     this.transferToTranslateButton.addEventListener('clicked', () => {
-    });  
+
+      let fileData: FileData | null = fileNamePathSplit(this.audioFileComboBox.currentText());
+      let subtitleFile: string = '';
+      if (fileData != null)
+        subtitleFile = fileData?.filePath + fileData?.fileName + '.' + this.whisperOutputFormatComboBox.currentText();
+
+      let isFileAlreadyAdded: boolean = false;
+
+      for (let i: number = 0; i < this.translate.translateFileComboBox.count(); i++) {
+        this.translate.translateFileComboBox.setCurrentIndex(i);
+        if (this.translate.translateFileComboBox.currentText() == subtitleFile) {
+          isFileAlreadyAdded = true;
+          break;
+        }
+      }
+
+      if (!isFileAlreadyAdded) {
+        let currentIndex: number = this.translate.translateFileComboBox.currentIndex();
+        this.translate.translateFileComboBox.addItem(new QIcon('assets/subtitle-file-icon.png'), subtitleFile);
+        if (currentIndex != -1)
+          this.translate.translateFileComboBox.setCurrentIndex(currentIndex + 1);
+      }
+
+      this.transferToTranslateButton.setEnabled(true);
+
+      // Go to TranslateTab
+      this.tabWidget.setCurrentIndex(1);
+    });
+  }
+
+  private isTranscribedFileExist(format: string): boolean {
+    let fileData: FileData | null = fileNamePathSplit(this.audioFileComboBox.currentText());
+
+    if (fileData?.fileName && fileData?.filePath) {
+      return fs.existsSync(fileData.filePath + fileData.fileName + '.' + format);
+    }
+    else
+      return false;
+  }
+
+  /**
+   * Enable / Disable TransferToTranslate Button
+   * @private
+   */
+  private checkTransferToTranslateButton(): void {
+    const allowedExt: string[] = ['srt', 'txt']
+    const format: string = this.whisperOutputFormatComboBox.currentText();
+    if (this.isTranscribedFileExist(format) && allowedExt.indexOf(format) != -1)
+      this.transferToTranslateButton.setEnabled(true);
+    else
+      this.transferToTranslateButton.setEnabled(false);
   }
 }

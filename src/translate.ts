@@ -31,7 +31,7 @@ export class Translate {
 
   private selectTranslateFileLabel: QLabel;
   private selectTranslateFileButton: QPushButton;
-  private translateFileComboBox: QComboBox;
+  public translateFileComboBox: QComboBox;
   private translateFileSpacerLabel: QLabel;
   private translateFileArrowLabel: QLabel;
   private translateFileSourceLanguageComboBox: QComboBox;
@@ -172,7 +172,7 @@ export class Translate {
       fileDialog.setFileMode(FileMode.ExistingFile);
       fileDialog.setOption(Option.ReadOnly);
       fileDialog.setLabelText(DialogLabel.Accept, 'Select');
-      fileDialog.setNameFilter('Subtitle/Text (*.srt *.txt *.vtt *.wts *.csv)');
+      fileDialog.setNameFilter('Subtitle/Text (*.srt *.txt)');
       if (fileDialog.exec()) {
         let isFileAlreadyAdded: boolean = false;
         let selectedFile: string = fileDialog.selectedFiles()[0];
@@ -180,14 +180,16 @@ export class Translate {
         for (let i: number = 0; i < this.translateFileComboBox.count(); i++) {
           this.translateFileComboBox.setCurrentIndex(i);
           if (this.translateFileComboBox.currentText() == selectedFile) {
-            console.log(selectedFile);
             isFileAlreadyAdded = true;
             break;
           }
         }
 
         if (selectedFile != null && !isFileAlreadyAdded) {
+          let currentIndex: number = this.translateFileComboBox.currentIndex();
           this.translateFileComboBox.addItem(new QIcon('assets/subtitle-file-icon.png'), selectedFile);
+          if (currentIndex != -1)
+            this.translateFileComboBox.setCurrentIndex(currentIndex + 1);
           this.translateButton.setEnabled(true);
         }
       }

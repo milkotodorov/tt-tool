@@ -11,6 +11,7 @@ import {
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
+import {FileData, fileNamePathSplit} from "./util";
 
 export class Config {
   // Root Widgets & Layouts
@@ -170,26 +171,11 @@ export class Config {
   }
 
   private saveConfiguration(): void {
-    let whisperCLI: string = this.whisperCLILineEdit.text();
-    let whisperCLIExecutable: string = '';
-    let whisperCLIFolder: string = '';
-
-    // Split whisperCLIExecutable & whisperCLIFolder
-
-    // MacOS & Linux
-    if (process.platform == 'darwin' || process.platform == 'linux') {
-      whisperCLIExecutable = whisperCLI.substring(whisperCLI.lastIndexOf('/') + 1, whisperCLI.length);
-      whisperCLIFolder = whisperCLI.substring(0, whisperCLI.lastIndexOf('/') + 1);
-    }
-    // Windows
-    if (process.platform == 'win32') {
-      whisperCLIExecutable = whisperCLI.substring(whisperCLI.lastIndexOf('\\') + 1, whisperCLI.length);
-      whisperCLIFolder = whisperCLI.substring(0, whisperCLI.lastIndexOf('\\') + 1);
-    }
+    let fileData: FileData | null = fileNamePathSplit(this.whisperCLILineEdit.text());
 
     let config: any = {
-      "whisperCLIFolder": whisperCLIFolder,
-      "whisperCLIExecutable": whisperCLIExecutable,
+      "whisperCLIFolder": fileData?.filePath,
+      "whisperCLIExecutable": fileData?.fileFullName,
       "deeplAPIKey": this.deeplAPIKeyLineEdit.text()
     }
 

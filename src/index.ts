@@ -5,13 +5,15 @@ import { Translate } from "./translate";
 
 // =====================================================================================================================
 
-// Initialising imported classes
-let config: Config = new Config();
-let transcribe: Transcribe = new Transcribe(config);
-let translate: Translate = new Translate(config);
-
 // Tabs Widget
 const tabWidget: QTabWidget = new QTabWidget();
+
+// Initialising imported classes
+let config: Config = new Config();
+let translate: Translate = new Translate(config);
+let transcribe: Transcribe = new Transcribe(config, tabWidget, translate);
+
+// Add the Tabs
 tabWidget.addTab(transcribe.transcribeRootWidget, new QIcon('assets/openai-logo-icon.png'), 'Transcribe');
 tabWidget.addTab(translate.translateRootWidget, new QIcon('assets/deepl-logo-icon.png'), 'Translate');
 tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), 'Config');
