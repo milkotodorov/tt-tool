@@ -11,7 +11,7 @@ import {
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
-import {FileData, fileNamePathSplit} from "./util";
+import * as path from "node:path";
 
 export class Config {
   // Root Widgets & Layouts
@@ -45,8 +45,7 @@ export class Config {
 
   // Configuration Objects
   private readonly configFile: string = 'tt-tool-config.json';
-  public whisperCLIFolder: string;
-  public whisperCLI: string;
+  public whisperCLIPath: string;
   public deeplAPIKey: string;
 
   constructor() {
@@ -55,8 +54,7 @@ export class Config {
     this.configTabLayout = new FlexLayout();
 
     // Empty Configuration
-    this.whisperCLI = '';
-    this.whisperCLIFolder = '';
+    this.whisperCLIPath = '';
     this.deeplAPIKey = '';
 
     this.configRootWidget.setObjectName("configRootWidget");
@@ -161,21 +159,17 @@ export class Config {
       throw new Error();
     }
 
-    this.whisperCLIFolder = configJSON.whisperCLIFolder;
-    this.whisperCLI = this.whisperCLIFolder + configJSON.whisperCLIExecutable;
+    this.whisperCLIPath = configJSON.whisperCLIPath;
     this.deeplAPIKey = configJSON.deeplAPIKey;
 
     // Set loaded configuration into the UI
-    this.whisperCLILineEdit.setText(this.whisperCLI);
+    this.whisperCLILineEdit.setText(this.whisperCLIPath);
     this.deeplAPIKeyLineEdit.setText(this.deeplAPIKey);
   }
 
   private saveConfiguration(): void {
-    let fileData: FileData | null = fileNamePathSplit(this.whisperCLILineEdit.text());
-
     let config: any = {
-      "whisperCLIFolder": fileData?.filePath,
-      "whisperCLIExecutable": fileData?.fileFullName,
+      "whisperCLIPath": this.whisperCLIPath,
       "deeplAPIKey": this.deeplAPIKeyLineEdit.text()
     }
 
@@ -187,16 +181,18 @@ export class Config {
     }
 
     // Set the current configuration active
-    this.whisperCLIFolder = config.whisperCLIFolder;
-    this.whisperCLI = config.whisperCLIFolder + config.whisperCLIExecutable;
+    this.whisperCLIPath = config.whisperCLIFolder;
     this.deeplAPIKey = config.deeplAPIKey;
 
     //ToDo: Write a notification (status bar - pop-up) upon successful save
   }
 
   public isDataModelExist(dataModelName: string): boolean {
-    let whisperModelsPath: string = this.whisperCLIFolder + 'models/ggml-' + dataModelName + '.bin';
-    return fs.existsSync(whisperModelsPath);
+    const whisperCLIPath: path.ParsedPath = path.parse(this.whisperCLILineEdit.text());
+    const modelFile: string = 'models/ggml-' + dataModelName + '.bin';
+    const modelFilePath: string = path.join(whisperCLIPath.dir, modelFile);
+
+    return fs.existsSync(modelFilePath);
   }
 
   public getDataModelIcon(dataModelName: string): QIcon {

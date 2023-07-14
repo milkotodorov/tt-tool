@@ -16,10 +16,10 @@ import {
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
 import * as os from "os";
+import * as path from "node:path";
 import localeCode from 'iso-639-1';
 import { spawn } from 'node:child_process';
 import { Config } from './config';
-import { FileData, fileNamePathSplit } from "./util";
 import { Translate } from "./translate";
 
 export class Transcribe {
@@ -548,15 +548,14 @@ export class Transcribe {
       if (this.audioFileLanguageComboBox.currentText() != 'auto')
         sourceLanguage = localeCode.getCode(this.audioFileLanguageComboBox.currentText());
 
-      let outputFileData: FileData | null = fileNamePathSplit(this.audioFileComboBox.currentText());
-      let outputFile: string = '';
-      if (outputFileData != null)
-        outputFile = outputFileData?.filePath + outputFileData?.fileName
-      let audioFile: string = this.whisperOutputFormatComboBox.currentText();
+      let outputFormat: string = this.whisperOutputFormatComboBox.currentText();
+      let audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText());
+      let outputFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name);
 
       let whisperArgs: string[] = [
+        '--model', 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin',
         '--language', sourceLanguage,
-        '--output-' + ((audioFile == 'wts') ? 'words' : audioFile),
+        '--output-' + ((outputFormat == 'wts') ? 'words' : outputFormat),
         '--max-len', this.whisperSegmentsLengthLineEdit.text(),
         '--processors', this.whisperCPUsComboBox.currentText(),
         '--threads', this.whisperThreadsComboBox.currentText(),
@@ -572,20 +571,8 @@ export class Transcribe {
       if (this.whisperCustomParamsLineEdit.text())
         whisperArgs.push(this.whisperCustomParamsLineEdit.text());
 
-      // Windows
-      if (process.platform == 'win32') {
-        const model: string = 'models\\ggml-' + this.whisperModelComboBox.currentText() + '.bin'
-        whisperArgs.push('--model', model);
-      }
-
-      // MacOS & Linux
-      if (process.platform == 'darwin' || process.platform == 'linux') {
-        const model: string = 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin';
-        whisperArgs.push('--model', model);
-      }
-
-      this.whisperPrc = spawn(this.config.whisperCLI, whisperArgs,
-          {cwd: this.config.whisperCLIFolder}
+      this.whisperPrc = spawn(this.config.whisperCLIPath, whisperArgs,
+          {cwd: path.dirname(this.config.whisperCLIPath)}
       );
 
       this.whisperPrc.stdout.on('data', (data: any) => {
@@ -612,13 +599,12 @@ export class Transcribe {
     });
   }
 
-  private transferToTranslateButtonEventListener():void {
+  private transferToTranslateButtonEventListener(): void {
     this.transferToTranslateButton.addEventListener('clicked', () => {
 
-      let fileData: FileData | null = fileNamePathSplit(this.audioFileComboBox.currentText());
-      let subtitleFile: string = '';
-      if (fileData != null)
-        subtitleFile = fileData?.filePath + fileData?.fileName + '.' + this.whisperOutputFormatComboBox.currentText();
+      let audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText());
+      let subtitleFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name +
+          '.' + this.whisperOutputFormatComboBox.currentText());
 
       let isFileAlreadyAdded: boolean = false;
 
@@ -645,13 +631,11 @@ export class Transcribe {
   }
 
   private isTranscribedFileExist(format: string): boolean {
-    let fileData: FileData | null = fileNamePathSplit(this.audioFileComboBox.currentText());
+    const audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText());
+    const subtitleFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name +
+        '.' + this.whisperOutputFormatComboBox.currentText());
 
-    if (fileData?.fileName && fileData?.filePath) {
-      return fs.existsSync(fileData.filePath + fileData.fileName + '.' + format);
-    }
-    else
-      return false;
+    return fs.existsSync(subtitleFile);
   }
 
   /**
