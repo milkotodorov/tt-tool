@@ -632,8 +632,7 @@ export class Transcribe {
 
   private isTranscribedFileExist(format: string): boolean {
     const audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText());
-    const subtitleFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name +
-        '.' + this.whisperOutputFormatComboBox.currentText());
+    const subtitleFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name + '.' + format);
 
     return fs.existsSync(subtitleFile);
   }
