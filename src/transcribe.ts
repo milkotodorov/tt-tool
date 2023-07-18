@@ -34,7 +34,6 @@ export class Transcribe {
   private statusBar: QStatusBar;
 
   // Downloading Flag
-  //ToDo: remove after sync download
   private isDownloading: boolean = false;
 
   // Root Tab Widget
@@ -307,7 +306,7 @@ export class Transcribe {
     this.whisperCPUsLabel.setObjectName('whisperCPUsLabel');
     this.whisperCPUsLabel.setText('CPUs:')
     this.whisperCPUsComboBox = new QComboBox();
-    for(let i: number = 1; i <= cpuCount; i++)
+    for (let i: number = 1; i <= cpuCount; i++)
       this.whisperCPUsComboBox.addItem(undefined, i.toString());
     this.whisperCPUsComboBox.setCurrentText('1');
     this.whisperCPUsWidget = new QWidget();
@@ -322,7 +321,7 @@ export class Transcribe {
     this.whisperThreadsLabel.setObjectName('whisperThreadsLabel');
     this.whisperThreadsLabel.setText('Threads:')
     this.whisperThreadsComboBox = new QComboBox();
-    for(let i: number = 1; i <= cpuCount*4; i++)
+    for (let i: number = 1; i <= cpuCount*4; i++)
       if (i % 4 == 0)
         this.whisperThreadsComboBox.addItem(undefined, i.toString());
     this.whisperThreadsComboBox.setCurrentText('4');
@@ -460,7 +459,7 @@ export class Transcribe {
   }
 
   private audioFileButtonEventListener(): void {
-    this.selectAudioFileButton.addEventListener('clicked', () => {
+    this.selectAudioFileButton.addEventListener('clicked', (): void => {
       const fileDialog: QFileDialog = new QFileDialog();
       fileDialog.setFileMode(FileMode.ExistingFile);
       fileDialog.setOption(Option.ReadOnly);
@@ -493,7 +492,7 @@ export class Transcribe {
   }
 
   private whisperOptionsButtonEventListener(): void {
-    this.whisperOptionsToolButton.addEventListener('clicked', () => {
+    this.whisperOptionsToolButton.addEventListener('clicked', (): void => {
       if (this.whisperOptionsWidget.isHidden())
         this.whisperOptionsWidget.show();
       else
@@ -502,7 +501,7 @@ export class Transcribe {
   }
 
   private audioFileComboBoxEvenListener(): void {
-    this.audioFileComboBox.addEventListener('currentTextChanged', () => {
+    this.audioFileComboBox.addEventListener('currentTextChanged', (): void => {
       if (fs.existsSync(this.audioFileComboBox.currentText()))
         this.transcribeStartButton.setEnabled(true);
       else
@@ -513,13 +512,13 @@ export class Transcribe {
   }
 
   private whisperOutputFormatComboBoxEventListener(): void {
-    this.whisperOutputFormatComboBox.addEventListener('currentTextChanged', () => {
+    this.whisperOutputFormatComboBox.addEventListener('currentTextChanged', (): void => {
       this.checkTransferToTranslateButton();
     });
   }
 
   private whisperModelComboBoxEventListener(): void {
-    this.whisperModelComboBox.addEventListener('currentTextChanged', (text: string) => {
+    this.whisperModelComboBox.addEventListener('currentTextChanged', (text: string): void => {
       // Happens on clear, removeItem and on adding the first item
       if (text == '' || this.isDownloading)
         return;
@@ -535,7 +534,6 @@ export class Transcribe {
 
       let modelFile: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '.bin');
       if (!fs.existsSync(modelFile))
-        //ToDo: Make Sync.
         this.downloadDataModel(text);
     });
   }
@@ -550,6 +548,7 @@ export class Transcribe {
 
     this.whisperModelComboBox.setEnabled(false);
     this.audioFileLanguageComboBox.setEnabled(false);
+    const wasTranscribeButtonEnabled: boolean = this.transcribeStartButton.isEnabled();
     this.transcribeStartButton.setEnabled(false);
     this.config.disableSaveButton();
 
@@ -571,7 +570,7 @@ export class Transcribe {
     let download: EventEmitter = wget.download(src, output, undefined);
     let modelFileSize: number;
 
-    download.on('error', (err: Error) => {
+    download.on('error', (err: Error): void => {
       console.log('Error while downloading Whisper DataModel (', src, '): ', err);
       console.log('Deleting the uncompleted download: ', output)
       fs.rmSync(output);
@@ -584,7 +583,7 @@ export class Transcribe {
       this.statusBar.showMessage('Error while downloading DataModel. See the console output for more details.', 10000);
     });
 
-    download.on('start', (fileSize: number) => {
+    download.on('start', (fileSize: number): void => {
       modelFileSize = fileSize;
       const modelSizeStr: string = (fileSize / (1024*1024)).toFixed(2) + ' MB'
       const statusBarMsg: string = 'Download Whisper DataModel (' + modelSizeStr + '): ';
@@ -601,7 +600,7 @@ export class Transcribe {
       consoleBar.start(modelFileSize, 0);
     });
 
-    download.on('end', (output: string) => {
+    download.on('end', (output: string): void => {
       this.statusBar.removeWidget(downloadLabel);
       this.statusBar.removeWidget(progressBar);
       consoleBar.stop();
@@ -611,19 +610,20 @@ export class Transcribe {
       this.refreshDataModels(model);
       this.whisperModelComboBox.setEnabled(true);
       this.audioFileLanguageComboBox.setEnabled(true);
-      this.transcribeStartButton.setEnabled(true);
+      if (wasTranscribeButtonEnabled)
+        this.transcribeStartButton.setEnabled(true);
       this.config.enableSaveButton();
       this.isDownloading = false;
     });
 
-    download.on('progress', (progress: number) => {
+    download.on('progress', (progress: number): void => {
       progressBar.setValue(progress * 100);
       consoleBar.update(Math.round(modelFileSize * progress));
     });
   }
 
   private audioFileLanguageComboBoxEventListener(): void {
-    this.audioFileLanguageComboBox.addEventListener('currentTextChanged', (text: string) => {
+    this.audioFileLanguageComboBox.addEventListener('currentTextChanged', (text: string): void => {
       if (text == 'English') {
         this.whisperModelComboBox.setCurrentText('medium.en');
       }
@@ -633,7 +633,7 @@ export class Transcribe {
   }
 
   private transcribeButtonEventListener(): void {
-    this.transcribeStartButton.addEventListener('clicked', () => {
+    this.transcribeStartButton.addEventListener('clicked', (): void => {
       this.transcribeStartButton.setEnabled(false);
       this.transcribeCancelButton.setEnabled(true);
 
@@ -668,15 +668,15 @@ export class Transcribe {
           {cwd: path.dirname(this.config.whisperCLIPath)}
       );
 
-      this.whisperPrc.stdout.on('data', (data: any) => {
+      this.whisperPrc.stdout.on('data', (data: any): void => {
         console.log(data.toString());
       });
 
-      this.whisperPrc.stderr.on('data', (data: any) => {
+      this.whisperPrc.stderr.on('data', (data: any): void => {
         console.error(data.toString());
       });
 
-      this.whisperPrc.on('exit', (code: any) => {
+      this.whisperPrc.on('exit', (code: any): void => {
         console.log(`Child exited with code ${code}`);
         this.transcribeStartButton.setEnabled(true);
         this.transcribeCancelButton.setEnabled(false);
@@ -686,14 +686,14 @@ export class Transcribe {
   }
 
   private transcribeCancelButtonEventListener(): void {
-    this.transcribeCancelButton.addEventListener('clicked', () => {
+    this.transcribeCancelButton.addEventListener('clicked', (): void => {
       console.log('Killing Whisper process requested...');
       this.whisperPrc.kill();
     });
   }
 
   private transferToTranslateButtonEventListener(): void {
-    this.transferToTranslateButton.addEventListener('clicked', () => {
+    this.transferToTranslateButton.addEventListener('clicked', (): void => {
 
       let audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText());
       let subtitleFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name +
@@ -757,9 +757,7 @@ export class Transcribe {
   }
 
   private toggleConsoleButtonEventListener(): void {
-    this.toggleConsoleButton.addEventListener('clicked', () => {
-      // this.refreshDataModels('tiny.en');
-      // this.refreshDataModels();
+    this.toggleConsoleButton.addEventListener('clicked', (): void => {
     });
   }
 
