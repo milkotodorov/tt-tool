@@ -2,27 +2,41 @@ import {
   DialogLabel,
   FileMode,
   FlexLayout,
-  Option,
+  Option, QAction,
   QCheckBox,
   QComboBox,
   QFileDialog,
   QIcon,
   QLabel,
   QLineEdit,
-  QPushButton,
+  QProgressBar,
+  QPushButton, QRadioButton,
+  QStatusBar,
   QTabWidget,
   QToolButton,
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
-import * as os from "os";
-import * as path from "node:path";
+import * as os from 'os';
+import * as path from 'node:path';
 import localeCode from 'iso-639-1';
+import wget from 'wget-improved';
+import cliProgress from 'cli-progress';
 import { spawn } from 'node:child_process';
 import { Config } from './config';
-import { Translate } from "./translate";
+import { Translate } from './translate';
+import EventEmitter from "events";
+import {text} from "stream/consumers";
+import {waitForDebugger} from "inspector";
 
 export class Transcribe {
+  // StatusBar
+  private statusBar: QStatusBar;
+
+  // Downloading Flag
+  //ToDo: remove after sync download
+  private isDownloading: boolean = false;
+
   // Root Tab Widget
   private readonly tabWidget: QTabWidget;
 
@@ -84,8 +98,6 @@ export class Transcribe {
   // Whisper Segments Length
   private whisperSegmentsLengthLabel: QLabel;
   private whisperSegmentsLengthLineEdit: QLineEdit;
-  private whisperSegmentsLengthWidget: QWidget;
-  private whisperSegmentsLengthLayout: FlexLayout;
 
   // Whisper CPUs to use
   private whisperCPUsLabel: QLabel;
@@ -102,14 +114,10 @@ export class Transcribe {
   // Whisper Duration to process
   private whisperDurationLabel: QLabel;
   private whisperDurationLineEdit: QLineEdit;
-  private whisperDurationWidget: QWidget;
-  private whisperDurationLayout: FlexLayout;
 
   // Whisper stereo audio diarization
   private whisperDiarizeLabel: QLabel;
   private whisperDiarizeCheckBox: QCheckBox;
-  private whisperDiarizeWidget: QWidget;
-  private whisperDiarizeLayout: FlexLayout;
 
   // Whisper custom parameters
   private whisperCustomParamsLabel: QLabel;
@@ -121,14 +129,17 @@ export class Transcribe {
   private transcribeStartButton: QPushButton;
   private transcribeCancelButton: QPushButton;
   private transferToTranslateButton: QPushButton;
+  private toggleConsoleButton: QPushButton;
   private transcribeButtonsSpacer1Label: QLabel;
   private transcribeButtonsSpacer2Label: QLabel;
+  private transcribeButtonsSpacer3Label: QLabel;
 
   // Buttons Widget
   private actionButtonsWidget: QWidget;
   private actionButtonsLayout: FlexLayout;
 
-  constructor(config: Config, tabWidget: QTabWidget, translate: Translate) {
+  constructor(statusBar: QStatusBar, config: Config, tabWidget: QTabWidget, translate: Translate) {
+    this.statusBar = statusBar;
     this.config = config;
     this.tabWidget = tabWidget;
     this.translate = translate;
@@ -264,17 +275,7 @@ export class Transcribe {
     this.whisperModelLabel.setObjectName('whisperModelLabel');
     this.whisperModelLabel.setText('Data model:');
     this.whisperModelComboBox = new QComboBox();
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('tiny'), 'tiny');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('tiny.en'), 'tiny.en');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('base'), 'base');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('base.en'), 'base.en');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('small'), 'small');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('small.en'), 'small.en');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('medium'), 'medium');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('medium.en'), 'medium.en');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('large-v1'), 'larve-v1');
-    this.whisperModelComboBox.addItem(config.getDataModelIcon('large'), 'large');
-    this.whisperModelComboBox.setCurrentText('medium.en');
+    this.addDataModels();
     this.whisperModelComboBox.setToolTip('Data model will be automatically selected upon language change as follows:\n' 
         + '"medium-en" for English and "large" for everything else.');
     this.whisperModelComboBox.setToolTipDuration(30000);
@@ -299,27 +300,6 @@ export class Transcribe {
     this.whisperOutputFormatWidget.setLayout(this.whisperOutputFormatLayout);
     this.whisperOutputFormatLayout.addWidget(this.whisperOutputFormatLabel);
     this.whisperOutputFormatLayout.addWidget(this.whisperOutputFormatComboBox);
-
-    // Whisper Segments Length
-    this.whisperSegmentsLengthLabel = new QLabel();
-    this.whisperSegmentsLengthLabel.setObjectName('textSegmentsLengthLabel');
-    this.whisperSegmentsLengthLabel.setText('Text segments length:');
-    this.whisperSegmentsLengthLineEdit = new QLineEdit();
-    this.whisperSegmentsLengthLineEdit.setObjectName('textSegmentsLengthQLineEdit');
-    this.whisperSegmentsLengthLineEdit.setText('0');
-    this.whisperSegmentsLengthLineEdit.setFixedWidth(37);
-
-    this.whisperSegmentsLengthWidget = new QWidget();
-    this.whisperSegmentsLengthLayout = new FlexLayout();
-    this.whisperSegmentsLengthWidget.setObjectName('whisperSegmentsLengthWidget');
-    this.whisperSegmentsLengthWidget.setLayout(this.whisperSegmentsLengthLayout);
-    this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLabel);
-    this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLineEdit);
-
-    // Whisper Options L1 Widget
-    this.whisperOptionsL1Layout.addWidget(this.whisperDataModelWidget);
-    this.whisperOptionsL1Layout.addWidget(this.whisperOutputFormatWidget);
-    this.whisperOptionsL1Layout.addWidget(this.whisperSegmentsLengthWidget);
 
     // Whisper CPUs to use
     const cpuCount: number = os.cpus().length;
@@ -353,6 +333,14 @@ export class Transcribe {
     this.whisperThreadsLayout.addWidget(this.whisperThreadsLabel);
     this.whisperThreadsLayout.addWidget(this.whisperThreadsComboBox);
 
+    // Whisper Segments Length
+    this.whisperSegmentsLengthLabel = new QLabel();
+    this.whisperSegmentsLengthLabel.setObjectName('whisperSegmentsLengthLabel');
+    this.whisperSegmentsLengthLabel.setText('Text segments length:');
+    this.whisperSegmentsLengthLineEdit = new QLineEdit();
+    this.whisperSegmentsLengthLineEdit.setObjectName('whisperSegmentsLengthLineEdit');
+    this.whisperSegmentsLengthLineEdit.setText('0');
+
     // Whisper Duration to process
     this.whisperDurationLabel = new QLabel();
     this.whisperDurationLabel.setObjectName('whisperDurationLabel');
@@ -360,29 +348,14 @@ export class Transcribe {
     this.whisperDurationLineEdit = new QLineEdit();
     this.whisperDurationLineEdit.setObjectName('whisperDurationLineEdit');
     this.whisperDurationLineEdit.setText('0');
-    this.whisperDurationLineEdit.setFixedWidth(72);
     this.whisperDurationLineEdit.setToolTip('Value in milliseconds');
     this.whisperDurationLineEdit.setToolTipDuration(15000);
-    this.whisperDurationWidget = new QWidget();
-    this.whisperDurationLayout = new FlexLayout();
-    this.whisperDurationWidget.setObjectName('whisperDurationWidget');
-    this.whisperDurationWidget.setLayout(this.whisperDurationLayout);
-    this.whisperDurationLayout.addWidget(this.whisperDurationLabel);
-    this.whisperDurationLayout.addWidget(this.whisperDurationLineEdit);
 
     // Whisper stereo audio diarization
     this.whisperDiarizeLabel = new QLabel();
     this.whisperDiarizeCheckBox = new QCheckBox();
     this.whisperDiarizeCheckBox.setObjectName('whisperDiarizeCheckBox');
-    this.whisperDiarizeCheckBox.setText('Stereo audio\n diarization');
-    this.whisperDiarizeWidget = new QWidget();
-    this.whisperDiarizeLayout = new FlexLayout();
-
-    // Whisper Options L2 Widget
-    this.whisperOptionsL2Layout.addWidget(this.whisperCPUsWidget);
-    this.whisperOptionsL2Layout.addWidget(this.whisperThreadsWidget);
-    this.whisperOptionsL2Layout.addWidget(this.whisperDiarizeCheckBox);
-    this.whisperOptionsL2Layout.addWidget(this.whisperDurationWidget);
+    this.whisperDiarizeCheckBox.setText('Stereo diarization');
 
     // Whisper custom parameters
     this.whisperCustomParamsLabel = new QLabel();
@@ -400,6 +373,20 @@ export class Transcribe {
     this.whisperCustomParamsLayout.addWidget(this.whisperCustomParamsLabel);
     this.whisperCustomParamsLayout.addWidget(this.whisperCustomParamsLineEdit);
 
+    // Whisper Options L1 Widget
+    this.whisperOptionsL1Layout.addWidget(this.whisperDataModelWidget);
+    this.whisperOptionsL1Layout.addWidget(this.whisperOutputFormatWidget);
+    this.whisperOptionsL1Layout.addWidget(this.whisperCPUsWidget);
+    this.whisperOptionsL1Layout.addWidget(this.whisperThreadsWidget);
+
+    // Whisper Options L2 Widget
+    this.whisperOptionsL2Layout.addWidget(this.whisperDurationLabel);
+    this.whisperOptionsL2Layout.addWidget(this.whisperDurationLineEdit);
+    this.whisperOptionsL2Layout.addWidget(this.whisperDiarizeCheckBox);
+    this.whisperOptionsL2Layout.addWidget(this.whisperSegmentsLengthLabel);
+    this.whisperOptionsL2Layout.addWidget(this.whisperSegmentsLengthLineEdit);
+
+    // Fill the OptionsRoot Layout
     this.whisperOptionsLayout.addWidget(this.whisperOptionsL1Widget);
     this.whisperOptionsLayout.addWidget(this.whisperOptionsL2Widget);
     this.whisperOptionsLayout.addWidget(this.whisperCustomParamsWidget);
@@ -415,11 +402,16 @@ export class Transcribe {
     this.transferToTranslateButton = new QPushButton();
     this.transferToTranslateButton.setText('Translate\nTranscribed File')
 
+    this.toggleConsoleButton = new QPushButton();
+    this.toggleConsoleButton.setText('Toggle\nConsole');
+
     // Space between the buttons - to be improved
     this.transcribeButtonsSpacer1Label = new QLabel();
     this.transcribeButtonsSpacer1Label.setObjectName('transcribeButtonsSpacer1Label');
     this.transcribeButtonsSpacer2Label = new QLabel();
     this.transcribeButtonsSpacer2Label.setObjectName('transcribeButtonsSpacer2Label');
+    this.transcribeButtonsSpacer3Label = new QLabel();
+    this.transcribeButtonsSpacer3Label.setObjectName('transcribeButtonsSpacer3Label');
 
     // Buttons Widget
     this.actionButtonsWidget = new QWidget();
@@ -431,14 +423,16 @@ export class Transcribe {
     this.actionButtonsLayout.addWidget(this.transcribeCancelButton);
     this.actionButtonsLayout.addWidget(this.transcribeButtonsSpacer2Label);
     this.actionButtonsLayout.addWidget(this.transferToTranslateButton);
+    this.actionButtonsLayout.addWidget(this.transcribeButtonsSpacer3Label);
+    this.actionButtonsLayout.addWidget(this.toggleConsoleButton);
 
     // Fill the tab root layout
     this.transcribeTabLayout.addWidget(this.transcribeTitleWidget);
     this.transcribeTabLayout.addWidget(this.audioFileRootWidget);
     this.transcribeTabLayout.addWidget(this.whisperOptionsToolButton);
     this.transcribeTabLayout.addWidget(this.whisperOptionsWidget);
-    this.transcribeTabLayout.addWidget(this.actionButtonsWidget); 
-    
+    this.transcribeTabLayout.addWidget(this.actionButtonsWidget);
+
     // Apply the Stylesheet
     this.transcribeRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'));
 
@@ -446,13 +440,16 @@ export class Transcribe {
     this.audioFileButtonEventListener();
     this.whisperOptionsButtonEventListener();
     this.whisperModelComboBoxEventListener();
-    this.whisperModelComboBoxEventListener();
     this.transcribeButtonEventListener();
     this.transcribeCancelButtonEventListener();
     this.transferToTranslateButtonEventListener();
     this.whisperOutputFormatComboBoxEventListener();
     this.audioFileComboBoxEvenListener();
     this.audioFileLanguageComboBoxEventListener();
+    this.toggleConsoleButtonEventListener();
+
+    // Set the default DataModel and download it if necessary
+    this.whisperModelComboBox.setCurrentText('medium.en');
 
     // Disable Cancel Transcribe Button when not transcribing
     this.transcribeCancelButton.setEnabled(false);
@@ -464,35 +461,35 @@ export class Transcribe {
 
   private audioFileButtonEventListener(): void {
     this.selectAudioFileButton.addEventListener('clicked', () => {
-    const fileDialog: QFileDialog = new QFileDialog();
-    fileDialog.setFileMode(FileMode.ExistingFile);
-    fileDialog.setOption(Option.ReadOnly);
-    fileDialog.setLabelText(DialogLabel.Accept, 'Select');
-    // fileDialog.setOption(Option.DontUseNativeDialog);
-    // fileDialog.setNameFilter('Audios/Videos (*.mp4 *.wav)');
-    //ToDo: Filter non-relevant files
-    if (fileDialog.exec()) {
-      let isFileAlreadyAdded: boolean = false;
-      let selectedFile: string = fileDialog.selectedFiles()[0];
+      const fileDialog: QFileDialog = new QFileDialog();
+      fileDialog.setFileMode(FileMode.ExistingFile);
+      fileDialog.setOption(Option.ReadOnly);
+      fileDialog.setLabelText(DialogLabel.Accept, 'Select');
+      // fileDialog.setOption(Option.DontUseNativeDialog);
+      // fileDialog.setNameFilter('Audios/Videos (*.mp4 *.wav)');
+      //ToDo: Filter non-relevant files
+      if (fileDialog.exec()) {
+        let isFileAlreadyAdded: boolean = false;
+        let selectedFile: string = fileDialog.selectedFiles()[0];
 
-      for (let i: number = 0; i < this.audioFileComboBox.count(); i++) {
-        this.audioFileComboBox.setCurrentIndex(i);
-        if (this.audioFileComboBox.currentText() == selectedFile) {
-          isFileAlreadyAdded = true;
-          break;
+        for (let i: number = 0; i < this.audioFileComboBox.count(); i++) {
+          this.audioFileComboBox.setCurrentIndex(i);
+          if (this.audioFileComboBox.currentText() == selectedFile) {
+            isFileAlreadyAdded = true;
+            break;
+          }
+        }
+        if (selectedFile != null && !isFileAlreadyAdded) {
+          let currentIndex: number = this.audioFileComboBox.currentIndex();
+          this.audioFileComboBox.addItem(new QIcon('assets/audio-file-icon.png'), selectedFile);
+          if (currentIndex != -1)
+            this.audioFileComboBox.setCurrentIndex(currentIndex + 1);
+          this.transcribeStartButton.setEnabled(true);
         }
       }
-      if (selectedFile != null && !isFileAlreadyAdded) {
-        let currentIndex: number = this.audioFileComboBox.currentIndex();
-        this.audioFileComboBox.addItem(new QIcon('assets/audio-file-icon.png'), selectedFile);
-        if (currentIndex != -1)
-          this.audioFileComboBox.setCurrentIndex(currentIndex + 1);
-        this.transcribeStartButton.setEnabled(true);
-      }
-    }
 
-    this.checkTransferToTranslateButton();
-  });
+      this.checkTransferToTranslateButton();
+    });
   }
 
   private whisperOptionsButtonEventListener(): void {
@@ -523,10 +520,106 @@ export class Transcribe {
 
   private whisperModelComboBoxEventListener(): void {
     this.whisperModelComboBox.addEventListener('currentTextChanged', (text: string) => {
-      console.log('Model selected: ' + text);
-      //ToDo: Implement automatic download + Initial Download??
-      // Use https://github.com/TylerLeonhardt/wgetjs
-    });  
+      // Happens on clear, removeItem and on adding the first item
+      if (text == '' || this.isDownloading)
+        return;
+
+      if (this.config.whisperCLIPath == '' || this.config.whisperCLIPath == null) {
+        const msg: string = 'Whisper CLI Path is not configured in the "Config" Tab. Configure it first';
+        console.log(msg);
+        this.statusBar.clearMessage();
+        this.statusBar.showMessage(msg, 10000);
+        this.whisperModelComboBox.setCurrentText('medium.en');
+        return;
+      }
+
+      let modelFile: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '.bin');
+      if (!fs.existsSync(modelFile))
+        //ToDo: Make Sync.
+        this.downloadDataModel(text);
+    });
+  }
+
+  private downloadDataModel(model: string): void {
+    this.isDownloading = true;
+
+    if (model == '') {
+      console.log('downloadDataModel: No model name specified for download');
+      return;
+    }
+
+    this.whisperModelComboBox.setEnabled(false);
+    this.audioFileLanguageComboBox.setEnabled(false);
+    this.transcribeStartButton.setEnabled(false);
+    this.config.disableSaveButton();
+
+    // ProgressBar in the StatusBar
+    let progressBar: QProgressBar = new QProgressBar();
+    progressBar.setObjectName('progressBar');
+    let downloadLabel: QLabel = new QLabel();
+    progressBar.setFixedWidth(400);
+
+    // Console ProgressBar
+    const consoleBar: cliProgress.SingleBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_grey);
+
+    const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-' + model + '.bin';
+    const modelsFolder: string = path.join(path.dirname(this.config.whisperCLIPath), 'models');
+    let output: string = path.join(modelsFolder, 'ggml-' + model + '.bin');
+    if (!fs.existsSync(modelsFolder))
+      fs.mkdirSync(modelsFolder);
+
+    let download: EventEmitter = wget.download(src, output, undefined);
+    let modelFileSize: number;
+
+    download.on('error', (err: Error) => {
+      console.log('Error while downloading Whisper DataModel (', src, '): ', err);
+      console.log('Deleting the uncompleted download: ', output)
+      fs.rmSync(output);
+      // Set the default DataModel
+      this.whisperModelComboBox.setCurrentText('medium.en');
+      this.whisperModelComboBox.setEnabled(true);
+      this.statusBar.removeWidget(downloadLabel);
+      this.statusBar.removeWidget(progressBar);
+      this.statusBar.clearMessage();
+      this.statusBar.showMessage('Error while downloading DataModel. See the console output for more details.', 10000);
+    });
+
+    download.on('start', (fileSize: number) => {
+      modelFileSize = fileSize;
+      const modelSizeStr: string = (fileSize / (1024*1024)).toFixed(2) + ' MB'
+      const statusBarMsg: string = 'Download Whisper DataModel (' + modelSizeStr + '): ';
+      let consoleDownloadMsg: string = 'Downloading Whisper "' + model + '" DataModel. Model Size: ' + modelSizeStr;
+      console.log('Whisper DataModel URL: ', src);
+      console.log('Target location: ', output);
+      downloadLabel.setText(statusBarMsg);
+      this.statusBar.clearMessage();
+      this.statusBar.addWidget(downloadLabel);
+      this.statusBar.addWidget(progressBar);
+      progressBar.setRange(0, 100);
+      downloadLabel.setText(statusBarMsg);
+      console.log(consoleDownloadMsg);
+      consoleBar.start(modelFileSize, 0);
+    });
+
+    download.on('end', (output: string) => {
+      this.statusBar.removeWidget(downloadLabel);
+      this.statusBar.removeWidget(progressBar);
+      consoleBar.stop();
+      console.log('Download completed: ', output);
+      this.statusBar.clearMessage();
+      this.statusBar.showMessage('Download completed', 5000);
+      this.refreshDataModels(model);
+      this.whisperModelComboBox.setEnabled(true);
+      this.audioFileLanguageComboBox.setEnabled(true);
+      this.transcribeStartButton.setEnabled(true);
+      this.config.enableSaveButton();
+      this.isDownloading = false;
+    });
+
+    download.on('progress', (progress: number) => {
+      progressBar.setValue(progress * 100);
+      consoleBar.update(Math.round(modelFileSize * progress));
+    });
   }
 
   private audioFileLanguageComboBoxEventListener(): void {
@@ -648,5 +741,41 @@ export class Transcribe {
       this.transferToTranslateButton.setEnabled(true);
     else
       this.transferToTranslateButton.setEnabled(false);
+  }
+
+  private addDataModels(): void {
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('tiny'), 'tiny');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('tiny.en'), 'tiny.en');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('base'), 'base');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('base.en'), 'base.en');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('small'), 'small');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('small.en'), 'small.en');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('medium'), 'medium');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('medium.en'), 'medium.en');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('large-v1'), 'large-v1');
+    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('large'), 'large');
+  }
+
+  private toggleConsoleButtonEventListener(): void {
+    this.toggleConsoleButton.addEventListener('clicked', () => {
+      // this.refreshDataModels('tiny.en');
+      // this.refreshDataModels();
+    });
+  }
+
+  public getCurrentModel(): string {
+    return this.whisperModelComboBox.currentText();
+  }
+
+  public refreshDataModels(selectedModel?: string): void {
+    this.whisperModelComboBox.clear();
+    this.whisperModelComboBox.addItem(undefined, '');
+    this.addDataModels();
+    if (selectedModel)
+      this.whisperModelComboBox.setCurrentText(selectedModel);
+    else
+      this.whisperModelComboBox.setCurrentText('medium.en');
+
+    this.whisperModelComboBox.removeItem(0);
   }
 }

@@ -1,4 +1,4 @@
-import { QMainWindow, QTabWidget, QIcon } from '@nodegui/nodegui';
+import {QMainWindow, QTabWidget, QIcon, QStatusBar} from '@nodegui/nodegui';
 import { Config } from './config';
 import { Transcribe } from './transcribe';
 import { Translate } from "./translate";
@@ -9,14 +9,21 @@ import { Translate } from "./translate";
 const tabWidget: QTabWidget = new QTabWidget();
 
 // Initialising imported classes
-let config: Config = new Config();
+let statusBar: QStatusBar = new QStatusBar();
+statusBar.setObjectName('statusBar');
+let config: Config = new Config(statusBar);
 let translate: Translate = new Translate(config);
-let transcribe: Transcribe = new Transcribe(config, tabWidget, translate);
+let transcribe: Transcribe = new Transcribe(statusBar, config, tabWidget, translate);
 
 // Add the Tabs
 tabWidget.addTab(transcribe.transcribeRootWidget, new QIcon('assets/openai-logo-icon.png'), 'Transcribe');
 tabWidget.addTab(translate.translateRootWidget, new QIcon('assets/deepl-logo-icon.png'), 'Translate');
 tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), 'Config');
+
+tabWidget.addEventListener('currentChanged', (index: number) => {
+  if (index == 0)
+    transcribe.refreshDataModels(transcribe.getCurrentModel());
+})
 
 // =====================================================================================================================
 
@@ -24,7 +31,8 @@ tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), '
 const mainWindow: QMainWindow = new QMainWindow();
 
 mainWindow.setWindowTitle("Transcribe & Translate Tool");
-mainWindow.setFixedSize(470, 450);
+// mainWindow.setFixedSize(700, 490);
+mainWindow.setStatusBar(statusBar);
 mainWindow.setCentralWidget(tabWidget);
 
 mainWindow.show();

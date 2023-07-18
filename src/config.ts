@@ -7,13 +7,16 @@ import {
   QIcon,
   QLabel,
   QLineEdit,
-  QPushButton,
+  QPushButton, QStatusBar,
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
 import * as path from "node:path";
 
 export class Config {
+  // StatusBar
+  private statusBar: QStatusBar;
+
   // Root Widgets & Layouts
   public configRootWidget: QWidget;
   public configTabLayout: FlexLayout;
@@ -48,7 +51,10 @@ export class Config {
   public whisperCLIPath: string;
   public deeplAPIKey: string;
 
-  constructor() {
+  constructor(statusBar: QStatusBar) {
+    // StatusBar
+    this.statusBar = statusBar;
+
     // Root Widgets
     this.configRootWidget = new QWidget();
     this.configTabLayout = new FlexLayout();
@@ -74,7 +80,7 @@ export class Config {
     // Whisper Configuration Widget
     this.whisperConfigLabel = new QLabel();
     this.whisperConfigLabel.setObjectName('whisperConfigLabel');
-    this.whisperConfigLabel.setText('Whisper.cpp Configuration ══════════════════');
+    this.whisperConfigLabel.setText('Whisper.cpp Configuration ' + '═'.repeat(30));
     this.whisperCLIPathLabel = new QLabel();
     this.whisperCLIPathLabel.setObjectName('whisperCLIPathLabel');
     this.whisperCLIPathLabel.setText('Whisper CLI Location:');
@@ -94,7 +100,7 @@ export class Config {
     // DeepL Configuration Widget
     this.deeplConfigLabel = new QLabel();
     this.deeplConfigLabel.setObjectName('deeplConfigLabel');
-    this.deeplConfigLabel.setText('DeepL Configuration ═════════════════════');
+    this.deeplConfigLabel.setText('DeepL Configuration ' + '═'.repeat(32));
     this.deeplAPIKeyLabel = new QLabel();
     this.deeplAPIKeyLabel.setObjectName('deeplAPIKeyLabel');
     this.deeplAPIKeyLabel.setText('DeepL API Key:');
@@ -168,23 +174,33 @@ export class Config {
   }
 
   private saveConfiguration(): void {
+    if (!fs.existsSync(this.whisperCLILineEdit.text())) {
+      this.whisperCLILineEdit.setText('');
+      const msg: string = "WhisperCLIPath doesn't exist. Select a valid path";
+      console.log(msg);
+      this.statusBar.clearMessage()
+      this.statusBar.showMessage(msg, 5000);
+      return;
+    }
+
     let config: any = {
-      "whisperCLIPath": this.whisperCLIPath,
+      "whisperCLIPath": this.whisperCLILineEdit.text(),
       "deeplAPIKey": this.deeplAPIKeyLineEdit.text()
     }
 
     try {
       fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2), 'utf8');
-      console.log('Configuration file updated.');
+      console.log('Configuration file tt-tool-config.json updated.');
     } catch (error) {
       console.log('Error while saving the configuration file: ', error);
     }
 
     // Set the current configuration active
-    this.whisperCLIPath = config.whisperCLIFolder;
+    this.whisperCLIPath = config.whisperCLIPath;
     this.deeplAPIKey = config.deeplAPIKey;
 
-    //ToDo: Write a notification (status bar - pop-up) upon successful save
+    this.statusBar.clearMessage();
+    this.statusBar.showMessage('Configuration saved.', 5000);
   }
 
   public isDataModelExist(dataModelName: string): boolean {
@@ -216,6 +232,14 @@ export class Config {
           this.whisperCLILineEdit.setText(selectedFile);
       }
     });
+  }
+
+  public disableSaveButton(): void {
+    this.saveConfigButton.setEnabled(false);
+  }
+
+  public enableSaveButton(): void {
+    this.saveConfigButton.setEnabled(true);
   }
 
   private saveConfigButtonEventListener(): void {

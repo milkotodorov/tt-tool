@@ -47,16 +47,17 @@
 }
 
 #translateFileSpacerLabel {
-  margin-right: 17px;
+  margin-right: 110px;
 }
 
 #transcribeButtonsSpacer1Label,
-#transcribeButtonsSpacer2Label {
+#transcribeButtonsSpacer2Label,
+#transcribeButtonsSpacer3Label {
   margin-left: 10px;
 }
 
 #audioFileLanguageLabel {
-  margin-left: 35px;
+  margin-left: 130px;
 }
 
 #translateFileArrowLabel {
@@ -96,57 +97,99 @@
 #whisperOptionsToolButton {
   align-self: 'center';
   font-size: 12px;
-  padding: 5px;
+  padding: 10px;
 }
 
 #whisperOptionsWidget {
-  padding: 10px;
-  align-items: 'center';
+  padding: 15px;
+  border: 1px ridge #bdbdbd;
 }
 
 #whisperOptionsL1Widget,
 #whisperOptionsL2Widget,
 #whisperCustomParamsWidget {
   flex-direction: row;
+  padding: 5px;
+  /*flex: 1;*/
+  /*border: 1px ridge #bdbdbd;*/
+}
+
+
+#whisperDurationLineEdit {
+  width: 75px;
 }
 
 #whisperCLILineEdit {
-  width: '92%';
+  margin-top: 2px;
+  width: 450px;
 }
 
 #deeplAPIKeyLineEdit {
-  width: 318px;
+  width: 300px;
 }
 
 #whisperDataModelWidget, 
 #whisperOutputFormatWidget,
-#whisperSegmentsLengthWidget {
-  padding-top: 5px;
-  padding-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
-  align-items: 'center';
+#whisperCPUsWidget,
+#whisperThreadsWidget {
+  /*padding-top: 5px;*/
+  /*padding-bottom: 10px;*/
+  /*padding-left: 15px;*/
+  padding-right: 10px;
+  flex-direction: row;
+  /*align-items: 'center';*/
+  /*border: 1px ridge #bdbdbd;*/
+  /*flex: min-content;*/
+  /*justify-content: space-between;*/
 }
 
-#whisperCPUsWidget,
-#whisperThreadsWidget,
+#whisperThreadsWidget {
+  padding-right: 0px;
+}
+
+#whisperModelLabel,
+#whisperOutputFormatLabel,
+#whisperCPUsLabel,
+#whisperThreadsLabel,
+#whisperSegmentsLengthLabel,
+#whisperDurationLabel {
+  margin-right: 2px;
+}
+
+#whisperSegmentsLengthLabel {
+  margin-left: 24px;
+}
+
+#whisperDiarizeCheckBox {
+  margin-left: 7px;
+}
+
+#whisperSegmentsLengthLineEdit {
+  width: 40px;
+}
+
+#whisperSegmentsLengthWidget,
 #whisperDurationWidget,
-#whisperDiarizeWidget {
-  padding-left: 15px;
-  padding-right: 15px;
-  align-items: 'center';
+#whisperDiarizeCheckBox {
+  /*padding-left: 15px;*/
+  /*padding-right: 15px;*/
+  /*align-items: 'center';*/
+  flex-direction: row;
+  /*border: 1px ridge #bdbdbd;*/
+  /*flex: min-content;*/
+  /*justify-content: space-between;*/
 }
 
 #whisperCustomParamsWidget {
-  padding-top: 5px;
-  padding-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
-  align-items: 'center';
+  padding-top: 10px;
+  /*padding-bottom: 10px;*/
+  /*padding-left: 15px;*/
+  /*padding-right: 15px;*/
+  /*align-items: 'center';*/
 }
 
 #whisperCustomParamsLineEdit {
-  width: '72%';
+  width: 498px;
 }
 
 #whisperCustomParamsLabel {
@@ -155,4 +198,9 @@
 
 #actionButtonsWidget {
   flex-direction: row;
+  padding: 15px;
+}
+
+#statusBar {
+  width: '100%';
 }
