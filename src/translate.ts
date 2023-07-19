@@ -8,12 +8,18 @@ import {
   QIcon,
   QLabel,
   QPushButton,
+  QStatusBar,
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
+import * as deepl from 'deepl-node'
+import localeCode from 'iso-639-1';
 import { Config } from './config';
 
 export class Translate {
+  // StatusBar
+  private statusBar: QStatusBar;
+
   // Configuration
   private config: Config;
 
@@ -46,7 +52,9 @@ export class Translate {
   // Start Transcribe Button
   private translateButton: QPushButton;
 
-  constructor(config: Config) {
+  constructor(statusBar: QStatusBar, config: Config) {
+    this.statusBar = statusBar;
+
     // Configuration
     this.config = config;
 
@@ -162,17 +170,17 @@ export class Translate {
     this.selectTranslateFileButtonEventListener();
     this.translateButtonEventListener();
 
-    // Disable Translate Button when no file is selected
-    this.translateButton.setEnabled(false);
+    // this.translateButton.setEnabled(false);
+    this.translateButton.setEnabled(true);
   }
 
   private selectTranslateFileButtonEventListener(): void {
-    this.selectTranslateFileButton.addEventListener('clicked', () => {
+    this.selectTranslateFileButton.addEventListener('clicked', (): void => {
       const fileDialog: QFileDialog = new QFileDialog();
       fileDialog.setFileMode(FileMode.ExistingFile);
       fileDialog.setOption(Option.ReadOnly);
       fileDialog.setLabelText(DialogLabel.Accept, 'Select');
-      fileDialog.setNameFilter('Subtitle/Text (*.srt *.txt)');
+      fileDialog.setNameFilter('Subtitle/Text (*.srt *.vtt *.txt)');
       if (fileDialog.exec()) {
         let isFileAlreadyAdded: boolean = false;
         let selectedFile: string = fileDialog.selectedFiles()[0];
@@ -196,8 +204,35 @@ export class Translate {
     });
   }
 
+  public setTranslateButtonState(): void {
+    if (this.config.deeplAPIKey == '') {
+      const msg: string = 'DeepL API Key is not configured. Maintain it the ConfigTab.';
+      this.statusBar.clearMessage();
+      this.statusBar.showMessage(msg, 10000);
+      console.log(msg);
+      this.translateButton.setEnabled(false);
+      return;
+    }
+
+    if (this.translateFileComboBox.currentText() == '') {
+      this.translateButton.setEnabled(false);
+      return;
+    }
+
+    this.translateButton.setEnabled(true);
+  }
+
+  private async deeplTranslate(file: string, fromLang: string, toLang: string): Promise<void> {
+    const authKey: string = this.config.deeplAPIKey;
+    const translator: deepl.Translator = new deepl.Translator(authKey);
+    //ToDo: Implement...
+  }
+
   private translateButtonEventListener(): void {
-    this.translateButton.addEventListener('clicked', () => {
+    this.translateButton.addEventListener('clicked', (): void => {
+      const fromLang: string = localeCode.getCode(this.translateFileSourceLanguageComboBox.currentText());
+      const toLang: string = localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText());
+      this.deeplTranslate(this.translateFileComboBox.currentText(), fromLang, toLang);
     });
   }
 }

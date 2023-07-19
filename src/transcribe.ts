@@ -2,7 +2,7 @@ import {
   DialogLabel,
   FileMode,
   FlexLayout,
-  Option, QAction,
+  Option,
   QCheckBox,
   QComboBox,
   QFileDialog,
@@ -10,7 +10,7 @@ import {
   QLabel,
   QLineEdit,
   QProgressBar,
-  QPushButton, QRadioButton,
+  QPushButton,
   QStatusBar,
   QTabWidget,
   QToolButton,
@@ -22,12 +22,10 @@ import * as path from 'node:path';
 import localeCode from 'iso-639-1';
 import wget from 'wget-improved';
 import cliProgress from 'cli-progress';
+import EventEmitter from "events";
 import { spawn } from 'node:child_process';
 import { Config } from './config';
 import { Translate } from './translate';
-import EventEmitter from "events";
-import {text} from "stream/consumers";
-import {waitForDebugger} from "inspector";
 
 export class Transcribe {
   // StatusBar
@@ -188,9 +186,56 @@ export class Transcribe {
         'Japanese',
         'Polish',
         'Russian',
-        'Dutch'
+        'Dutch',
+        'Indonesian',
+        'Catalan',
+        'French',
+        'Turkish',
+        'Swedish',
+        'Ukrainian',
+        'Malay',
+        'Norwegian',
+        'Finnish',
+        'Vietnamese',
+        'Thai',
+        'Slovak',
+        'Greek',
+        'Czech',
+        'Croatian',
+        'Tagalog',
+        'Danish',
+        'Korean',
+        'Romanian',
+        'Bulgarian',
+        'Chinese',
+        'Galician',
+        'Bosnian',
+        'Arabic',
+        'Macedonian',
+        'Hungarian',
+        'Tamil',
+        'Hindi',
+        'Estonian',
+        'Urdu',
+        'Slovenian',
+        'Latvian',
+        'Azerbaijani',
+        'Hebrew',
+        'Lithuanian',
+        'Persian',
+        'Welsh',
+        'Serbian',
+        'Afrikaans',
+        'Kannada',
+        'Kazakh',
+        'Icelandic',
+        'Marathi',
+        'Maori',
+        'Swahili',
+        'Armenian',
+        'Belarusian',
+        'Nepali'
     ];
-    //ToDo: Fill the rest languages: https://raw.githubusercontent.com/openai/whisper/main/language-breakdown.svg
 
     // Root Widgets & Layouts
     this.transcribeRootWidget = new QWidget();
@@ -551,6 +596,7 @@ export class Transcribe {
     const wasTranscribeButtonEnabled: boolean = this.transcribeStartButton.isEnabled();
     this.transcribeStartButton.setEnabled(false);
     this.config.disableSaveButton();
+    this.selectAudioFileButton.setEnabled(false);
 
     // ProgressBar in the StatusBar
     let progressBar: QProgressBar = new QProgressBar();
@@ -613,6 +659,7 @@ export class Transcribe {
       if (wasTranscribeButtonEnabled)
         this.transcribeStartButton.setEnabled(true);
       this.config.enableSaveButton();
+      this.selectAudioFileButton.setEnabled(true);
       this.isDownloading = false;
     });
 
@@ -664,6 +711,9 @@ export class Transcribe {
       if (this.whisperCustomParamsLineEdit.text())
         whisperArgs.push(this.whisperCustomParamsLineEdit.text());
 
+      this.statusBar.clearMessage();
+      this.statusBar.showMessage('Transcribing...');
+
       this.whisperPrc = spawn(this.config.whisperCLIPath, whisperArgs,
           {cwd: path.dirname(this.config.whisperCLIPath)}
       );
@@ -677,7 +727,16 @@ export class Transcribe {
       });
 
       this.whisperPrc.on('exit', (code: any): void => {
-        console.log(`Child exited with code ${code}`);
+        console.log(`Transcribe completed.\nChild exited with code ${code}`);
+        if (this.statusBar.currentMessage() != 'Killing Whisper process...') {
+          this.statusBar.clearMessage();
+          this.statusBar.showMessage('Transcribe completed.', 5000);
+        } else {
+          setTimeout((): void => {
+            this.statusBar.clearMessage();
+            this.statusBar.showMessage('Transcribe cancelled.', 5000);
+          }, 1500);
+        }
         this.transcribeStartButton.setEnabled(true);
         this.transcribeCancelButton.setEnabled(false);
         this.checkTransferToTranslateButton();
@@ -687,7 +746,10 @@ export class Transcribe {
 
   private transcribeCancelButtonEventListener(): void {
     this.transcribeCancelButton.addEventListener('clicked', (): void => {
-      console.log('Killing Whisper process requested...');
+      const msg: string = 'Killing Whisper process...';
+      console.log(msg);
+      this.statusBar.clearMessage();
+      this.statusBar.showMessage(msg, 5000);
       this.whisperPrc.kill();
     });
   }

@@ -26,16 +26,27 @@ export class Config {
   private configTitleWidget: QWidget;
   private configTitleLayout: FlexLayout;
 
+  private configCLILabelLine: QLabel;
+  private configDeepLLabelLine: QLabel;
+
   // Whisper Configuration Objects
   private whisperConfigLabel: QLabel;
+  private whisperConfigLabelWidget: QWidget;
+  private whisperConfigLabelLayout: FlexLayout;
   private whisperCLIPathLabel: QLabel;
   private selectWhisperCLIButton: QPushButton;
   private whisperCLILineEdit: QLineEdit;
   private whisperCLIConfigWidget: QWidget;
-  private whisperCLIConfigLayout: FlexLayout; 
+  private whisperCLIConfigLayout: FlexLayout;
+  private whisperCLIConfigTopWidget: QWidget;
+  private whisperCLIConfigTopLayout: FlexLayout;
+  private whisperCLIConfigL2Widget: QWidget;
+  private whisperCLIConfigL2Layout: FlexLayout;
 
   // DeepL Configuration Objects
   private deeplConfigLabel: QLabel;
+  private deeplConfigLabelWidget: QWidget;
+  private deeplConfigLabelLayout: FlexLayout;
   private deeplAPIKeyLabel: QLabel;
   private deeplAPIKeyLineEdit: QLineEdit;
   private deeplAPIKeyWidget: QWidget;
@@ -80,7 +91,10 @@ export class Config {
     // Whisper Configuration Widget
     this.whisperConfigLabel = new QLabel();
     this.whisperConfigLabel.setObjectName('whisperConfigLabel');
-    this.whisperConfigLabel.setText('Whisper.cpp Configuration ' + '═'.repeat(30));
+    this.whisperConfigLabel.setText('Whisper.cpp Configuration');
+    this.configCLILabelLine = new QLabel();
+    this.configCLILabelLine.setObjectName('configLabelLine');
+    this.configCLILabelLine.setText('═'.repeat(30));
     this.whisperCLIPathLabel = new QLabel();
     this.whisperCLIPathLabel.setObjectName('whisperCLIPathLabel');
     this.whisperCLIPathLabel.setText('Whisper CLI Location:');
@@ -90,22 +104,52 @@ export class Config {
     this.whisperCLILineEdit = new QLineEdit();
     this.whisperCLILineEdit.setObjectName('whisperCLILineEdit');
 
+    this.whisperConfigLabelWidget = new QWidget();
+    this.whisperConfigLabelLayout = new FlexLayout();
+    this.whisperConfigLabelWidget.setObjectName('whisperConfigWidget');
+    this.whisperConfigLabelWidget.setLayout(this.whisperConfigLabelLayout);
+    this.whisperConfigLabelLayout.addWidget(this.whisperConfigLabel);
+    this.whisperConfigLabelLayout.addWidget(this.configCLILabelLine);
+
+    this.whisperCLIConfigTopWidget = new QWidget();
+    this.whisperCLIConfigTopWidget.setObjectName('whisperCLIConfigTopWidget');
+    this.whisperCLIConfigTopLayout = new FlexLayout();
+    this.whisperCLIConfigTopWidget.setLayout(this.whisperCLIConfigTopLayout);
+    this.whisperCLIConfigTopLayout.addWidget(this.whisperCLIPathLabel);
+    this.whisperCLIConfigTopLayout.addWidget(this.selectWhisperCLIButton);
+
     this.whisperCLIConfigWidget = new QWidget();
+    this.whisperCLIConfigLayout = new FlexLayout();
     this.whisperCLIConfigWidget.setObjectName('whisperCLIConfigWidget');
-    this.whisperCLIConfigLayout = new FlexLayout(); 
     this.whisperCLIConfigWidget.setLayout(this.whisperCLIConfigLayout);
-    this.whisperCLIConfigLayout.addWidget(this.whisperCLIPathLabel);
-    this.whisperCLIConfigLayout.addWidget(this.selectWhisperCLIButton);
+    this.whisperCLIConfigL2Widget = new QWidget();
+    this.whisperCLIConfigL2Layout = new FlexLayout();
+    this.whisperCLIConfigL2Widget.setObjectName('whisperCLIConfigL2Widget');
+    this.whisperCLIConfigL2Widget.setLayout(this.whisperCLIConfigL2Layout);
+
+    this.whisperCLIConfigL2Layout.addWidget(this.whisperCLILineEdit);
+    this.whisperCLIConfigLayout.addWidget(this.whisperCLIConfigTopWidget);
+    this.whisperCLIConfigLayout.addWidget(this.whisperCLIConfigL2Widget);
 
     // DeepL Configuration Widget
     this.deeplConfigLabel = new QLabel();
     this.deeplConfigLabel.setObjectName('deeplConfigLabel');
-    this.deeplConfigLabel.setText('DeepL Configuration ' + '═'.repeat(32));
+    this.deeplConfigLabel.setText('DeepL Configuration');
+    this.configDeepLLabelLine = new QLabel();
+    this.configDeepLLabelLine.setObjectName('configLabelLine');
+    this.configDeepLLabelLine.setText('═'.repeat(30));
     this.deeplAPIKeyLabel = new QLabel();
     this.deeplAPIKeyLabel.setObjectName('deeplAPIKeyLabel');
     this.deeplAPIKeyLabel.setText('DeepL API Key:');
     this.deeplAPIKeyLineEdit = new QLineEdit();
     this.deeplAPIKeyLineEdit.setObjectName('deeplAPIKeyLineEdit');
+
+    this.deeplConfigLabelWidget = new QWidget();
+    this.deeplConfigLabelLayout = new FlexLayout();
+    this.deeplConfigLabelWidget.setObjectName('deeplConfigLabelWidget');
+    this.deeplConfigLabelWidget.setLayout(this.deeplConfigLabelLayout);
+    this.deeplConfigLabelLayout.addWidget(this.deeplConfigLabel);
+    this.deeplConfigLabelLayout.addWidget(this.configDeepLLabelLine);
 
     this.deeplAPIKeyWidget = new QWidget();
     this.deeplAPIKeyWidget.setObjectName('deeplAPIKeyWidget');
@@ -126,10 +170,9 @@ export class Config {
 
     // Fill the root layout
     this.configTabLayout.addWidget(this.configTitleWidget);
-    this.configTabLayout.addWidget(this.whisperConfigLabel);
+    this.configTabLayout.addWidget(this.whisperConfigLabelWidget);
     this.configTabLayout.addWidget(this.whisperCLIConfigWidget);
-    this.configTabLayout.addWidget(this.whisperCLILineEdit);
-    this.configTabLayout.addWidget(this.deeplConfigLabel);
+    this.configTabLayout.addWidget(this.deeplConfigLabelWidget);
     this.configTabLayout.addWidget(this.deeplAPIKeyWidget);
     this.configTabLayout.addWidget(this.saveConfigWidget);
 

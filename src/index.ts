@@ -6,13 +6,13 @@ import { Translate } from "./translate";
 // =====================================================================================================================
 
 // Tabs Widget
-const tabWidget: QTabWidget = new QTabWidget();
+const tabWidget: QTabWidget = new QTabWidget()
 
 // Initialising imported classes
 let statusBar: QStatusBar = new QStatusBar();
 statusBar.setObjectName('statusBar');
 let config: Config = new Config(statusBar);
-let translate: Translate = new Translate(config);
+let translate: Translate = new Translate(statusBar, config);
 let transcribe: Transcribe = new Transcribe(statusBar, config, tabWidget, translate);
 
 // Add the Tabs
@@ -20,9 +20,11 @@ tabWidget.addTab(transcribe.transcribeRootWidget, new QIcon('assets/openai-logo-
 tabWidget.addTab(translate.translateRootWidget, new QIcon('assets/deepl-logo-icon.png'), 'Translate');
 tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), 'Config');
 
-tabWidget.addEventListener('currentChanged', (index: number) => {
+tabWidget.addEventListener('currentChanged', (index: number): void => {
   if (index == 0)
     transcribe.refreshDataModels(transcribe.getCurrentModel());
+  if (index == 1)
+    translate.setTranslateButtonState();
 })
 
 // =====================================================================================================================
@@ -31,7 +33,7 @@ tabWidget.addEventListener('currentChanged', (index: number) => {
 const mainWindow: QMainWindow = new QMainWindow();
 
 mainWindow.setWindowTitle("Transcribe & Translate Tool");
-// mainWindow.setFixedSize(700, 490);
+mainWindow.setFixedSize(700, 490);
 mainWindow.setStatusBar(statusBar);
 mainWindow.setCentralWidget(tabWidget);
 

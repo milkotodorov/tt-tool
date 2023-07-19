@@ -1,5 +1,5 @@
 #transcribeRootWidget, 
-#translateRootWidget, 
+#translateRootWidget,
 #configRootWidget {
   padding: 5px;
   align-items: 'center';
@@ -27,23 +27,55 @@
 }
 
 #whisperConfigLabel, 
-#deeplConfigLabel {
+#deeplConfigLabel,
+#configLabelLine {
   font-size: 14px;
   font-weight: bold;
-  padding: 5px;
   padding-top: 15px;
+  /*border: 2px ridge #bdbdbd;*/
 }
 
+#whisperConfigLabel,
 #deeplConfigLabel {
+  padding-left: 10px;
+}
+
+#whisperConfigWidget,
+#deeplConfigLabelWidget {
+  width: '100%';
+  flex-direction: row;
+  justify-content: space-between;
+  /*border: 2px ridge #bdbdbd;*/
+}
+
+#deeplConfigLabelWidget {
   padding-top: 25px;
 }
 
 #audioFileTopWidget, 
-#whisperCLIConfigWidget, 
 #translateFileTopWidget,
+#whisperCLIConfigTopWidget,
 #deeplAPIKeyWidget {
   flex-direction: row;
   width: '94%';
+  /*border: 2px ridge #bdbdbd;*/
+}
+
+#deeplAPIKeyWidget {
+  padding-top: 10px;
+  padding-left: 25px;
+}
+
+#whisperCLIConfigWidget,
+#whisperCLIConfigTopWidget,
+#whisperCLIConfigL2Widget {
+  padding-left: 10px;
+  width: '94%';
+  /*border: 2px ridge #bdbdbd;*/
+}
+
+#whisperCLIConfigWidget {
+  margin-top: 10px;
 }
 
 #translateFileSpacerLabel {
@@ -79,7 +111,8 @@
 
 #saveConfigWidget {
   padding: 15px;
-  margin-top: 105px;
+  align-self: 'center';
+  margin-top: 110px;
 }
 
 #selectAudioFileButton {
@@ -111,6 +144,7 @@
   flex-direction: row;
   padding: 5px;
   /*flex: 1;*/
+  /*justify-content: space-evenly;*/
   /*border: 1px ridge #bdbdbd;*/
 }
 
@@ -121,7 +155,7 @@
 
 #whisperCLILineEdit {
   margin-top: 2px;
-  width: 450px;
+  width: 500px;
 }
 
 #deeplAPIKeyLineEdit {
@@ -132,6 +166,7 @@
 #whisperOutputFormatWidget,
 #whisperCPUsWidget,
 #whisperThreadsWidget {
+  /*flex: 1;*/
   /*padding-top: 5px;*/
   /*padding-bottom: 10px;*/
   /*padding-left: 15px;*/
@@ -140,7 +175,8 @@
   /*align-items: 'center';*/
   /*border: 1px ridge #bdbdbd;*/
   /*flex: min-content;*/
-  /*justify-content: space-between;*/
+  /*justify-content: space-evenly;*/
+  /*justify-content: 'space-around';*/
 }
 
 #whisperThreadsWidget {
@@ -171,13 +207,14 @@
 #whisperSegmentsLengthWidget,
 #whisperDurationWidget,
 #whisperDiarizeCheckBox {
+  /*flex: 1;*/
   /*padding-left: 15px;*/
   /*padding-right: 15px;*/
   /*align-items: 'center';*/
   flex-direction: row;
   /*border: 1px ridge #bdbdbd;*/
   /*flex: min-content;*/
-  /*justify-content: space-between;*/
+  /*justify-content: space-evenly;*/
 }
 
 #whisperCustomParamsWidget {
@@ -189,7 +226,7 @@
 }
 
 #whisperCustomParamsLineEdit {
-  width: 498px;
+  width: 500px;
 }
 
 #whisperCustomParamsLabel {
