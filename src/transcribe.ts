@@ -178,63 +178,63 @@ export class Transcribe {
 
     this.whisperLanguages = [
         'auto',
-        'Spanish',
-        'Italian',
-        'English',
-        'Portuguese',
-        'German',
-        'Japanese',
-        'Polish',
-        'Russian',
-        'Dutch',
-        'Indonesian',
-        'Catalan',
-        'French',
-        'Turkish',
-        'Swedish',
-        'Ukrainian',
-        'Malay',
-        'Norwegian',
-        'Finnish',
-        'Vietnamese',
-        'Thai',
-        'Slovak',
-        'Greek',
-        'Czech',
-        'Croatian',
-        'Tagalog',
-        'Danish',
-        'Korean',
-        'Romanian',
-        'Bulgarian',
-        'Chinese',
-        'Galician',
-        'Bosnian',
-        'Arabic',
-        'Macedonian',
-        'Hungarian',
-        'Tamil',
-        'Hindi',
-        'Estonian',
-        'Urdu',
-        'Slovenian',
-        'Latvian',
-        'Azerbaijani',
-        'Hebrew',
-        'Lithuanian',
-        'Persian',
-        'Welsh',
-        'Serbian',
         'Afrikaans',
+        'Arabic',
+        'Armenian',
+        'Azerbaijani',
+        'Belarusian',
+        'Bosnian',
+        'Bulgarian',
+        'Catalan',
+        'Chinese',
+        'Croatian',
+        'Czech',
+        'Danish',
+        'Dutch',
+        'English',
+        'Estonian',
+        'Finnish',
+        'French',
+        'Galician',
+        'German',
+        'Greek',
+        'Hebrew',
+        'Hindi',
+        'Hungarian',
+        'Icelandic',
+        'Indonesian',
+        'Italian',
+        'Japanese',
         'Kannada',
         'Kazakh',
-        'Icelandic',
-        'Marathi',
+        'Korean',
+        'Latvian',
+        'Lithuanian',
+        'Macedonian',
+        'Malay',
         'Maori',
+        'Marathi',
+        'Nepali',
+        'Norwegian',
+        'Persian',
+        'Polish',
+        'Portuguese',
+        'Romanian',
+        'Russian',
+        'Serbian',
+        'Slovak',
+        'Slovenian',
+        'Spanish',
         'Swahili',
-        'Armenian',
-        'Belarusian',
-        'Nepali'
+        'Swedish',
+        'Tagalog',
+        'Tamil',
+        'Thai',
+        'Turkish',
+        'Ukrainian',
+        'Urdu',
+        'Vietnamese',
+        'Welsh'
     ];
 
     // Root Widgets & Layouts
@@ -272,9 +272,7 @@ export class Transcribe {
     this.audioFileLanguageComboBox = new QComboBox();
     this.audioFileLanguageComboBox.setObjectName('audioFileLanguageComboBox')
     this.audioFileLanguageComboBox.addItems(this.whisperLanguages);
-    this.audioFileLanguageComboBox.setCurrentText('English');
-    this.audioFileLanguageComboBox.setToolTip('Sorted by Word Error Rate accurancy.\n' 
-        + 'More info: https://github.com/openai/whisper#available-models-and-languages');
+    this.audioFileLanguageComboBox.setCurrentText('auto');
 
     this.audioFileRootWidget = new QWidget();
     this.audioFileRootLayout = new FlexLayout();
@@ -491,9 +489,10 @@ export class Transcribe {
     this.audioFileComboBoxEvenListener();
     this.audioFileLanguageComboBoxEventListener();
     this.toggleConsoleButtonEventListener();
+    this.audioFileLanguageComboBox.setCurrentText(this.config.lastUsedWhisperLanguage);
 
     // Set the default DataModel and download it if necessary
-    this.whisperModelComboBox.setCurrentText('medium.en');
+    // this.whisperModelComboBox.setCurrentText('medium.en');
 
     // Disable Cancel Transcribe Button when not transcribing
     this.transcribeCancelButton.setEnabled(false);
@@ -595,7 +594,8 @@ export class Transcribe {
     this.audioFileLanguageComboBox.setEnabled(false);
     const wasTranscribeButtonEnabled: boolean = this.transcribeStartButton.isEnabled();
     this.transcribeStartButton.setEnabled(false);
-    this.config.disableSaveButton();
+    this.tabWidget.widget(1).setEnabled(false);
+    this.tabWidget.widget(2).setEnabled(false);
     this.selectAudioFileButton.setEnabled(false);
 
     // ProgressBar in the StatusBar
@@ -658,7 +658,8 @@ export class Transcribe {
       this.audioFileLanguageComboBox.setEnabled(true);
       if (wasTranscribeButtonEnabled)
         this.transcribeStartButton.setEnabled(true);
-      this.config.enableSaveButton();
+      this.tabWidget.widget(1).setEnabled(true);
+      this.tabWidget.widget(2).setEnabled(true);
       this.selectAudioFileButton.setEnabled(true);
       this.isDownloading = false;
     });
@@ -676,6 +677,9 @@ export class Transcribe {
       }
       else
         this.whisperModelComboBox.setCurrentText('large');
+
+      this.config.lastUsedWhisperLanguage = this.audioFileLanguageComboBox.currentText();
+      this.config.saveConfiguration(false);
     });
   }
 
@@ -797,7 +801,7 @@ export class Transcribe {
    * @private
    */
   private checkTransferToTranslateButton(): void {
-    const allowedExt: string[] = ['srt', 'txt']
+    const allowedExt: string[] = ['srt', 'vtt']
     const format: string = this.whisperOutputFormatComboBox.currentText();
     if (this.isTranscribedFileExist(format) && allowedExt.indexOf(format) != -1)
       this.transferToTranslateButton.setEnabled(true);

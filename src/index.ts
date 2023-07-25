@@ -1,9 +1,26 @@
-import {QMainWindow, QTabWidget, QIcon, QStatusBar} from '@nodegui/nodegui';
+import {
+  QMainWindow,
+  QTabWidget,
+  QIcon,
+  QStatusBar
+} from '@nodegui/nodegui';
 import { Config } from './config';
 import { Transcribe } from './transcribe';
 import { Translate } from "./translate";
 
 // =====================================================================================================================
+//ToDo: Adapt Windows CSS
+//ToDo: Show Console / ToggleConsole Button
+//ToDo: Available Languages for Translate & Transcode -> Configurable
+//ToDo: Filter selectable audio/video filetypes
+//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
+//ToDo: Support Whisper.cpp -> Windows / Mac x64 / Mac ARM64
+//  - Automatically recognize Whisper executable & adjust parameters
+//  - Automatically download ML models for ARM64 Mac & unpack
+//ToDo: Add default configuration file tt-tool-config.json
+//ToDo: Add License before publishing
+//ToDo: Add credits in the README to Whisper.cpp project & WinPort
+//ToDo: Pack all into the nodegui-packer
 
 // Tabs Widget
 const tabWidget: QTabWidget = new QTabWidget()
@@ -24,7 +41,7 @@ tabWidget.addEventListener('currentChanged', (index: number): void => {
   if (index == 0)
     transcribe.refreshDataModels(transcribe.getCurrentModel());
   if (index == 1)
-    translate.setTranslateButtonState();
+    translate.setButtonsState();
 })
 
 // =====================================================================================================================

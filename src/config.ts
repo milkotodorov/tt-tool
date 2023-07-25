@@ -7,7 +7,8 @@ import {
   QIcon,
   QLabel,
   QLineEdit,
-  QPushButton, QStatusBar,
+  QPushButton,
+  QStatusBar,
   QWidget
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
@@ -61,6 +62,9 @@ export class Config {
   private readonly configFile: string = 'tt-tool-config.json';
   public whisperCLIPath: string;
   public deeplAPIKey: string;
+  public lastUsedDeepLSourceLang: string;
+  public lastUsedDeepLTargetLang: string;
+  public lastUsedWhisperLanguage: string;
 
   constructor(statusBar: QStatusBar) {
     // StatusBar
@@ -73,6 +77,9 @@ export class Config {
     // Empty Configuration
     this.whisperCLIPath = '';
     this.deeplAPIKey = '';
+    this.lastUsedDeepLSourceLang = 'English';
+    this.lastUsedDeepLTargetLang = 'German';
+    this.lastUsedWhisperLanguage = 'English';
 
     this.configRootWidget.setObjectName("configRootWidget");
     this.configRootWidget.setLayout(this.configTabLayout);
@@ -208,15 +215,24 @@ export class Config {
       throw new Error();
     }
 
-    this.whisperCLIPath = configJSON.whisperCLIPath;
-    this.deeplAPIKey = configJSON.deeplAPIKey;
+    // Set the values from the config file only if present
+    if (configJSON.whisperCLIPath != null)
+      this.whisperCLIPath = configJSON.whisperCLIPath;
+    if (configJSON.deeplAPIKey != null)
+      this.deeplAPIKey = configJSON.deeplAPIKey;
+    if (configJSON.lastUsedDeepLSourceLang != null)
+      this.lastUsedDeepLSourceLang = configJSON.lastUsedDeepLSourceLang;
+    if (configJSON.lastUsedDeepLTargetLang != null)
+      this.lastUsedDeepLTargetLang = configJSON.lastUsedDeepLTargetLang;
+    if (configJSON.lastUsedWhisperLanguage != null)
+      this.lastUsedWhisperLanguage = configJSON.lastUsedWhisperLanguage;
 
     // Set loaded configuration into the UI
     this.whisperCLILineEdit.setText(this.whisperCLIPath);
     this.deeplAPIKeyLineEdit.setText(this.deeplAPIKey);
   }
 
-  private saveConfiguration(): void {
+  public saveConfiguration(showMessage: boolean): void {
     if (!fs.existsSync(this.whisperCLILineEdit.text())) {
       this.whisperCLILineEdit.setText('');
       const msg: string = "WhisperCLIPath doesn't exist. Select a valid path";
@@ -228,12 +244,16 @@ export class Config {
 
     let config: any = {
       "whisperCLIPath": this.whisperCLILineEdit.text(),
-      "deeplAPIKey": this.deeplAPIKeyLineEdit.text()
+      "deeplAPIKey": this.deeplAPIKeyLineEdit.text(),
+      "lastUsedDeepLSourceLang": this.lastUsedDeepLSourceLang,
+      "lastUsedDeepLTargetLang": this.lastUsedDeepLTargetLang,
+      "lastUsedWhisperLanguage": this.lastUsedWhisperLanguage
     }
 
     try {
       fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2), 'utf8');
-      console.log('Configuration file tt-tool-config.json updated.');
+      if (showMessage)
+        console.log('Configuration file tt-tool-config.json updated.');
     } catch (error) {
       console.log('Error while saving the configuration file: ', error);
     }
@@ -242,8 +262,10 @@ export class Config {
     this.whisperCLIPath = config.whisperCLIPath;
     this.deeplAPIKey = config.deeplAPIKey;
 
-    this.statusBar.clearMessage();
-    this.statusBar.showMessage('Configuration saved.', 5000);
+    if (showMessage) {
+      this.statusBar.clearMessage();
+      this.statusBar.showMessage('Configuration saved.', 5000);
+    }
   }
 
   public isDataModelExist(dataModelName: string): boolean {
@@ -277,17 +299,9 @@ export class Config {
     });
   }
 
-  public disableSaveButton(): void {
-    this.saveConfigButton.setEnabled(false);
-  }
-
-  public enableSaveButton(): void {
-    this.saveConfigButton.setEnabled(true);
-  }
-
   private saveConfigButtonEventListener(): void {
     this.saveConfigButton.addEventListener('clicked', () => {
-      this.saveConfiguration();
+      this.saveConfiguration(true);
     });
   }
 }
