@@ -7,20 +7,24 @@ import {
 import { Config } from './config';
 import { Transcribe } from './transcribe';
 import { Translate } from "./translate";
+import {Console} from "inspector";
 
 // =====================================================================================================================
 //ToDo: Adapt Windows CSS
 //ToDo: Show Console / ToggleConsole Button
-//ToDo: Available Languages for Translate & Transcode -> Configurable
-//ToDo: Filter selectable audio/video filetypes
-//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
+//  https://github.com/nodegui/nodegui/discussions/960
+//  https://github.com/nodegui/nodegui/issues/1016
 //ToDo: Support Whisper.cpp -> Windows / Mac x64 / Mac ARM64
 //  - Automatically recognize Whisper executable & adjust parameters
 //  - Automatically download ML models for ARM64 Mac & unpack
+//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
+//ToDo: Available Languages for Translate & Transcode -> Configurable
+//ToDo: Filter selectable audio/video filetypes
 //ToDo: Add default configuration file tt-tool-config.json
 //ToDo: Add License before publishing
 //ToDo: Add credits in the README to Whisper.cpp project & WinPort
 //ToDo: Pack all into the nodegui-packer
+//ToDo: Upgrade to latest NodeGUI (with QT 6.x)
 
 // Tabs Widget
 const tabWidget: QTabWidget = new QTabWidget()
@@ -48,7 +52,6 @@ tabWidget.addEventListener('currentChanged', (index: number): void => {
 
 // Main Window
 const mainWindow: QMainWindow = new QMainWindow();
-
 mainWindow.setWindowTitle("Transcribe & Translate Tool");
 mainWindow.setFixedSize(700, 490);
 mainWindow.setStatusBar(statusBar);

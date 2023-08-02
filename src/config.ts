@@ -101,7 +101,7 @@ export class Config {
     this.whisperConfigLabel.setText('Whisper.cpp Configuration');
     this.configCLILabelLine = new QLabel();
     this.configCLILabelLine.setObjectName('configLabelLine');
-    this.configCLILabelLine.setText('═'.repeat(30));
+    this.configCLILabelLine.setText('═'.repeat(50));
     this.whisperCLIPathLabel = new QLabel();
     this.whisperCLIPathLabel.setObjectName('whisperCLIPathLabel');
     this.whisperCLIPathLabel.setText('Whisper CLI Location:');
@@ -144,7 +144,7 @@ export class Config {
     this.deeplConfigLabel.setText('DeepL Configuration');
     this.configDeepLLabelLine = new QLabel();
     this.configDeepLLabelLine.setObjectName('configLabelLine');
-    this.configDeepLLabelLine.setText('═'.repeat(30));
+    this.configDeepLLabelLine.setText('═'.repeat(50));
     this.deeplAPIKeyLabel = new QLabel();
     this.deeplAPIKeyLabel.setObjectName('deeplAPIKeyLabel');
     this.deeplAPIKeyLabel.setText('DeepL API Key:');

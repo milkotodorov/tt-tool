@@ -7,7 +7,7 @@ import {
   QComboBox,
   QFileDialog,
   QIcon,
-  QLabel,
+  QLabel, QLayout,
   QLineEdit,
   QProgressBar,
   QPushButton,
@@ -93,6 +93,8 @@ export class Transcribe {
   private whisperOutputFormatLayout: FlexLayout;
 
   // Whisper Segments Length
+  private whisperSegmentsLengthWidget: QWidget;
+  private whisperSegmentsLengthLayout: FlexLayout;
   private whisperSegmentsLengthLabel: QLabel;
   private whisperSegmentsLengthLineEdit: QLineEdit;
 
@@ -109,11 +111,14 @@ export class Transcribe {
   private whisperThreadsLayout: FlexLayout;
 
   // Whisper Duration to process
+  private whisperDuretionWidget: QWidget;
+  private whisperDuretionLayout: QLayout;
   private whisperDurationLabel: QLabel;
   private whisperDurationLineEdit: QLineEdit;
 
   // Whisper stereo audio diarization
-  private whisperDiarizeLabel: QLabel;
+  private whisperDiarizeWidget: QWidget;
+  private whisperDiarizeLayout: FlexLayout;
   private whisperDiarizeCheckBox: QCheckBox;
 
   // Whisper custom parameters
@@ -382,6 +387,12 @@ export class Transcribe {
     this.whisperSegmentsLengthLineEdit = new QLineEdit();
     this.whisperSegmentsLengthLineEdit.setObjectName('whisperSegmentsLengthLineEdit');
     this.whisperSegmentsLengthLineEdit.setText('0');
+    this.whisperSegmentsLengthWidget = new QWidget();
+    this.whisperSegmentsLengthLayout = new FlexLayout();
+    this.whisperSegmentsLengthWidget.setObjectName('whisperSegmentsLengthWidget');
+    this.whisperSegmentsLengthWidget.setLayout(this.whisperSegmentsLengthLayout);
+    this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLabel);
+    this.whisperSegmentsLengthLayout.addWidget(this.whisperSegmentsLengthLineEdit);
 
     // Whisper Duration to process
     this.whisperDurationLabel = new QLabel();
@@ -392,12 +403,22 @@ export class Transcribe {
     this.whisperDurationLineEdit.setText('0');
     this.whisperDurationLineEdit.setToolTip('Value in milliseconds');
     this.whisperDurationLineEdit.setToolTipDuration(15000);
+    this.whisperDuretionWidget = new QWidget();
+    this.whisperDuretionLayout = new FlexLayout();
+    this.whisperDuretionWidget.setObjectName('whisperDurationWidget');
+    this.whisperDuretionWidget.setLayout(this.whisperDuretionLayout);
+    this.whisperDuretionLayout.addWidget(this.whisperDurationLabel);
+    this.whisperDuretionLayout.addWidget(this.whisperDurationLineEdit);
 
     // Whisper stereo audio diarization
-    this.whisperDiarizeLabel = new QLabel();
     this.whisperDiarizeCheckBox = new QCheckBox();
     this.whisperDiarizeCheckBox.setObjectName('whisperDiarizeCheckBox');
     this.whisperDiarizeCheckBox.setText('Stereo diarization');
+    this.whisperDiarizeWidget = new QWidget();
+    this.whisperDiarizeLayout = new FlexLayout();
+    this.whisperDiarizeWidget.setObjectName('whisperDiarizeWidget');
+    this.whisperDiarizeWidget.setLayout(this.whisperDiarizeLayout);
+    this.whisperDiarizeLayout.addWidget(this.whisperDiarizeCheckBox);
 
     // Whisper custom parameters
     this.whisperCustomParamsLabel = new QLabel();
@@ -422,11 +443,9 @@ export class Transcribe {
     this.whisperOptionsL1Layout.addWidget(this.whisperThreadsWidget);
 
     // Whisper Options L2 Widget
-    this.whisperOptionsL2Layout.addWidget(this.whisperDurationLabel);
-    this.whisperOptionsL2Layout.addWidget(this.whisperDurationLineEdit);
-    this.whisperOptionsL2Layout.addWidget(this.whisperDiarizeCheckBox);
-    this.whisperOptionsL2Layout.addWidget(this.whisperSegmentsLengthLabel);
-    this.whisperOptionsL2Layout.addWidget(this.whisperSegmentsLengthLineEdit);
+    this.whisperOptionsL2Layout.addWidget(this.whisperDuretionWidget);
+    this.whisperOptionsL2Layout.addWidget(this.whisperDiarizeWidget);
+    this.whisperOptionsL2Layout.addWidget(this.whisperSegmentsLengthWidget);
 
     // Fill the OptionsRoot Layout
     this.whisperOptionsLayout.addWidget(this.whisperOptionsL1Widget);
@@ -718,7 +737,10 @@ export class Transcribe {
       this.statusBar.clearMessage();
       this.statusBar.showMessage('Transcribing...');
 
-      this.whisperPrc = spawn(this.config.whisperCLIPath, whisperArgs,
+      let whisperCLI: string = this.config.whisperCLIPath;
+      if (path.dirname(whisperCLI) && !whisperCLI.startsWith('./'))
+        whisperCLI = './' + whisperCLI;
+      this.whisperPrc = spawn(whisperCLI, whisperArgs,
           {cwd: path.dirname(this.config.whisperCLIPath)}
       );
 
@@ -727,6 +749,10 @@ export class Transcribe {
       });
 
       this.whisperPrc.stderr.on('data', (data: any): void => {
+        console.error(data.toString());
+      });
+
+      this.whisperPrc.stderr.on('error', (data: any): void => {
         console.error(data.toString());
       });
 

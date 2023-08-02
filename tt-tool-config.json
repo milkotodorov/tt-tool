@@ -1,0 +1,7 @@
+{
+  "whisperCLIPath": "whisper-cli.exe",
+  "deeplAPIKey": "",
+  "lastUsedDeepLSourceLang": "English",
+  "lastUsedDeepLTargetLang": "German",
+  "lastUsedWhisperLanguage": "English"
+}
