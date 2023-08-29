@@ -1,5 +1,5 @@
 import {
-  FlexLayout,
+  FlexLayout, QFont,
   QMainWindow,
   QTextBrowser,
   QWidget
@@ -19,7 +19,7 @@ export class ConsoleWindow {
     this.rootLayout = new FlexLayout();
     this.consoleTextBox = new QTextBrowser();
     this.consoleTextBox.setObjectName('console');
-
+    this.consoleTextBox.setFont(new QFont("Times", 14));
     this.window.setCentralWidget(this.rootWidget);
     this.rootWidget.setLayout(this.rootLayout);
     this.rootLayout.addWidget(this.consoleTextBox);
