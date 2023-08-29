@@ -1,4 +1,9 @@
-#transcribeRootWidget, 
+#console {
+  height: '100%';
+  width: '100%';
+}
+
+#transcribeRootWidget,
 #translateRootWidget,
 #configRootWidget {
   padding: 5px;

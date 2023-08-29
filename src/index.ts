@@ -6,14 +6,13 @@ import {
 } from '@nodegui/nodegui';
 import { Config } from './config';
 import { Transcribe } from './transcribe';
-import { Translate } from "./translate";
-import {Console} from "inspector";
+import { Translate } from './translate';
+import {ConsoleWindow} from "./ConsoleWindow";
 
 // =====================================================================================================================
 //ToDo: Adapt Windows CSS
-//ToDo: Show Console / ToggleConsole Button
-//  https://github.com/nodegui/nodegui/discussions/960
-//  https://github.com/nodegui/nodegui/issues/1016
+//ToDo: Move ConsoleWindow next to the MainWindow
+//ToDo: ConsoleWindow with color output
 //ToDo: Support Whisper.cpp -> Windows / Mac x64 / Mac ARM64
 //  - Automatically recognize Whisper executable & adjust parameters
 //  - Automatically download ML models for ARM64 Mac & unpack
@@ -21,7 +20,6 @@ import {Console} from "inspector";
 //ToDo: Available Languages for Translate & Transcode -> Configurable
 //ToDo: Filter selectable audio/video filetypes
 //ToDo: Add default configuration file tt-tool-config.json
-//ToDo: Add License before publishing
 //ToDo: Add credits in the README to Whisper.cpp project & WinPort
 //ToDo: Pack all into the nodegui-packer
 //ToDo: Upgrade to latest NodeGUI (with QT 6.x)
@@ -32,9 +30,10 @@ const tabWidget: QTabWidget = new QTabWidget()
 // Initialising imported classes
 let statusBar: QStatusBar = new QStatusBar();
 statusBar.setObjectName('statusBar');
-let config: Config = new Config(statusBar);
-let translate: Translate = new Translate(statusBar, config);
-let transcribe: Transcribe = new Transcribe(statusBar, config, tabWidget, translate);
+let consoleWindow: ConsoleWindow = new ConsoleWindow({Width: 1024, Height: 768});
+let config: Config = new Config(consoleWindow, statusBar);
+let translate: Translate = new Translate(consoleWindow, statusBar, config);
+let transcribe: Transcribe = new Transcribe(consoleWindow, statusBar, config, tabWidget, translate);
 
 // Add the Tabs
 tabWidget.addTab(transcribe.transcribeRootWidget, new QIcon('assets/openai-logo-icon.png'), 'Transcribe');

@@ -23,11 +23,15 @@ import localeCode from 'iso-639-1';
 import wget from 'wget-improved';
 import cliProgress from 'cli-progress';
 import EventEmitter from "events";
-import { spawn } from 'node:child_process';
-import { Config } from './config';
-import { Translate } from './translate';
+import {spawn} from 'node:child_process';
+import {Config} from './config';
+import {Translate} from './translate';
+import {ConsoleWindow} from "./ConsoleWindow";
 
 export class Transcribe {
+  // ConsoleWindow
+  private consoleWindow: ConsoleWindow;
+
   // StatusBar
   private statusBar: QStatusBar;
 
@@ -140,7 +144,9 @@ export class Transcribe {
   private actionButtonsWidget: QWidget;
   private actionButtonsLayout: FlexLayout;
 
-  constructor(statusBar: QStatusBar, config: Config, tabWidget: QTabWidget, translate: Translate) {
+  constructor(consoleWindow: ConsoleWindow, statusBar: QStatusBar,
+              config: Config, tabWidget: QTabWidget, translate: Translate) {
+    this.consoleWindow = consoleWindow;
     this.statusBar = statusBar;
     this.config = config;
     this.tabWidget = tabWidget;
@@ -588,7 +594,7 @@ export class Transcribe {
 
       if (this.config.whisperCLIPath == '' || this.config.whisperCLIPath == null) {
         const msg: string = 'Whisper CLI Path is not configured in the "Config" Tab. Configure it first';
-        console.log(msg);
+        this.consoleWindow.log(msg);
         this.statusBar.clearMessage();
         this.statusBar.showMessage(msg, 10000);
         this.whisperModelComboBox.setCurrentText('medium.en');
@@ -605,7 +611,7 @@ export class Transcribe {
     this.isDownloading = true;
 
     if (model == '') {
-      console.log('downloadDataModel: No model name specified for download');
+      this.consoleWindow.log('downloadDataModel: No model name specified for download');
       return;
     }
 
@@ -636,8 +642,8 @@ export class Transcribe {
     let modelFileSize: number;
 
     download.on('error', (err: Error): void => {
-      console.log('Error while downloading Whisper DataModel (', src, '): ', err);
-      console.log('Deleting the uncompleted download: ', output)
+      this.consoleWindow.log('Error while downloading Whisper DataModel (', src, '): ', err);
+      this.consoleWindow.log('Deleting the uncompleted download: ', output)
       fs.rmSync(output);
       // Set the default DataModel
       this.whisperModelComboBox.setCurrentText('medium.en');
@@ -653,15 +659,15 @@ export class Transcribe {
       const modelSizeStr: string = (fileSize / (1024*1024)).toFixed(2) + ' MB'
       const statusBarMsg: string = 'Download Whisper DataModel (' + modelSizeStr + '): ';
       let consoleDownloadMsg: string = 'Downloading Whisper "' + model + '" DataModel. Model Size: ' + modelSizeStr;
-      console.log('Whisper DataModel URL: ', src);
-      console.log('Target location: ', output);
+      this.consoleWindow.log('Whisper DataModel URL: ', src);
+      this.consoleWindow.log('Target location: ', output);
       downloadLabel.setText(statusBarMsg);
       this.statusBar.clearMessage();
       this.statusBar.addWidget(downloadLabel);
       this.statusBar.addWidget(progressBar);
       progressBar.setRange(0, 100);
       downloadLabel.setText(statusBarMsg);
-      console.log(consoleDownloadMsg);
+      this.consoleWindow.log(consoleDownloadMsg);
       consoleBar.start(modelFileSize, 0);
     });
 
@@ -669,7 +675,7 @@ export class Transcribe {
       this.statusBar.removeWidget(downloadLabel);
       this.statusBar.removeWidget(progressBar);
       consoleBar.stop();
-      console.log('Download completed: ', output);
+      this.consoleWindow.log('Download completed: ', output);
       this.statusBar.clearMessage();
       this.statusBar.showMessage('Download completed', 5000);
       this.refreshDataModels(model);
@@ -723,10 +729,13 @@ export class Transcribe {
         '--processors', this.whisperCPUsComboBox.currentText(),
         '--threads', this.whisperThreadsComboBox.currentText(),
         '--duration', this.whisperDurationLineEdit.text(),
-        '--print-colors', '--print-progress',
         '--output-file', outputFile,
         '--file', this.audioFileComboBox.currentText()
       ];
+
+      // Not available for Windows port of Whisper.cpp with GPU acceleration
+      // whisperArgs.push('--print-colors');
+      whisperArgs.push('--print-progress');
 
       if (this.whisperDiarizeCheckBox.isChecked())
         whisperArgs.push('--diarize');
@@ -745,19 +754,19 @@ export class Transcribe {
       );
 
       this.whisperPrc.stdout.on('data', (data: any): void => {
-        console.log(data.toString());
+        this.consoleWindow.log(data.toString());
       });
 
       this.whisperPrc.stderr.on('data', (data: any): void => {
-        console.error(data.toString());
+        this.consoleWindow.log(data.toString());
       });
 
       this.whisperPrc.stderr.on('error', (data: any): void => {
-        console.error(data.toString());
+        this.consoleWindow.log(data.toString());
       });
 
       this.whisperPrc.on('exit', (code: any): void => {
-        console.log(`Transcribe completed.\nChild exited with code ${code}`);
+        this.consoleWindow.log(`Transcribe completed.\nChild exited with code ${code}`);
         if (this.statusBar.currentMessage() != 'Killing Whisper process...') {
           this.statusBar.clearMessage();
           this.statusBar.showMessage('Transcribe completed.', 5000);
@@ -777,7 +786,7 @@ export class Transcribe {
   private transcribeCancelButtonEventListener(): void {
     this.transcribeCancelButton.addEventListener('clicked', (): void => {
       const msg: string = 'Killing Whisper process...';
-      console.log(msg);
+      this.consoleWindow.log(msg);
       this.statusBar.clearMessage();
       this.statusBar.showMessage(msg, 5000);
       this.whisperPrc.kill();
@@ -850,6 +859,7 @@ export class Transcribe {
 
   private toggleConsoleButtonEventListener(): void {
     this.toggleConsoleButton.addEventListener('clicked', (): void => {
+      this.consoleWindow.toggleWindow();
     });
   }
 

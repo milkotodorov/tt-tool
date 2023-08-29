@@ -15,11 +15,15 @@ import * as fs from 'fs';
 import * as deepl from 'deepl-node'
 import localeCode from 'iso-639-1';
 import path from "node:path";
-import { Config } from './config';
-import { Node, parseSync, stringifySync } from 'subtitle';
-import { NodeList } from "subtitle/src/types";
+import {Config} from './config';
+import {Node, parseSync, stringifySync} from 'subtitle';
+import {NodeList} from "subtitle/src/types";
+import {ConsoleWindow} from "./ConsoleWindow";
 
 export class Translate {
+  // ConsoleWindow
+  private consoleWindow: ConsoleWindow;
+
   // StatusBar
   private statusBar: QStatusBar;
 
@@ -63,7 +67,8 @@ export class Translate {
   private transcribeButtonsSpacer1Label: QLabel;
   private transcribeButtonsSpacer2Label: QLabel;
 
-  constructor(statusBar: QStatusBar, config: Config) {
+  constructor(consoleWindow: ConsoleWindow, statusBar: QStatusBar, config: Config) {
+    this.consoleWindow = consoleWindow;
     this.statusBar = statusBar;
 
     // Configuration
@@ -204,6 +209,7 @@ export class Translate {
     this.deeplUsageCheckButtonEventListener();
     this.translateFileSourceLanguageComboBoxEL();
     this.translateFileTargetLanguageComboBoxEL();
+    this.toggleConsoleButtonEventListener();
 
     // Set Buttons Enable/Disable State;
     this.setButtonsState();
@@ -251,7 +257,7 @@ export class Translate {
     } catch (error) {
       this.statusBar.clearMessage();
       this.statusBar.showMessage('DeepL API Error.', 5000);
-      console.log(error);
+      this.consoleWindow.log(error);
       return null;
     }
 
@@ -264,7 +270,7 @@ export class Translate {
     if (deeplUsage != null) {
       if (deeplUsage.character) {
         let msgUsage: string = `DeepL usage: ${deeplUsage.character.count} of ${deeplUsage.character.limit} characters used.`
-        console.log(msgUsage);
+        this.consoleWindow.log(msgUsage);
         if (deeplUsage.anyLimitReached())
           msgUsage += ' Quota used up.'
         this.statusBar.clearMessage();
@@ -278,7 +284,7 @@ export class Translate {
       const msg: string = 'DeepL API Key is not configured. Maintain it the ConfigTab.';
       this.statusBar.clearMessage();
       this.statusBar.showMessage(msg, 10000);
-      console.log(msg);
+      this.consoleWindow.log(msg);
       return false;
     }
 
@@ -312,7 +318,7 @@ export class Translate {
     const authKey: string = this.config.deeplAPIKey;
     let translator: deepl.Translator = new deepl.Translator(authKey);
 
-    console.log(`Translating from ${sourceLang.toUpperCase()} to ${targetLang.toUpperCase()}`);
+    this.consoleWindow.log(`Translating from ${sourceLang.toUpperCase()} to ${targetLang.toUpperCase()}`);
 
     const srcFilePPath: path.ParsedPath = path.parse(srcFile);
     const tmpTxtFile: string = path.join(srcFilePPath.dir, srcFilePPath.name + '-SubText.txt');
@@ -322,7 +328,7 @@ export class Translate {
 
     if (fs.existsSync(outSubFile)) {
       const msg: string = 'Translation already exist: '
-      console.log(msg + outSubFile);
+      this.consoleWindow.log(msg + outSubFile);
       this.statusBar.clearMessage();
       this.statusBar.showMessage(msg + path.basename(outSubFile), 5000);
       this.translateButton.setEnabled(true);
@@ -336,8 +342,8 @@ export class Translate {
       sub = fs.readFileSync(srcFile, 'utf8');
     } catch (err) {
       const errMsg: string = 'Error while reading the subtitle file ';
-      console.log(errMsg, srcFile);
-      console.log(err);
+      this.consoleWindow.log(errMsg, srcFile);
+      this.consoleWindow.log(err);
       this.statusBar.clearMessage();
       this.statusBar.showMessage(errMsg + srcFilePPath.base, 5000);
       this.translateButton.setEnabled(true);
@@ -361,8 +367,8 @@ export class Translate {
       });
     } catch (err) {
       const errMsg: string = 'Error writing the temp output file ';
-      console.log(errMsg, tmpTxtFile);
-      console.log(err);
+      this.consoleWindow.log(errMsg, tmpTxtFile);
+      this.consoleWindow.log(err);
       this.statusBar.clearMessage();
       this.statusBar.showMessage(errMsg + path.basename(tmpTxtFile), 5000);
       // Delete temp files
@@ -388,10 +394,10 @@ export class Translate {
         msgUsage += ' Quota used up.';
         this.statusBar.clearMessage();
         this.statusBar.showMessage(msgUsage, 5000);
-        console.log(msgUsage);
+        this.consoleWindow.log(msgUsage);
       }
-      console.log('Characters to be translated: ', trChars);
-      console.log(msgUsage);
+      this.consoleWindow.log('Characters to be translated: ', trChars);
+      this.consoleWindow.log(msgUsage);
       if (deeplUsage.character) {
         const deeplCharsLeft: number = deeplUsage.character.limit - deeplUsage.character.count;
         if ((deeplCharsLeft) < trChars) {
@@ -399,7 +405,7 @@ export class Translate {
               `Needed ${trChars}. Quota will be exceeded. Aborting...`;
           this.statusBar.clearMessage();
           this.statusBar.showMessage(msgQuotaExceed, 5000);
-          console.log(msgQuotaExceed);
+          this.consoleWindow.log(msgQuotaExceed);
           // Delete temp files
           fs.rmSync(tmpTxtFile);
           this.translateButton.setEnabled(true);
@@ -418,15 +424,15 @@ export class Translate {
           // If the error occurs after the document was already uploaded,
           // documentHandle will contain the document ID and key
           const handle = error.documentHandle;
-          console.log(`Error while translating file ${tmpTxtFile}`);
-          console.log(`Document ID: ${handle.documentId}, Document key: ${handle.documentKey}`);
+          this.consoleWindow.log(`Error while translating file ${tmpTxtFile}`);
+          this.consoleWindow.log(`Document ID: ${handle.documentId}, Document key: ${handle.documentKey}`);
           this.statusBar.clearMessage();
           this.statusBar.showMessage(`Error while translating file ${path.basename(tmpTxtFile)}.`, 5000);
         } else {
           const errMsg: string = 'Error occurred during document upload';
           this.statusBar.clearMessage();
           this.statusBar.showMessage(errMsg, 5000);
-          console.log(errMsg + `: ${error}`);
+          this.consoleWindow.log(errMsg + `: ${error}`);
         }
         this.translateButton.setEnabled(true);
         // Delete temp files
@@ -437,7 +443,7 @@ export class Translate {
       // Update the subtitles object with the translated values
       if (!fs.existsSync(deeplFile)) {
         const errMsg: string = `DeepL translation file ${path.basename(deeplFile)} doesn't exist`;
-        console.log(errMsg);
+        this.consoleWindow.log(errMsg);
         this.statusBar.clearMessage();
         this.statusBar.showMessage(errMsg, 5000);
       }
@@ -446,8 +452,8 @@ export class Translate {
         trText = fs.readFileSync(deeplFile, 'utf8');
       } catch (err) {
         const errMsg: string = `Error while reading DeepL translated file ${path.basename(deeplFile)}.`;
-        console.log(errMsg);
-        console.log(err);
+        this.consoleWindow.log(errMsg);
+        this.consoleWindow.log(err);
         this.statusBar.clearMessage();
         this.statusBar.showMessage(errMsg, 5000);
         this.translateButton.setEnabled(true);
@@ -478,8 +484,8 @@ export class Translate {
         fs.writeFileSync(outSubFile, trSub);
       } catch (err) {
         const errMsg: string = 'Error writing to output translation subtitle file: ';
-        console.log(errMsg + outSubFile);
-        console.log(err);
+        this.consoleWindow.log(errMsg + outSubFile);
+        this.consoleWindow.log(err);
         this.statusBar.clearMessage();
         this.statusBar.showMessage(errMsg + path.basename(outSubFile), 5000);
         this.translateButton.setEnabled(true);
@@ -491,7 +497,7 @@ export class Translate {
 
       this.statusBar.clearMessage();
       this.statusBar.showMessage(`Translation complete. Subtitle file: ${path.basename(outSubFile)}`, 5000);
-      console.log('Translation complete. Output file: ', outSubFile);
+      this.consoleWindow.log('Translation complete. Output file: ', outSubFile);
 
       // Delete temp files
       fs.rmSync(tmpTxtFile);
@@ -512,6 +518,7 @@ export class Translate {
   }
   private toggleConsoleButtonEventListener(): void {
     this.toggleConsoleButton.addEventListener('clicked', (): void => {
+      this.consoleWindow.toggleWindow();
     });
   }
 
@@ -537,7 +544,6 @@ export class Translate {
     });
   }
 }
-
 
 
 

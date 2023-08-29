@@ -13,8 +13,12 @@ import {
 } from "@nodegui/nodegui";
 import * as fs from 'fs';
 import * as path from "node:path";
+import {ConsoleWindow} from "./ConsoleWindow";
 
 export class Config {
+  // ConsoleWindow
+  private consoleWindow: ConsoleWindow;
+
   // StatusBar
   private statusBar: QStatusBar;
 
@@ -66,7 +70,10 @@ export class Config {
   public lastUsedDeepLTargetLang: string;
   public lastUsedWhisperLanguage: string;
 
-  constructor(statusBar: QStatusBar) {
+  constructor(consoleWindow: ConsoleWindow, statusBar: QStatusBar) {
+    // ConsoleWindow
+    this.consoleWindow = consoleWindow;
+    
     // StatusBar
     this.statusBar = statusBar;
 
@@ -204,14 +211,14 @@ export class Config {
     try {
       configBuffer = fs.readFileSync(this.configFile);
     } catch (error) {
-      console.log("Error while reading the configuration file 'tt-tool-config.json': ", error);
+      this.consoleWindow.log("Error while reading the configuration file 'tt-tool-config.json': ", error);
       throw new Error();
     }
 
     try{
       configJSON = JSON.parse(configBuffer.toString());
     } catch(error) {
-      console.log("Error while parsing the configuration file 'tt-tool-config.json': ", error);
+      this.consoleWindow.log("Error while parsing the configuration file 'tt-tool-config.json': ", error);
       throw new Error();
     }
 
@@ -236,7 +243,7 @@ export class Config {
     if (!fs.existsSync(this.whisperCLILineEdit.text())) {
       this.whisperCLILineEdit.setText('');
       const msg: string = "WhisperCLIPath doesn't exist. Select a valid path";
-      console.log(msg);
+      this.consoleWindow.log(msg);
       this.statusBar.clearMessage()
       this.statusBar.showMessage(msg, 5000);
       return;
@@ -253,9 +260,9 @@ export class Config {
     try {
       fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2), 'utf8');
       if (showMessage)
-        console.log('Configuration file tt-tool-config.json updated.');
+        this.consoleWindow.log('Configuration file tt-tool-config.json updated.');
     } catch (error) {
-      console.log('Error while saving the configuration file: ', error);
+      this.consoleWindow.log('Error while saving the configuration file: ', error);
     }
 
     // Set the current configuration active
