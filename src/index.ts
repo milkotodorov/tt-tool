@@ -10,14 +10,13 @@ import { Translate } from './translate';
 import {ConsoleWindow} from "./ConsoleWindow";
 
 // =====================================================================================================================
-//ToDo: Adapt Windows CSS
+//ToDo: Bug: Exception when no model when start
 //ToDo: Support Whisper.cpp -> Windows / Mac x64 / Mac ARM64
 //  - Automatically recognize Whisper executable & adjust parameters
 //  - Automatically download ML models for ARM64 Mac & unpack
 //ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
 //ToDo: Available Languages for Translate & Transcode -> Configurable
 //ToDo: Filter selectable audio/video filetypes
-//ToDo: Add default configuration file tt-tool-config.json
 //ToDo: Add credits in the README to Whisper.cpp project & WinPort
 //ToDo: Pack all into the nodegui-packer
 //ToDo: Upgrade to latest NodeGUI (with QT 6.x)
@@ -49,7 +48,7 @@ tabWidget.addEventListener('currentChanged', (index: number): void => {
 // =====================================================================================================================
 
 // Main Window
-const mainWinDim: {width: number, height: number} = {width: 780, height: 490};
+const mainWinDim: {width: number, height: number} = {width: 700, height: 490};
 const mainWindow: QMainWindow = new QMainWindow();
 mainWindow.setWindowTitle("Transcribe & Translate Tool");
 mainWindow.setFixedSize(mainWinDim.width, mainWinDim.height);
