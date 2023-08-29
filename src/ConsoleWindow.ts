@@ -7,14 +7,14 @@ import {
 import fs from "fs";
 
 export class ConsoleWindow {
-  private readonly window: QMainWindow;
+  public readonly window: QMainWindow;
   private readonly rootWidget: QWidget;
   private readonly rootLayout: FlexLayout;
   private readonly consoleTextBox: QTextBrowser;
 
   constructor(WindowSize: {Width: number, Height: number} = {Width: 800, Height: 600}) {
     this.window = new QMainWindow();
-    this.window.setWindowTitle('Console Output')
+    this.window.setWindowTitle('Console Output');
     this.rootWidget = new QWidget();
     this.rootLayout = new FlexLayout();
     this.consoleTextBox = new QTextBrowser();
@@ -26,6 +26,7 @@ export class ConsoleWindow {
     this.rootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'));
 
     this.window.resize(WindowSize.Width || 800, WindowSize.Height || 600);
+    this.window.move(50, 300);
   }
 
   public show(): void {

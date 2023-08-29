@@ -11,8 +11,6 @@ import {ConsoleWindow} from "./ConsoleWindow";
 
 // =====================================================================================================================
 //ToDo: Adapt Windows CSS
-//ToDo: Move ConsoleWindow next to the MainWindow
-//ToDo: ConsoleWindow with color output
 //ToDo: Support Whisper.cpp -> Windows / Mac x64 / Mac ARM64
 //  - Automatically recognize Whisper executable & adjust parameters
 //  - Automatically download ML models for ARM64 Mac & unpack
@@ -23,6 +21,7 @@ import {ConsoleWindow} from "./ConsoleWindow";
 //ToDo: Add credits in the README to Whisper.cpp project & WinPort
 //ToDo: Pack all into the nodegui-packer
 //ToDo: Upgrade to latest NodeGUI (with QT 6.x)
+//ToDo: ConsoleWindow with color output: Prase bash output into HTML
 
 // Tabs Widget
 const tabWidget: QTabWidget = new QTabWidget()
@@ -50,12 +49,13 @@ tabWidget.addEventListener('currentChanged', (index: number): void => {
 // =====================================================================================================================
 
 // Main Window
+const mainWinDim: {width: number, height: number} = {width: 780, height: 490};
 const mainWindow: QMainWindow = new QMainWindow();
 mainWindow.setWindowTitle("Transcribe & Translate Tool");
-mainWindow.setFixedSize(700, 490);
+mainWindow.setFixedSize(mainWinDim.width, mainWinDim.height);
 mainWindow.setStatusBar(statusBar);
 mainWindow.setCentralWidget(tabWidget);
-
 mainWindow.show();
+
 (global as any).win = mainWindow;
 // =====================================================================================================================
