@@ -23,6 +23,7 @@ import {ConsoleWindow} from "./ConsoleWindow"
 // - Add credits to Whisper.cpp project & WinPort
 
 // Prio Low
+//ToDo: ProgressBar when transcribing
 //ToDo: Upgrade to latest NodeGUI (with QT 6.x)
 //ToDo: Upon showing console window, switch back the focus to the main window
 //ToDo: Available Languages for Translate & Transcode -> Configurable
