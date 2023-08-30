@@ -25,7 +25,7 @@ To clone and run this repository you'll need [Git](https://git-scm.com) and [Nod
 
 From the command line, execute as follows:
 
-```bash
+```console
 # Clone this repository
 git clone https://github.com/milkotodorov/tt-tool
 
@@ -45,13 +45,13 @@ In order to distribute your finished app, you can use [@nodegui/packer](https://
 
 Just run the pack command:
 
-```sh
+```console
 npm run build
 ```
 
 This will produce the js bundle along with assets inside the `./dist` directory
 
-```sh
+```console
 npx nodegui-packer --pack ./dist
 ```
 
