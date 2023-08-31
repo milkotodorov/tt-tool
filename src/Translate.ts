@@ -7,6 +7,7 @@ import {
   QFileDialog,
   QIcon,
   QLabel,
+  QPixmap,
   QPushButton,
   QSize,
   QStatusBar,
@@ -48,6 +49,7 @@ export class Translate {
   public translateFileComboBox: QComboBox
   private translateFileSpacerLabel: QLabel
   private translateFileArrowLabel: QLabel
+  private translateArrowPixmap: QPixmap;
   private translateFileSourceLanguageComboBox: QComboBox
   private translateFileTargetLanguageComboBox: QComboBox
 
@@ -140,7 +142,9 @@ export class Translate {
     this.translateFileSpacerLabel.setObjectName('translateFileSpacerLabel')
     this.translateFileArrowLabel = new QLabel()
     this.translateFileArrowLabel.setObjectName('translateFileArrowLabel')
-    this.translateFileArrowLabel.setText('→')
+    this.translateArrowPixmap = new QPixmap()
+    this.translateArrowPixmap.load('assets/arrow.png')
+    this.translateFileArrowLabel.setPixmap(this.translateArrowPixmap.scaled(32, 32))
     this.translateFileSourceLanguageComboBox = new QComboBox()
     this.translateFileSourceLanguageComboBox.setObjectName('translateFileSourceLanguageComboBox')
     this.translateFileSourceLanguageComboBox.addItems(this.deeplLanguages)
@@ -166,7 +170,9 @@ export class Translate {
     this.translateFileTopLayout.addWidget(this.selectTranslateFileButton)
     this.translateFileTopLayout.addWidget(this.translateFileSpacerLabel)
     this.translateFileTopLayout.addWidget(this.translateFileSourceLanguageComboBox)
+    //ToDo: Fin better "arrow" symbol for Windows
     this.translateFileTopLayout.addWidget(this.translateFileArrowLabel)
+    // this.translateFileTopLayout.addWidget(this.translateArrow)
     this.translateFileTopLayout.addWidget(this.translateFileTargetLanguageComboBox)
     this.translateFileRootLayout.addWidget(this.translateFileTopWidget)
     this.translateFileRootLayout.addWidget(this.translateFileComboBox)

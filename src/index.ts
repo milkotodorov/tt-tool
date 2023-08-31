@@ -17,14 +17,14 @@ import {ConsoleWindow} from "./ConsoleWindow"
 //  - Automatically recognize Whisper executable & adjust parameters
 //  - Automatically download ML models for ARM64 Mac & unpack
 //ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
-//ToDo: Fin better "arrow" symbol for languages in transcribe tab (Windows)
 //ToDo: Pack all files with the nodegui-packer
+//ToDo: Add system tray icon: https://github.com/sitepoint-editors/memesearchapp-nodegui-tutorial/blob/master/src/index.js#L132-L153
 //ToDo: Update final README
 // - Add credits to Whisper.cpp project & WinPort
 
 // Prio Low
-//ToDo: ProgressBar when transcribing
 //ToDo: Upgrade to latest NodeGUI (with QT 6.x)
+//ToDo: ProgressBar when transcribing
 //ToDo: Upon showing console window, switch back the focus to the main window
 //ToDo: Available Languages for Translate & Transcode -> Configurable
 //ToDo: Filter only executable files in config tab
