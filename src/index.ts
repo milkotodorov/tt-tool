@@ -24,6 +24,7 @@ import {ConsoleWindow} from "./ConsoleWindow"
 
 // Prio Low
 //ToDo: Upgrade to latest NodeGUI (with QT 6.x)
+//ToDo: Set ConsoleFont MesloLGS NF with application font (work around is to install it from fonts)
 //ToDo: ProgressBar when transcribing
 //ToDo: Upon showing console window, switch back the focus to the main window
 //ToDo: Available Languages for Translate & Transcode -> Configurable

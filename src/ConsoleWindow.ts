@@ -1,5 +1,7 @@
 import {
-  FlexLayout, QFont, QIcon,
+  FlexLayout,
+  QFont,
+  QIcon,
   QMainWindow,
   QTextBrowser,
   QWidget
