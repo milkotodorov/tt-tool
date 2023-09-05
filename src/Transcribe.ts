@@ -152,41 +152,6 @@ export class Transcribe {
     this.tabWidget = tabWidget
     this.translate = translate
 
-    const whisperParameters: string = '\n' +
-        'options:\n' +
-        '  -h,        --help              [default] show this help message and exit\n' +
-        '  -t N,      --threads N         [4      ] number of threads to use during computation\n' +
-        '  -p N,      --processors N      [1      ] number of processors to use during computation\n' +
-        '  -ot N,     --offset-t N        [0      ] time offset in milliseconds\n' +
-        '  -on N,     --offset-n N        [0      ] segment index offset\n' +
-        '  -d  N,     --duration N        [0      ] duration of audio to process in milliseconds\n' +
-        '  -mc N,     --max-context N     [-1     ] maximum number of text context tokens to store\n' +
-        '  -ml N,     --max-len N         [0      ] maximum segment length in characters\n' +
-        '  -bo N,     --best-of N         [5      ] number of best candidates to keep\n' +
-        '  -bs N,     --beam-size N       [-1     ] beam size for beam search\n' +
-        '  -wt N,     --word-thold N      [0.01   ] word timestamp probability threshold\n' +
-        '  -et N,     --entropy-thold N   [2.40   ] entropy threshold for decoder fail\n' +
-        '  -lpt N,    --logprob-thold N   [-1.00  ] log probability threshold for decoder fail\n' +
-        '  -su,       --speed-up          [false  ] speed up audio by x2 (reduced accuracy)\n' +
-        '  -tr,       --translate         [false  ] translate from source language to english\n' +
-        '  -tdrz,     --tinydiarize       [false  ] enable tinydiarize (requires a tdrz model)\n' +
-        '  -di,       --diarize           [false  ] stereo audio diarization\n' +
-        '  -nf,       --no-fallback       [false  ] do not use temperature fallback while decoding\n' +
-        '  -otxt,     --output-txt        [false  ] output result in a text file\n' +
-        '  -ovtt,     --output-vtt        [false  ] output result in a vtt file\n' +
-        '  -osrt,     --output-srt        [false  ] output result in a srt file\n' +
-        '  -owts,     --output-words      [false  ] output script for generating karaoke video\n' +
-        '  -ocsv,     --output-csv        [false  ] output result in a CSV file\n' +
-        '  -of FNAME, --output-file FNAME [       ] output file path (without file extension)\n' +
-        '  -ps,       --print-special     [false  ] print special tokens\n' +
-        '  -pc,       --print-colors      [false  ] print colors\n' +
-        '  -pp,       --print-progress    [false  ] print progress\n' +
-        '  -nt,       --no-timestamps     [true   ] do not print timestamps\n' +
-        '  -l LANG,   --language LANG     [en     ] spoken language (\'auto\' for auto-detect)\n' +
-        '             --prompt PROMPT     [       ] initial prompt\n' +
-        '  -m FNAME,  --model FNAME       [models/ggml-base.en.bin] model path\n' +
-        '  -f FNAME,  --file FNAME        [       ] input WAV file path'
-
     this.whisperLanguages = [
         'auto',
         'Afrikaans',
@@ -348,7 +313,7 @@ export class Transcribe {
     this.whisperOutputFormatLabel.setObjectName('whisperOutputFormatLabel')
     this.whisperOutputFormatLabel.setText('Output format:')
     this.whisperOutputFormatComboBox = new QComboBox()
-    this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt', 'wts', 'json', 'csv'])
+    this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt', 'lrc'])
     this.whisperOutputFormatComboBox.setCurrentText('srt')
     this.whisperOutputFormatWidget = new QWidget()
     this.whisperOutputFormatLayout = new FlexLayout()
@@ -436,7 +401,7 @@ export class Transcribe {
     this.whisperCustomParamsLineEdit = new QLineEdit()
     this.whisperCustomParamsLineEdit.setObjectName('whisperCustomParamsLineEdit')
     this.whisperCustomParamsLineEdit.setToolTip('Space separated additional parameters.\n' +
-        'All parameters: https://github.com/ggerganov/whisper.cpp#quick-start\n' + whisperParameters)
+        'Use -h to list all available parameters (see console output).')
     this.whisperCustomParamsLineEdit.setToolTipDuration(120000)
     this.whisperCustomParamsWidget = new QWidget()
     this.whisperCustomParamsLayout = new FlexLayout()
