@@ -60,13 +60,13 @@
 #translateFileTopWidget,
 #whisperCLIConfigTopWidget,
 #deeplAPIKeyWidget,
-#whisperCLITypeWidget {
+#whisperCLIArchWidget {
   flex-direction: row;
   width: '94%';
   /*border: 2px ridge #bdbdbd;*/
 }
 
-#whisperCLITypeWidget {
+#whisperCLIArchWidget {
   padding-top: 20px;
 }
 
@@ -85,7 +85,7 @@
 #whisperCLIConfigWidget,
 #whisperCLIConfigTopWidget,
 #whisperCLIConfigL2Widget,
-#whisperCLITypeWidget {
+#whisperCLIArchWidget {
   padding-left: 10px;
   width: '94%';
   /*border: 2px ridge #bdbdbd;*/

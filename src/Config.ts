@@ -54,8 +54,8 @@ export class Config {
   private whisperCLIDarwinARM64RadioButton: QRadioButton
   private whisperCLIDarwinX64RadioButton: QRadioButton
   private whisperCLILinuxX64RadioButton: QRadioButton
-  private whisperCLITypeWidget: QWidget
-  private whisperCLITypeLayout: FlexLayout
+  private whisperCLIArchWidget: QWidget
+  private whisperCLIArchLayout: FlexLayout
 
   // DeepL Configuration Objects
   private deeplConfigLabel: QLabel
@@ -149,10 +149,10 @@ export class Config {
     this.whisperCLIConfigL2Layout = new FlexLayout()
     this.whisperCLIConfigL2Widget.setObjectName('whisperCLIConfigL2Widget')
     this.whisperCLIConfigL2Widget.setLayout(this.whisperCLIConfigL2Layout)
-    this.whisperCLITypeWidget = new QWidget()
-    this.whisperCLITypeLayout = new FlexLayout()
-    this.whisperCLITypeWidget.setObjectName('whisperCLITypeWidget')
-    this.whisperCLITypeWidget.setLayout(this.whisperCLITypeLayout )
+    this.whisperCLIArchWidget = new QWidget()
+    this.whisperCLIArchLayout = new FlexLayout()
+    this.whisperCLIArchWidget.setObjectName('whisperCLIArchWidget')
+    this.whisperCLIArchWidget.setLayout(this.whisperCLIArchLayout )
     this.whisperCLIWinGPURadioButton = new QRadioButton()
     this.whisperCLIWinGPURadioButton.setObjectName('whisperCLIWinGPURadioButton')
     this.whisperCLIWinGPURadioButton.setText('Win-x64-GPU')
@@ -179,16 +179,16 @@ export class Config {
     this.whisperCLILinuxX64RadioButton.setToolTip('Whisper.cpp for Linux x64')
     this.whisperCLILinuxX64RadioButton.setToolTipDuration(5000)
 
-    this.whisperCLITypeLayout.addWidget(this.whisperCLIWinGPURadioButton)
-    this.whisperCLITypeLayout.addWidget(this.whisperCLIWinWCPPRadioButton)
-    this.whisperCLITypeLayout.addWidget(this.whisperCLIDarwinARM64RadioButton)
-    this.whisperCLITypeLayout.addWidget(this.whisperCLIDarwinX64RadioButton)
-    this.whisperCLITypeLayout.addWidget(this.whisperCLILinuxX64RadioButton)
+    this.whisperCLIArchLayout.addWidget(this.whisperCLIWinGPURadioButton)
+    this.whisperCLIArchLayout.addWidget(this.whisperCLIWinWCPPRadioButton)
+    this.whisperCLIArchLayout.addWidget(this.whisperCLIDarwinARM64RadioButton)
+    this.whisperCLIArchLayout.addWidget(this.whisperCLIDarwinX64RadioButton)
+    this.whisperCLIArchLayout.addWidget(this.whisperCLILinuxX64RadioButton)
 
     this.whisperCLIConfigL2Layout.addWidget(this.whisperCLILineEdit)
     this.whisperCLIConfigLayout.addWidget(this.whisperCLIConfigTopWidget)
     this.whisperCLIConfigLayout.addWidget(this.whisperCLIConfigL2Widget)
-    this.whisperCLIConfigLayout.addWidget( this.whisperCLITypeWidget)
+    this.whisperCLIConfigLayout.addWidget( this.whisperCLIArchWidget)
 
     // DeepL Configuration Widget
     this.deeplConfigLabel = new QLabel()
