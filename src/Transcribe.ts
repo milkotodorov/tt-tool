@@ -729,8 +729,14 @@ export class Transcribe {
       ]
 
       // Not available for Windows port of Whisper.cpp with GPU acceleration
-      // whisperArgs.push('--print-colors')
-      whisperArgs.push('--print-progress')
+      if (this.config.isWhisperCLIWinGPU()) {
+        whisperArgs.push('--no-colors') // No colors till HTML parser for BASH colors is implemented
+      }
+      else {
+        whisperArgs.push('--print-progress')
+        // No colors till HTML parser for BASH colors is implemented
+        // whisperArgs.push('--print-colors')
+      }
 
       if (this.whisperDiarizeCheckBox.isChecked())
         whisperArgs.push('--diarize')

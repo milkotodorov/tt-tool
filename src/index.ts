@@ -5,9 +5,9 @@ import {
   QStatusBar,
   WidgetEventTypes, FocusReason
 } from '@nodegui/nodegui'
-import { Config } from './config'
-import { Transcribe } from './transcribe'
-import { Translate } from './translate'
+import {Config} from './config'
+import {Transcribe} from './transcribe'
+import {Translate} from './translate'
 import {ConsoleWindow} from "./ConsoleWindow"
 import EventEmitter from "events";
 
@@ -16,9 +16,7 @@ import EventEmitter from "events";
 // Before Release
 //ToDo: Windows buttons - adjust size
 //ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
-//ToDo: Support Whisper.cpp -> Windows / Mac x64 / Mac ARM64
-//  - Automatically recognize Whisper executable & adjust parameters
-//  - Automatically download ML models for ARM64 Mac & unpack
+//ToDo: Automatically download ML models for ARM64 Mac & unpack
 //ToDo: Pack all files with the nodegui-packer
 //ToDo: Update final README
 //  -- Add FFMpeg as requirements when you use tools other than whisper.cpp
@@ -31,6 +29,7 @@ import EventEmitter from "events";
 //ToDo: Set ConsoleFont MesloLGS NF with application font (work around is to install it from fonts)
 //ToDo: Filter only executable files in config tab
 //ToDo: ConsoleWindow with color output: Parse bash output into HTML
+// Possible Library: https://www.npmjs.com/package/ansi-to-html
 
 // Root EventEmitter
 let eventEmitter: EventEmitter = new EventEmitter();
@@ -53,7 +52,7 @@ tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), '
 
 // =====================================================================================================================
 // Main Window
-const mainWinDim: {width: number, height: number} = {width: 700, height: 490}
+const mainWinDim: {width: number, height: number} = {width: 720, height: 490}
 const mainWindow: QMainWindow = new QMainWindow()
 mainWindow.setWindowTitle("Transcribe & Translate Tool")
 mainWindow.setFixedSize(mainWinDim.width, mainWinDim.height)

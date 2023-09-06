@@ -59,10 +59,22 @@
 #audioFileTopWidget, 
 #translateFileTopWidget,
 #whisperCLIConfigTopWidget,
-#deeplAPIKeyWidget {
+#deeplAPIKeyWidget,
+#whisperCLITypeWidget {
   flex-direction: row;
   width: '94%';
   /*border: 2px ridge #bdbdbd;*/
+}
+
+#whisperCLITypeWidget {
+  padding-top: 20px;
+}
+
+#whisperCLIWinWCPPRadioButton,
+#whisperCLIDarwinARM64RadioButton,
+#whisperCLIDarwinX64RadioButton,
+#whisperCLILinuxX64RadioButton {
+  padding-left: 8px;
 }
 
 #deeplAPIKeyWidget {
@@ -72,7 +84,8 @@
 
 #whisperCLIConfigWidget,
 #whisperCLIConfigTopWidget,
-#whisperCLIConfigL2Widget {
+#whisperCLIConfigL2Widget,
+#whisperCLITypeWidget {
   padding-left: 10px;
   width: '94%';
   /*border: 2px ridge #bdbdbd;*/
@@ -113,7 +126,7 @@
 #saveConfigWidget {
   padding: 15px;
   align-self: 'center';
-  margin-top: 80px;
+  margin-top: 50px;
 }
 
 #selectAudioFileButton,

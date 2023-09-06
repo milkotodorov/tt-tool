@@ -2,12 +2,12 @@ import {
   DialogLabel,
   FileMode,
   FlexLayout,
-  Option,
+  Option, QComboBox,
   QFileDialog,
   QIcon,
   QLabel,
   QLineEdit,
-  QPushButton,
+  QPushButton, QRadioButton,
   QSize,
   QStatusBar,
   QWidget
@@ -15,6 +15,7 @@ import {
 import * as fs from 'fs'
 import * as path from "node:path"
 import {ConsoleWindow} from "./ConsoleWindow"
+import * as os from "os";
 
 export class Config {
   // ConsoleWindow
@@ -48,6 +49,13 @@ export class Config {
   private whisperCLIConfigTopLayout: FlexLayout
   private whisperCLIConfigL2Widget: QWidget
   private whisperCLIConfigL2Layout: FlexLayout
+  private whisperCLIWinGPURadioButton: QRadioButton
+  private whisperCLIWinWCPPRadioButton: QRadioButton
+  private whisperCLIDarwinARM64RadioButton: QRadioButton
+  private whisperCLIDarwinX64RadioButton: QRadioButton
+  private whisperCLILinuxX64RadioButton: QRadioButton
+  private whisperCLITypeWidget: QWidget
+  private whisperCLITypeLayout: FlexLayout
 
   // DeepL Configuration Objects
   private deeplConfigLabel: QLabel
@@ -141,10 +149,46 @@ export class Config {
     this.whisperCLIConfigL2Layout = new FlexLayout()
     this.whisperCLIConfigL2Widget.setObjectName('whisperCLIConfigL2Widget')
     this.whisperCLIConfigL2Widget.setLayout(this.whisperCLIConfigL2Layout)
+    this.whisperCLITypeWidget = new QWidget()
+    this.whisperCLITypeLayout = new FlexLayout()
+    this.whisperCLITypeWidget.setObjectName('whisperCLITypeWidget')
+    this.whisperCLITypeWidget.setLayout(this.whisperCLITypeLayout )
+    this.whisperCLIWinGPURadioButton = new QRadioButton()
+    this.whisperCLIWinGPURadioButton.setObjectName('whisperCLIWinGPURadioButton')
+    this.whisperCLIWinGPURadioButton.setText('Win-x64-GPU')
+    this.whisperCLIWinGPURadioButton.setToolTip('Whisper.cpp port for Windows x64 with GPU acceleration')
+    this.whisperCLIWinGPURadioButton.setToolTipDuration(5000)
+    this.whisperCLIWinWCPPRadioButton = new QRadioButton()
+    this.whisperCLIWinWCPPRadioButton.setObjectName('whisperCLIWinWCPPRadioButton')
+    this.whisperCLIWinWCPPRadioButton.setText('Win-x64')
+    this.whisperCLIWinWCPPRadioButton.setToolTip('Whisper.cpp for Windows x64')
+    this.whisperCLIWinWCPPRadioButton.setToolTipDuration(5000)
+    this.whisperCLIDarwinARM64RadioButton = new QRadioButton()
+    this.whisperCLIDarwinARM64RadioButton.setObjectName('whisperCLIDarwinARM64RadioButton')
+    this.whisperCLIDarwinARM64RadioButton.setText('MacOS-ARM64')
+    this.whisperCLIDarwinARM64RadioButton.setToolTip('Whisper.cpp for MacOS with Apple Silicon ARM64 with CoreML support')
+    this.whisperCLIDarwinARM64RadioButton.setToolTipDuration(5000)
+    this.whisperCLIDarwinX64RadioButton = new QRadioButton()
+    this.whisperCLIDarwinX64RadioButton.setObjectName('whisperCLIDarwinX64RadioButton')
+    this.whisperCLIDarwinX64RadioButton.setText('MacOS-x64')
+    this.whisperCLIDarwinX64RadioButton.setToolTip('Whisper.cpp for Intel MacOS x64')
+    this.whisperCLIDarwinX64RadioButton.setToolTipDuration(5000)
+    this.whisperCLILinuxX64RadioButton = new QRadioButton()
+    this.whisperCLILinuxX64RadioButton.setObjectName('whisperCLILinuxX64RadioButton')
+    this.whisperCLILinuxX64RadioButton.setText('Linux-x64')
+    this.whisperCLILinuxX64RadioButton.setToolTip('Whisper.cpp for Linux x64')
+    this.whisperCLILinuxX64RadioButton.setToolTipDuration(5000)
+
+    this.whisperCLITypeLayout.addWidget(this.whisperCLIWinGPURadioButton)
+    this.whisperCLITypeLayout.addWidget(this.whisperCLIWinWCPPRadioButton)
+    this.whisperCLITypeLayout.addWidget(this.whisperCLIDarwinARM64RadioButton)
+    this.whisperCLITypeLayout.addWidget(this.whisperCLIDarwinX64RadioButton)
+    this.whisperCLITypeLayout.addWidget(this.whisperCLILinuxX64RadioButton)
 
     this.whisperCLIConfigL2Layout.addWidget(this.whisperCLILineEdit)
     this.whisperCLIConfigLayout.addWidget(this.whisperCLIConfigTopWidget)
     this.whisperCLIConfigLayout.addWidget(this.whisperCLIConfigL2Widget)
+    this.whisperCLIConfigLayout.addWidget( this.whisperCLITypeWidget)
 
     // DeepL Configuration Widget
     this.deeplConfigLabel = new QLabel()
@@ -195,6 +239,9 @@ export class Config {
 
     // Apply the Stylesheet
     this.configRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'))
+
+    // Set default WhisperCLI and disable irrelevant
+    this.setDefaultWhisperType()
 
     this.readConfigFile()
 
@@ -314,5 +361,49 @@ export class Config {
     this.saveConfigButton.addEventListener('clicked', () => {
       this.saveConfiguration(true)
     })
+  }
+
+  public isWhisperCLIWinGPU(): boolean {
+    if (this.whisperCLIWinGPURadioButton.isChecked())
+      return true
+    else
+      return false
+  }
+
+  public isWhisperCLIDarwinARM64(): boolean {
+    if (this.whisperCLIDarwinARM64RadioButton.isChecked())
+      return true
+    else
+      return false
+  }
+
+  private setDefaultWhisperType(): void {
+    if (os.platform() === 'win32') {
+      this.whisperCLIWinGPURadioButton.setChecked(true)
+      this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
+      this.whisperCLIDarwinX64RadioButton.setDisabled(true)
+      this.whisperCLILinuxX64RadioButton.setDisabled(true)
+      return
+    }
+
+    if (os.platform() === 'darwin') {
+      this.whisperCLIWinWCPPRadioButton.setDisabled(true)
+      this.whisperCLIWinGPURadioButton.setDisabled(true)
+      this.whisperCLILinuxX64RadioButton.setDisabled(true)
+      if (process.arch === 'arm64')
+        this.whisperCLIDarwinARM64RadioButton.setChecked(true)
+      if (process.arch === 'x64')
+        this.whisperCLIDarwinX64RadioButton.setChecked(true)
+      return
+    }
+
+    if (os.platform() === 'linux') {
+      this.whisperCLIWinWCPPRadioButton.setDisabled(true)
+      this.whisperCLIWinGPURadioButton.setDisabled(true)
+      this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
+      this.whisperCLIDarwinX64RadioButton.setDisabled(true)
+      this.whisperCLILinuxX64RadioButton.setChecked(true)
+      return
+    }
   }
 }
