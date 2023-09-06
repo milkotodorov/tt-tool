@@ -17,6 +17,8 @@ Download the Whisper CLI from one of the options above and save it in a dedicate
 
 - DeepL API or Authentication Key - it can be obtained as described in the [official DeepL Documentation](https://support.deepl.com/hc/en-us/articles/360020695820-Authentication-Key).
 
+- You may also want to install the provided fonts into the folder `fonts` as they will be used as console output font and are more readable.
+
 ## Running from the source and setting-up development environment
 
 Make sure you have met the [NodeGUI requirements](https://docs.nodegui.org/docs/guides/getting-started#developer-environment).
@@ -58,3 +60,6 @@ npx nodegui-packer --pack ./dist
 This will build the distributable using @nodegui/packer. The output of the command is found under the build directory.
 
 More details about packer can be found here: https://github.com/nodegui/packer
+
+## Credits
+Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors to the great [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project as well as to [@Const-me](https://github.com/Const-me) and his GPU accelerated [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper).

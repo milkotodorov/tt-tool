@@ -13,7 +13,6 @@ import {
   QPushButton,
   QSize,
   QStatusBar,
-  QTabWidget,
   QWidget
 } from "@nodegui/nodegui"
 import * as fs from 'fs'
@@ -38,8 +37,8 @@ export class Transcribe {
   // Downloading Flag
   private isDownloading: boolean = false
 
-  // Root Tab Widget
-  private readonly tabWidget: QTabWidget
+  // Root EventEmitter
+  private readonly rootEM: EventEmitter;
 
   // Translate Class
   private readonly translate: Translate
@@ -145,11 +144,11 @@ export class Transcribe {
   private actionButtonsLayout: FlexLayout
 
   constructor(consoleWindow: ConsoleWindow, statusBar: QStatusBar,
-              config: Config, tabWidget: QTabWidget, translate: Translate) {
+              config: Config, rootEM: EventEmitter, translate: Translate) {
     this.consoleWindow = consoleWindow
     this.statusBar = statusBar
     this.config = config
-    this.tabWidget = tabWidget
+    this.rootEM = rootEM
     this.translate = translate
 
     this.whisperLanguages = [
@@ -604,21 +603,9 @@ export class Transcribe {
       return
     }
 
-    // When tabWidget Object not initialized yet
-    // Happens when no models at all are present (first start)
-    if (this.tabWidget.widget(2) == null) {
-      return
-    }
-
     this.isDownloading = true
-
-    this.whisperModelComboBox.setEnabled(false)
-    this.audioFileLanguageComboBox.setEnabled(false)
     const wasTranscribeButtonEnabled: boolean = this.transcribeStartButton.isEnabled()
-    this.transcribeStartButton.setEnabled(false)
-    this.tabWidget.widget(1).setEnabled(false)
-    this.tabWidget.widget(2).setEnabled(false)
-    this.selectAudioFileButton.setEnabled(false)
+    const wasTransferToTranslateButtonEnabled: boolean = this.transferToTranslateButton.isEnabled()
 
     // ProgressBar in the StatusBar
     let progressBar: QProgressBar = new QProgressBar()
@@ -631,17 +618,17 @@ export class Transcribe {
 
     const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-' + model + '.bin'
     const modelsFolder: string = path.join(path.dirname(this.config.whisperCLIPath), 'models')
-    let output: string = path.join(modelsFolder, 'ggml-' + model + '.bin')
+    let modelFile: string = path.join(modelsFolder, 'ggml-' + model + '.bin')
     if (!fs.existsSync(modelsFolder))
       fs.mkdirSync(modelsFolder)
 
-    let download: EventEmitter = wget.download(src, output, undefined)
+    let download: EventEmitter = wget.download(src, modelFile + '.download', undefined)
     let modelFileSize: number
 
     download.on('error', (err: Error): void => {
       this.consoleWindow.log('Error while downloading Whisper DataModel (', src, '): ', err)
-      this.consoleWindow.log('Deleting the uncompleted download: ', output)
-      fs.rmSync(output)
+      this.consoleWindow.log('Deleting the uncompleted download: ', modelFile)
+      fs.rmSync(modelFile)
       // Set the default DataModel
       this.whisperModelComboBox.setCurrentText('medium.en')
       this.whisperModelComboBox.setEnabled(true)
@@ -652,12 +639,20 @@ export class Transcribe {
     })
 
     download.on('start', (fileSize: number): void => {
+      this.whisperModelComboBox.setEnabled(false)
+      this.audioFileLanguageComboBox.setEnabled(false)
+      this.transcribeStartButton.setEnabled(false)
+      this.transferToTranslateButton.setEnabled(false)
+      this.rootEM.emit('disableTranslateTab')
+      this.rootEM.emit('disableConfigTab')
+      this.selectAudioFileButton.setEnabled(false)
+
       modelFileSize = fileSize
       const modelSizeStr: string = (fileSize / (1024*1024)).toFixed(2) + ' MB'
       const statusBarMsg: string = 'Download Whisper DataModel (' + modelSizeStr + '): '
       let consoleDownloadMsg: string = 'Downloading Whisper "' + model + '" DataModel. Model Size: ' + modelSizeStr
       this.consoleWindow.log('Whisper DataModel URL: ', src)
-      this.consoleWindow.log('Target location: ', output)
+      this.consoleWindow.log('Target location: ', modelFile)
       downloadLabel.setText(statusBarMsg)
       this.statusBar.clearMessage()
       this.statusBar.addWidget(downloadLabel)
@@ -669,6 +664,7 @@ export class Transcribe {
     })
 
     download.on('end', (output: string): void => {
+      fs.renameSync(modelFile + '.download', modelFile)
       this.statusBar.removeWidget(downloadLabel)
       this.statusBar.removeWidget(progressBar)
       consoleBar.stop()
@@ -680,8 +676,10 @@ export class Transcribe {
       this.audioFileLanguageComboBox.setEnabled(true)
       if (wasTranscribeButtonEnabled)
         this.transcribeStartButton.setEnabled(true)
-      this.tabWidget.widget(1).setEnabled(true)
-      this.tabWidget.widget(2).setEnabled(true)
+      if (wasTransferToTranslateButtonEnabled)
+        this.transferToTranslateButton.setEnabled(true)
+      this.rootEM.emit('enableTranslateTab')
+      this.rootEM.emit('enableConfigTab')
       this.selectAudioFileButton.setEnabled(true)
       this.isDownloading = false
     })
@@ -763,7 +761,10 @@ export class Transcribe {
       })
 
       this.whisperPrc.on('exit', (code: any): void => {
-        this.consoleWindow.log(`Transcribe completed.\nChild exited with code ${code}`)
+        if (code != null)
+          this.consoleWindow.log(`Transcribe completed.\nChild exited with code ${code}`)
+        else
+          this.consoleWindow.log('Transcribe aborted.')
         if (this.statusBar.currentMessage() != 'Killing Whisper process...') {
           this.statusBar.clearMessage()
           this.statusBar.showMessage('Transcribe completed.', 5000)
@@ -817,7 +818,7 @@ export class Transcribe {
       this.transferToTranslateButton.setEnabled(true)
 
       // Go to TranslateTab
-      this.tabWidget.setCurrentIndex(1)
+      this.rootEM.emit('showTranslateTab')
     })
   }
 
@@ -857,6 +858,7 @@ export class Transcribe {
   private toggleConsoleButtonEventListener(): void {
     this.toggleConsoleButton.addEventListener('clicked', (): void => {
       this.consoleWindow.toggleWindow()
+      this.rootEM.emit('activateMainWindow')
     })
   }
 
