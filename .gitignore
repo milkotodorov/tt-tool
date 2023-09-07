@@ -156,6 +156,7 @@ tt-tool-config.json
 *.srt
 *.txt
 *.vtt
+*.lrc
 *.wts
 *.csv
 *.json
