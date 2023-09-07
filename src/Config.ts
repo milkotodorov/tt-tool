@@ -16,7 +16,6 @@ import * as fs from 'fs'
 import * as path from "node:path"
 import {ConsoleWindow} from "./ConsoleWindow"
 import * as os from "os";
-import {braceExpand} from "minimatch";
 
 export class Config {
   // ConsoleWindow
@@ -287,7 +286,6 @@ export class Config {
     if (configJSON.lastUsedWhisperLanguage != null)
       this.lastUsedWhisperLanguage = configJSON.lastUsedWhisperLanguage
     if (configJSON.whisperCLIArch != null) {
-      //ToDo: Check if saved settings not supported
       this.whisperCLIArch = configJSON.whisperCLIArch
       if (this.whisperCLICompatible2OS(this.whisperCLIArch))
         this.setSelectedWhisperCLIArch()

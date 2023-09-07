@@ -27,7 +27,6 @@ import EventEmitter from "events";
 //ToDo: ProgressBar when transcribing
 //ToDo: Available Languages for Translate & Transcode -> Configurable
 //ToDo: Set ConsoleFont MesloLGS NF with application font (work around is to install it from fonts)
-//ToDo: Filter only executable files in config tab
 //ToDo: ConsoleWindow with color output: Parse bash output into HTML
 // Possible Library: https://www.npmjs.com/package/ansi-to-html
 
