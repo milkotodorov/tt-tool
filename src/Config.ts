@@ -299,8 +299,6 @@ export class Config {
       this.whisperCLIArch = this.getSelectedWhisperCLIArch()
     }
 
-    console.log('-----   ', this.whisperCLIArch)
-
     // Set loaded configuration into the UI
     this.whisperCLILineEdit.setText(this.whisperCLIPath)
     this.deeplAPIKeyLineEdit.setText(this.deeplAPIKey)

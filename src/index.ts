@@ -71,6 +71,7 @@ mainWindow.show();
 tabWidget.addEventListener('currentChanged', (index: number): void => {
   if (index == 0)
     transcribe.refreshDataModels(transcribe.getCurrentModel())
+    transcribe.refreshSupportedSubtitlesFormats()
   if (index == 1)
     translate.setButtonsState()
 })

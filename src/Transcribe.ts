@@ -885,4 +885,11 @@ export class Transcribe {
 
     this.whisperModelComboBox.removeItem(0)
   }
+
+  public refreshSupportedSubtitlesFormats(): void {
+    this.whisperOutputFormatComboBox.clear()
+    this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt'])
+    if (this.config.whisperCLIArch != 'win-x64-gpu')
+      this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
+  }
 }
