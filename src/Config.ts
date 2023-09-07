@@ -2,7 +2,7 @@ import {
   DialogLabel,
   FileMode,
   FlexLayout,
-  Option, QComboBox,
+  Option,
   QFileDialog,
   QIcon,
   QLabel,
@@ -16,6 +16,7 @@ import * as fs from 'fs'
 import * as path from "node:path"
 import {ConsoleWindow} from "./ConsoleWindow"
 import * as os from "os";
+import {braceExpand} from "minimatch";
 
 export class Config {
   // ConsoleWindow
@@ -74,6 +75,7 @@ export class Config {
   // Configuration Objects
   private readonly configFile: string = 'tt-tool-config.json'
   public whisperCLIPath: string
+  public whisperCLIArch: string
   public deeplAPIKey: string
   public lastUsedDeepLSourceLang: string
   public lastUsedDeepLTargetLang: string
@@ -93,6 +95,7 @@ export class Config {
     // Empty Configuration
     this.whisperCLIPath = ''
     this.deeplAPIKey = ''
+    this.whisperCLIArch = ''
     this.lastUsedDeepLSourceLang = 'English'
     this.lastUsedDeepLTargetLang = 'German'
     this.lastUsedWhisperLanguage = 'English'
@@ -240,8 +243,8 @@ export class Config {
     // Apply the Stylesheet
     this.configRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'))
 
-    // Set default WhisperCLI and disable irrelevant
-    this.setDefaultWhisperType()
+    // Disable irrelevant WhisperCLI builds
+    this.disableIrrelevantWhisperCLITypes()
 
     this.readConfigFile()
 
@@ -283,6 +286,22 @@ export class Config {
       this.lastUsedDeepLTargetLang = configJSON.lastUsedDeepLTargetLang
     if (configJSON.lastUsedWhisperLanguage != null)
       this.lastUsedWhisperLanguage = configJSON.lastUsedWhisperLanguage
+    if (configJSON.whisperCLIArch != null) {
+      //ToDo: Check if saved settings not supported
+      this.whisperCLIArch = configJSON.whisperCLIArch
+      if (this.whisperCLICompatible2OS(this.whisperCLIArch))
+        this.setSelectedWhisperCLIArch()
+      else {
+        this.setDefaultWhisperType()
+        this.whisperCLIArch = this.getSelectedWhisperCLIArch()
+      }
+    }
+    if (configJSON.whisperCLIArch == '' || configJSON.whisperCLIArch == null) {
+      this.setDefaultWhisperType()
+      this.whisperCLIArch = this.getSelectedWhisperCLIArch()
+    }
+
+    console.log('-----   ', this.whisperCLIArch)
 
     // Set loaded configuration into the UI
     this.whisperCLILineEdit.setText(this.whisperCLIPath)
@@ -301,6 +320,7 @@ export class Config {
 
     let config: any = {
       "whisperCLIPath": this.whisperCLILineEdit.text(),
+      "whisperCLIArch": this.getSelectedWhisperCLIArch(),
       "deeplAPIKey": this.deeplAPIKeyLineEdit.text(),
       "lastUsedDeepLSourceLang": this.lastUsedDeepLSourceLang,
       "lastUsedDeepLTargetLang": this.lastUsedDeepLTargetLang,
@@ -363,47 +383,99 @@ export class Config {
     })
   }
 
-  public isWhisperCLIWinGPU(): boolean {
-    if (this.whisperCLIWinGPURadioButton.isChecked())
-      return true
-    else
-      return false
+  private setSelectedWhisperCLIArch(): void {
+    switch (this.whisperCLIArch) {
+      case 'win-x64-gpu':
+        this.whisperCLIWinGPURadioButton.setChecked(true)
+        break
+      case 'win-x64':
+        this.whisperCLIWinWCPPRadioButton.setChecked(true)
+        break
+      case 'darwin-arm64':
+        this.whisperCLIDarwinARM64RadioButton.setChecked(true)
+        break
+      case 'darwin-x64':
+        this.whisperCLIDarwinX64RadioButton.setChecked(true)
+        break
+      case 'linux-x64':
+        this.whisperCLILinuxX64RadioButton.setChecked(true)
+        break
+    }
   }
 
-  public isWhisperCLIDarwinARM64(): boolean {
+  private getSelectedWhisperCLIArch(): string {
+    if (this.whisperCLIWinGPURadioButton.isChecked())
+      return 'win-x64-gpu'
+
+    if (this.whisperCLIWinWCPPRadioButton.isChecked())
+      return 'win-x64'
+
     if (this.whisperCLIDarwinARM64RadioButton.isChecked())
-      return true
-    else
-      return false
+      return 'darwin-arm64'
+
+    if (this.whisperCLIDarwinX64RadioButton.isChecked())
+      return 'darwin-x64'
+
+    if (this.whisperCLILinuxX64RadioButton.isChecked())
+      return 'linux-x64'
+
+    return 'none'
   }
 
   private setDefaultWhisperType(): void {
-    if (os.platform() === 'win32') {
-      this.whisperCLIWinGPURadioButton.setChecked(true)
-      this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
-      this.whisperCLIDarwinX64RadioButton.setDisabled(true)
-      this.whisperCLILinuxX64RadioButton.setDisabled(true)
-      return
+    switch (os.platform()) {
+      case 'win32':
+        this.whisperCLIWinGPURadioButton.setChecked(true)
+        break
+      case 'darwin':
+        if (process.arch === 'arm64')
+          this.whisperCLIDarwinARM64RadioButton.setChecked(true)
+        if (process.arch === 'x64')
+          this.whisperCLIDarwinX64RadioButton.setChecked(true)
+        break
+      case 'linux':
+        this.whisperCLILinuxX64RadioButton.setChecked(true)
+        break
+    }
+  }
+
+  private whisperCLICompatible2OS(whisperCLIArch: string): boolean {
+    switch (os.platform()) {
+      case 'win32':
+        if (whisperCLIArch === 'win-x64-gpu' || whisperCLIArch === 'win-x64')
+          return true
+        break
+      case 'darwin':
+        if (whisperCLIArch === 'darwin-arm64' || whisperCLIArch === 'darwin-x64')
+          return true
+        break
+      case 'linux':
+        if (whisperCLIArch === 'linux-x64')
+          return true
+        break
     }
 
-    if (os.platform() === 'darwin') {
-      this.whisperCLIWinWCPPRadioButton.setDisabled(true)
-      this.whisperCLIWinGPURadioButton.setDisabled(true)
-      this.whisperCLILinuxX64RadioButton.setDisabled(true)
-      if (process.arch === 'arm64')
-        this.whisperCLIDarwinARM64RadioButton.setChecked(true)
-      if (process.arch === 'x64')
-        this.whisperCLIDarwinX64RadioButton.setChecked(true)
-      return
-    }
+    return false
+  }
 
-    if (os.platform() === 'linux') {
-      this.whisperCLIWinWCPPRadioButton.setDisabled(true)
-      this.whisperCLIWinGPURadioButton.setDisabled(true)
-      this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
-      this.whisperCLIDarwinX64RadioButton.setDisabled(true)
-      this.whisperCLILinuxX64RadioButton.setChecked(true)
-      return
+  private disableIrrelevantWhisperCLITypes(): void {
+    switch (os.platform()) {
+      case 'win32':
+        this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
+        this.whisperCLIDarwinX64RadioButton.setDisabled(true)
+        this.whisperCLILinuxX64RadioButton.setDisabled(true)
+        break
+      case 'darwin':
+        this.whisperCLIWinWCPPRadioButton.setDisabled(true)
+        this.whisperCLIWinGPURadioButton.setDisabled(true)
+        this.whisperCLILinuxX64RadioButton.setDisabled(true)
+        break
+      case 'linux':
+        this.whisperCLIWinWCPPRadioButton.setDisabled(true)
+        this.whisperCLIWinGPURadioButton.setDisabled(true)
+        this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
+        this.whisperCLIDarwinX64RadioButton.setDisabled(true)
+        break
     }
   }
 }

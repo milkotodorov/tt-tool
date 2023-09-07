@@ -15,7 +15,6 @@ import EventEmitter from "events";
 
 // Before Release
 //ToDo: Windows buttons - adjust size
-//ToDo: Save WhisperCLI Type in config - if not defined use default.
 //ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
 //ToDo: Automatically download ML models for ARM64 Mac & unpack
 //ToDo: Pack all files with the nodegui-packer

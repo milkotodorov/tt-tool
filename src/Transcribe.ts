@@ -729,7 +729,7 @@ export class Transcribe {
       ]
 
       // Not available for Windows port of Whisper.cpp with GPU acceleration
-      if (this.config.isWhisperCLIWinGPU()) {
+      if (this.config.whisperCLIArch == 'win-x64-gpu') {
         whisperArgs.push('--no-colors') // No colors till HTML parser for BASH colors is implemented
       }
       else {
