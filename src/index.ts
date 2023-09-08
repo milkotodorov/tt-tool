@@ -19,7 +19,6 @@ import EventEmitter from "events";
 //ToDo: Automatically download ML models for ARM64 Mac & unpack
 //ToDo: Pack all files with the nodegui-packer
 //ToDo: Update final README
-//  -- Add FFMpeg as requirements when you use tools other than whisper.cpp
 //ToDo: Add system tray icon: https://github.com/sitepoint-editors/memesearchapp-nodegui-tutorial/blob/master/src/index.js#L132-L153
 
 // Prio Low

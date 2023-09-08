@@ -19,6 +19,8 @@ Download the Whisper CLI from one of the options above and save it in a dedicate
 
 - You may also want to install the provided fonts into the folder `fonts` as they will be used as console output font and are more readable.
 
+- If you use `Whisper.cpp` only `wav` files are currently supported. The tool uses [`FFmpeg`](https://ffmpeg.org/) to convert/extract the `wav` format from other formats. You need to [download `FFmpeg`](https://ffmpeg.org/download.html) and install it first. 
+
 ## Running from the source and setting-up development environment
 
 Make sure you have met the [NodeGUI requirements](https://docs.nodegui.org/docs/guides/getting-started#developer-environment).
