@@ -19,7 +19,17 @@ Download the Whisper CLI from one of the options above and save it in a dedicate
 
 - You may also want to install the provided fonts into the folder `fonts` as they will be used as console output font and are more readable.
 
-- If you use `Whisper.cpp` only `wav` files are currently supported. The tool uses [`FFmpeg`](https://ffmpeg.org/) to convert/extract the `wav` format from other formats. You need to [download `FFmpeg`](https://ffmpeg.org/download.html) and install it first. 
+- If you use `Whisper.cpp` only `wav` files are currently supported. The tool uses [`FFmpeg`](https://ffmpeg.org/) to convert/extract to the `wav` format from other formats. You need to install the `FFmpeg` prior using the tool. You can either [download `FFmpeg`](https://ffmpeg.org/download.html) and install it via the UI. Or use the console to install it with a single line:
+  ```console
+  # Windows
+  winget install --id=Gyan.FFmpeg  -e
+  
+  # MacOS
+  brew install ffmpeg
+  
+  # Linux (Ubuntu)
+  sudo apt install ffmpeg
+  ```
 
 ## Running from the source and setting-up development environment
 
