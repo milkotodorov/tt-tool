@@ -462,6 +462,10 @@ export class Config {
         this.whisperCLILinuxX64RadioButton.setDisabled(true)
         break
       case 'darwin':
+        if (process.arch !== 'arm64')
+          this.whisperCLIDarwinARM64RadioButton.setDisabled(true)
+        if (process.arch !== 'x64')
+          this.whisperCLIDarwinX64RadioButton.setDisabled(true)
         this.whisperCLIWinWCPPRadioButton.setDisabled(true)
         this.whisperCLIWinGPURadioButton.setDisabled(true)
         this.whisperCLILinuxX64RadioButton.setDisabled(true)
