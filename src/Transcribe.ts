@@ -26,6 +26,7 @@ import {spawn} from 'node:child_process'
 import {Config} from './config'
 import {Translate} from './translate'
 import {ConsoleWindow} from "./ConsoleWindow"
+import AdmZip from "adm-zip";
 
 export class Transcribe {
   // ConsoleWindow
@@ -504,6 +505,10 @@ export class Transcribe {
     this.checkTransferToTranslateButton()
   }
 
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   private audioFileButtonEventListener(): void {
     this.selectAudioFileButton.addEventListener('clicked', (): void => {
       const fileDialog: QFileDialog = new QFileDialog()
@@ -593,13 +598,19 @@ export class Transcribe {
         return
       }
 
-      let modelFile: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '.bin')
+      const modelFile: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '.bin')
+      const coreMLModel: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '-encoder.mlmodelc')
+      // In case we have DataModel not for CoreML
+      if (this.config.whisperCLIArch === 'darwin-arm64' &&
+          !fs.existsSync(coreMLModel) && fs.existsSync(modelFile))
+        fs.rmSync(modelFile)
+
       if (!fs.existsSync(modelFile))
         this.downloadDataModel(text)
     })
   }
 
-  private downloadDataModel(model: string): void {
+  private downloadDataModel(model: string, coreML: boolean = false): void {
     if (model == '') {
       this.consoleWindow.log('downloadDataModel: No model name specified for download')
       return
@@ -618,9 +629,20 @@ export class Transcribe {
     // Console ProgressBar
     const consoleBar: cliProgress.SingleBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_grey)
 
-    const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-' + model + '.bin'
+    let modelFileName: string
+    let dataModelType: string
+    if (coreML) {
+      modelFileName = 'ggml-' + model + '-encoder.mlmodelc.zip'
+      dataModelType = 'CoreML-Model'
+    }
+    else {
+      modelFileName = 'ggml-' + model + '.bin'
+      dataModelType = 'DataModel'
+    }
+
+    const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/' + modelFileName
     const modelsFolder: string = path.join(path.dirname(this.config.whisperCLIPath), 'models')
-    let modelFile: string = path.join(modelsFolder, 'ggml-' + model + '.bin')
+    let modelFile: string = path.join(modelsFolder, modelFileName)
     if (!fs.existsSync(modelsFolder))
       fs.mkdirSync(modelsFolder)
 
@@ -628,7 +650,7 @@ export class Transcribe {
     let modelFileSize: number
 
     download.on('error', (err: Error): void => {
-      this.consoleWindow.log('Error while downloading Whisper DataModel (', src, '): ', err)
+      this.consoleWindow.log(`Error while downloading Whisper ${dataModelType} (`, src, '): ', err)
       this.consoleWindow.log('Deleting the uncompleted download: ', modelFile)
       fs.rmSync(modelFile)
       // Set the default DataModel
@@ -637,7 +659,7 @@ export class Transcribe {
       this.statusBar.removeWidget(downloadLabel)
       this.statusBar.removeWidget(progressBar)
       this.statusBar.clearMessage()
-      this.statusBar.showMessage('Error while downloading DataModel. See the console output for more details.', 10000)
+      this.statusBar.showMessage(`Error while downloading ${dataModelType}. See the console output for more details.`, 10000)
     })
 
     download.on('start', (fileSize: number): void => {
@@ -651,9 +673,9 @@ export class Transcribe {
 
       modelFileSize = fileSize
       const modelSizeStr: string = (fileSize / (1024*1024)).toFixed(2) + ' MB'
-      const statusBarMsg: string = 'Download Whisper DataModel (' + modelSizeStr + '): '
-      let consoleDownloadMsg: string = 'Downloading Whisper "' + model + '" DataModel. Model Size: ' + modelSizeStr
-      this.consoleWindow.log('Whisper DataModel URL: ', src)
+      const statusBarMsg: string = `Download Whisper ${dataModelType} (` + modelSizeStr + '): '
+      let consoleDownloadMsg: string = 'Downloading Whisper "' + model + `" ${dataModelType}. Model Size: ` + modelSizeStr
+      this.consoleWindow.log(`Whisper ${dataModelType} URL: `, src)
       this.consoleWindow.log('Target location: ', modelFile)
       downloadLabel.setText(statusBarMsg)
       this.statusBar.clearMessage()
@@ -665,7 +687,7 @@ export class Transcribe {
       consoleBar.start(modelFileSize, 0)
     })
 
-    download.on('end', (output: string): void => {
+    download.on('end', async (output: string): Promise<void> => {
       fs.renameSync(modelFile + '.download', modelFile)
       this.statusBar.removeWidget(downloadLabel)
       this.statusBar.removeWidget(progressBar)
@@ -673,6 +695,26 @@ export class Transcribe {
       this.consoleWindow.log('Download completed: ', output)
       this.statusBar.clearMessage()
       this.statusBar.showMessage('Download completed', 5000)
+      this.isDownloading = false
+      // Download CoreML Model for Apple Silicon ARM64
+      let coreMLModelFolder: string = path.join(modelsFolder, 'ggml-' + model + '-encoder.mlmodelc')
+      if (this.config.whisperCLIArch === 'darwin-arm64' && !fs.existsSync(coreMLModelFolder)) {
+        if (coreML) {
+          let coreMLZip: AdmZip = new AdmZip(modelFile)
+          this.consoleWindow.log(`Extracting CoreML Model ZIP archive ${modelFile}...`)
+          this.statusBar.clearMessage()
+          this.statusBar.showMessage('Extracting CoreML Model ZIP archive...')
+          // Workaround to show message in StatusBar and log as the 'extractAllTo' blocks all
+          await this.sleep(500)
+          coreMLZip.extractAllTo(modelsFolder, true)
+          this.consoleWindow.log('Extracting CoreML Model complete')
+          this.statusBar.clearMessage()
+          this.statusBar.showMessage('Downloading & Extracting CoreML Model complete')
+          fs.rmSync(modelFile)
+          this.consoleWindow.log(`Deleting CoreML Model ZIP archive ${modelFile}`)
+        } else
+          this.downloadDataModel(model, true)
+      }
       this.refreshDataModels(model)
       this.whisperModelComboBox.setEnabled(true)
       this.audioFileLanguageComboBox.setEnabled(true)
@@ -683,7 +725,6 @@ export class Transcribe {
       this.rootEM.emit('enableTranslateTab')
       this.rootEM.emit('enableConfigTab')
       this.selectAudioFileButton.setEnabled(true)
-      this.isDownloading = false
     })
 
     download.on('progress', (progress: number): void => {

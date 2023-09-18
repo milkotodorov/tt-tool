@@ -346,6 +346,12 @@ export class Config {
     const modelFile: string = 'models/ggml-' + dataModelName + '.bin'
     const modelFilePath: string = path.join(whisperCLIPath.dir, modelFile)
 
+    if (this.whisperCLIArch === 'darwin-arm64') {
+      const coreMLModel: string = 'models/ggml-' + dataModelName + '-encoder.mlmodelc'
+      const coreMLPath: string = path.join(whisperCLIPath.dir, coreMLModel)
+      return fs.existsSync(modelFilePath) && fs.existsSync(coreMLPath)
+    }
+
     return fs.existsSync(modelFilePath)
   }
 
