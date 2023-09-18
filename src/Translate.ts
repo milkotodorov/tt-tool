@@ -170,9 +170,7 @@ export class Translate {
     this.translateFileTopLayout.addWidget(this.selectTranslateFileButton)
     this.translateFileTopLayout.addWidget(this.translateFileSpacerLabel)
     this.translateFileTopLayout.addWidget(this.translateFileSourceLanguageComboBox)
-    //ToDo: Fin better "arrow" symbol for Windows
     this.translateFileTopLayout.addWidget(this.translateFileArrowLabel)
-    // this.translateFileTopLayout.addWidget(this.translateArrow)
     this.translateFileTopLayout.addWidget(this.translateFileTargetLanguageComboBox)
     this.translateFileRootLayout.addWidget(this.translateFileTopWidget)
     this.translateFileRootLayout.addWidget(this.translateFileComboBox)
