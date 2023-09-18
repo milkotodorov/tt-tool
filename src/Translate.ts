@@ -179,10 +179,12 @@ export class Translate {
 
     // Start Transcribe Button
     this.translateButton = new QPushButton()
+    this.translateButton.setObjectName('translateButton')
     this.translateButton.setText('Start\nTranslation')
     this.translateButton.setIcon(new QIcon('assets/translate-icon.png'))
     this.translateButton.setIconSize(new QSize(32, 32))
     this.deeplUsageCheckButton = new QPushButton()
+    this.deeplUsageCheckButton.setObjectName('deeplUsageCheckButton')
     this.deeplUsageCheckButton.setText('Check\nDeepL Usage')
     this.deeplUsageCheckButton.setIcon(new QIcon('assets/usage-icon.png'))
     this.deeplUsageCheckButton.setIconSize(new QSize(32, 32))

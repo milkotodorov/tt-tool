@@ -14,10 +14,10 @@ import EventEmitter from "events";
 // =====================================================================================================================
 
 // Before Release
-//ToDo: Windows buttons - adjust size
-//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
+//ToDo: Windows buttons - verify sizes
 //ToDo: Pack all files with the nodegui-packer
 //ToDo: Update final README
+//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
 //ToDo: Add system tray icon: https://github.com/sitepoint-editors/memesearchapp-nodegui-tutorial/blob/master/src/index.js#L132-L153
 
 // Prio Low

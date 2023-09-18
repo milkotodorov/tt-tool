@@ -211,6 +211,23 @@
   padding: 15px;
 }
 
+#transcribeStartButton,
+#transcribeCancelButton,
+#deeplUsageCheckButton,
+#translateButton {
+  width: 140px;
+}
+
+#transferToTranslateButton,
+#deeplUsageCheckButton {
+  width: 170px;
+}
+
+#toggleConsoleButton,
+#saveConfigButton {
+  width: 120px;
+}
+
 #statusBar {
   width: '100%';
 }

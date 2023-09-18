@@ -431,21 +431,25 @@ export class Transcribe {
 
     // Action Buttons
     this.transcribeStartButton = new QPushButton()
+    this.transcribeStartButton.setObjectName('transcribeStartButton')
     this.transcribeStartButton.setText('Start\nTranscribe')
     this.transcribeStartButton.setIcon(new QIcon('assets/transcribe-icon.png'))
     this.transcribeStartButton.setIconSize(new QSize(32, 32))
 
     this.transcribeCancelButton = new QPushButton()
+    this.transcribeCancelButton.setObjectName('transcribeCancelButton')
     this.transcribeCancelButton.setText('Cancel\nTranscribe')
     this.transcribeCancelButton.setIcon(new QIcon('assets/cancel-icon.png'))
     this.transcribeCancelButton.setIconSize(new QSize(32, 32))
 
     this.transferToTranslateButton = new QPushButton()
+    this.transferToTranslateButton.setObjectName('transferToTranslateButton')
     this.transferToTranslateButton.setText('Translate\nTranscribed File')
     this.transferToTranslateButton.setIcon(new QIcon('assets/translate-icon.png'))
     this.transferToTranslateButton.setIconSize(new QSize(32, 32))
 
     this.toggleConsoleButton = new QPushButton()
+    this.toggleConsoleButton.setObjectName('toggleConsoleButton')
     this.toggleConsoleButton.setText('Toggle\nConsole')
     this.toggleConsoleButton.setIcon(new QIcon('assets/terminal-icon.png'))
     this.toggleConsoleButton.setIconSize(new QSize(32, 32))
