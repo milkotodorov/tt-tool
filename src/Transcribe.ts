@@ -771,7 +771,6 @@ export class Transcribe {
         '--processors', this.whisperCPUsComboBox.currentText(),
         '--threads', this.whisperThreadsComboBox.currentText(),
         '--duration', this.whisperDurationLineEdit.text(),
-        '--output-file', outputFile,
         '--file', this.audioFileComboBox.currentText()
       ]
 
@@ -783,6 +782,7 @@ export class Transcribe {
         whisperArgs.push('--print-progress')
         // No colors till HTML parser for BASH colors is implemented
         // whisperArgs.push('--print-colors')
+        whisperArgs.push('--output-file', outputFile)
       }
 
       if (this.whisperDiarizeCheckBox.isChecked())
