@@ -14,7 +14,6 @@ import EventEmitter from "events";
 // =====================================================================================================================
 
 // Before Release
-//ToDo: Windows buttons - verify sizes
 //ToDo: Pack all files with the nodegui-packer
 //ToDo: Update final README
 //ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
