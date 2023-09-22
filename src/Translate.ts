@@ -187,6 +187,7 @@ export class Translate {
     this.deeplUsageCheckButton.setIcon(new QIcon('assets/usage-icon.png'))
     this.deeplUsageCheckButton.setIconSize(new QSize(32, 32))
     this.toggleConsoleButton = new QPushButton()
+    this.toggleConsoleButton.setObjectName('toggleConsoleButton')
     this.toggleConsoleButton.setText('Toggle\nConsole')
     this.toggleConsoleButton.setIcon(new QIcon('assets/terminal-icon.png'))
     this.toggleConsoleButton.setIconSize(new QSize(32, 32))

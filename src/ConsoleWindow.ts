@@ -22,7 +22,7 @@ export class ConsoleWindow {
     this.rootLayout = new FlexLayout()
     this.consoleTextBox = new QTextBrowser()
     this.consoleTextBox.setObjectName('console')
-    this.consoleTextBox.setFont(new QFont("MesloLGS NF", 14))
+    this.consoleTextBox.setFont(new QFont("MesloLGS NF", 11))
     this.window.setCentralWidget(this.rootWidget)
     this.rootWidget.setLayout(this.rootLayout)
     this.rootLayout.addWidget(this.consoleTextBox)

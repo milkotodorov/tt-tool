@@ -15,8 +15,8 @@
   padding: 15px;
 }
 
-#transcribeTitleWidget, 
-#translateTitleWidget, 
+#transcribeTitleWidget,
+#translateTitleWidget,
 #configTitleWidget {
   padding: 10px;
   width: '100%';
@@ -24,14 +24,18 @@
   align-items: 'center';
 }
 
-#transcribeTopLabel, 
-#translateTopLabel, 
+#translateFileArrowLabel {
+  padding-left: 8px;
+}
+
+#transcribeTopLabel,
+#translateTopLabel,
 #configTopLabel {
   font-size: 16px;
   font-weight: bold;
 }
 
-#whisperConfigLabel, 
+#whisperConfigLabel,
 #deeplConfigLabel,
 #configLabelLine {
   font-size: 14px;
@@ -49,7 +53,6 @@
   width: '100%';
   flex-direction: row;
   justify-content: space-between;
-  /*border: 2px ridge #bdbdbd;*/
 }
 
 #deeplConfigLabelWidget {
@@ -107,6 +110,7 @@
 
 #audioFileLanguageLabel {
   margin-left: 130px;
+  padding-right: 2px;
 }
 
 #translateFileArrowLabel {
@@ -118,6 +122,8 @@
   padding: 5px;
 }
 
+#selectTranslateFileLabel,
+#selectAudioFileLabel,
 #whisperCLIPathLabel,
 #deeplAPIKeyLabel {
   margin-right: 2px;
@@ -129,13 +135,6 @@
   margin-top: 50px;
 }
 
-#selectAudioFileButton,
-#selectTranslateFileButton {
-  width: 80px;
-  height: 25px;
-  margin-left: 4px;
-}
-
 #whisperOptionsToolButton {
   align-self: 'center';
   font-size: 12px;
@@ -144,7 +143,7 @@
 
 #whisperOptionsWidget {
   padding: 15px;
-  border: 1px ridge #bdbdbd;
+  border: 2px ridge #bdbdbd;
   width: '100%';
 }
 
@@ -155,12 +154,10 @@
   padding: 5px;
   width: '100%';
   flex: 1;
-  /*border: 1px ridge #bdbdbd;*/
-  /*justify-content: space-between;*/
 }
 
 #whisperDurationLineEdit {
-  width: 75px;
+  width: 80px;
 }
 
 #whisperCLILineEdit {
@@ -172,7 +169,11 @@
   width: 300px;
 }
 
-#whisperDataModelWidget, 
+#whisperDataModelWidget {
+  padding-left: 2px;
+}
+
+#whisperDataModelWidget,
 #whisperOutputFormatWidget,
 #whisperCPUsWidget,
 #whisperThreadsWidget {
@@ -197,12 +198,16 @@
 }
 
 #whisperCustomParamsLineEdit {
-  width: 485px;
+  width: 495px;
 }
 
 #whisperCustomParamsLabel,
 #whisperDurationLabel,
-#whisperSegmentsLengthLabel {
+#whisperSegmentsLengthLabel,
+#whisperModelLabel,
+#whisperOutputFormatLabel,
+#whisperCPUsLabel,
+#whisperThreadsLabel {
   margin-right: 2px;
 }
 
@@ -213,13 +218,15 @@
 
 #transcribeStartButton,
 #transcribeCancelButton,
-#deeplUsageCheckButton,
 #translateButton {
   width: 140px;
 }
 
-#transferToTranslateButton,
 #deeplUsageCheckButton {
+  width: 160px;
+}
+
+#transferToTranslateButton {
   width: 170px;
 }
 
