@@ -525,8 +525,19 @@ export class Translate {
     this.translateButton.addEventListener('clicked', (): void => {
       const sourceLang: deepl.SourceLanguageCode = deepl.standardizeLanguageCode(
           localeCode.getCode(this.translateFileSourceLanguageComboBox.currentText())) as deepl.SourceLanguageCode
+      let targetLangSuffix: string
+      switch (localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText())) {
+        case 'en':
+          targetLangSuffix = '-GB'
+          break
+        case 'pt':
+          targetLangSuffix = '-PT'
+          break
+        default:
+          targetLangSuffix = ''
+      }
       const targetLang: deepl.TargetLanguageCode = deepl.standardizeLanguageCode(
-          localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText())) as deepl.TargetLanguageCode
+          localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText()) + targetLangSuffix) as deepl.TargetLanguageCode
       this.deeplTranslate(this.translateFileComboBox.currentText(), sourceLang, targetLang)
     })
   }
