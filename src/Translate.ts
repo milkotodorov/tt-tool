@@ -21,6 +21,11 @@ import {Config} from './config'
 import {Node, parseSync, stringifySync} from 'subtitle'
 import {NodeList} from "subtitle/src/types"
 import {ConsoleWindow} from "./ConsoleWindow"
+import translateArrowImg from '../assets/arrow.png'
+import translateIcon from '../assets/translate-icon.png'
+import translateUsageIcon from '../assets/usage-icon.png'
+import terminalIcon from '../assets/terminal-icon.png'
+import subtitleFileIcon from '../assets/subtitle-file-icon.png'
 
 export class Translate {
   // ConsoleWindow
@@ -143,7 +148,7 @@ export class Translate {
     this.translateFileArrowLabel = new QLabel()
     this.translateFileArrowLabel.setObjectName('translateFileArrowLabel')
     this.translateArrowPixmap = new QPixmap()
-    this.translateArrowPixmap.load('assets/arrow.png')
+    this.translateArrowPixmap.load(translateArrowImg)
     this.translateFileArrowLabel.setPixmap(this.translateArrowPixmap.scaled(32, 32))
     this.translateFileSourceLanguageComboBox = new QComboBox()
     this.translateFileSourceLanguageComboBox.setObjectName('translateFileSourceLanguageComboBox')
@@ -179,17 +184,17 @@ export class Translate {
     this.translateButton = new QPushButton()
     this.translateButton.setObjectName('translateButton')
     this.translateButton.setText('Start\nTranslation')
-    this.translateButton.setIcon(new QIcon('assets/translate-icon.png'))
+    this.translateButton.setIcon(new QIcon(translateIcon))
     this.translateButton.setIconSize(new QSize(32, 32))
     this.deeplUsageCheckButton = new QPushButton()
     this.deeplUsageCheckButton.setObjectName('deeplUsageCheckButton')
     this.deeplUsageCheckButton.setText('Check\nDeepL Usage')
-    this.deeplUsageCheckButton.setIcon(new QIcon('assets/usage-icon.png'))
+    this.deeplUsageCheckButton.setIcon(new QIcon(translateUsageIcon))
     this.deeplUsageCheckButton.setIconSize(new QSize(32, 32))
     this.toggleConsoleButton = new QPushButton()
     this.toggleConsoleButton.setObjectName('toggleConsoleButton')
     this.toggleConsoleButton.setText('Toggle\nConsole')
-    this.toggleConsoleButton.setIcon(new QIcon('assets/terminal-icon.png'))
+    this.toggleConsoleButton.setIcon(new QIcon(terminalIcon))
     this.toggleConsoleButton.setIconSize(new QSize(32, 32))
 
     // Space between the buttons - to be improved
@@ -215,7 +220,7 @@ export class Translate {
     this.translateTabLayout.addWidget(this.actionButtonsWidget)
 
     // Apply the Stylesheet
-    this.translateRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'))
+    this.translateRootWidget.setStyleSheet(fs.readFileSync('css/common.css', 'utf8'))
 
     // Add the event listeners
     this.selectTranslateFileButtonEventListener()
@@ -250,7 +255,7 @@ export class Translate {
 
         if (selectedFile != null && !isFileAlreadyAdded) {
           let currentIndex: number = this.translateFileComboBox.currentIndex()
-          this.translateFileComboBox.addItem(new QIcon('assets/subtitle-file-icon.png'), selectedFile)
+          this.translateFileComboBox.addItem(new QIcon(subtitleFileIcon), selectedFile)
           if (currentIndex != -1)
             this.translateFileComboBox.setCurrentIndex(currentIndex + 1)
           this.translateButton.setEnabled(true)

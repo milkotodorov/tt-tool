@@ -1,14 +1,16 @@
 const path = require("path");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
   mode: process.NODE_ENV || "development",
-  entry: "./src",
+  entry: ["./src", "./css/common.css"],
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js"
   },
+
   module: {
     rules: [
       {
@@ -21,7 +23,7 @@ module.exports = {
         use: [
           {
             loader: "file-loader",
-            options: { publicPath: "dist" }
+            options: {publicPath: "dist"}
           }
         ]
       },
@@ -30,14 +32,28 @@ module.exports = {
         use: [
           {
             loader: "native-addon-loader",
-            options: { name: "[name]-[hash].[ext]" }
+            options: {name: "[name]-[hash].[ext]"}
           }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader'
         ]
       }
     ]
   },
+
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".jsx"]
   },
-  plugins: [new CleanWebpackPlugin()]
+
+  plugins: [
+    new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "css/common.css"
+    })
+  ]
 };

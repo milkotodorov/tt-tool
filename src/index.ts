@@ -10,13 +10,16 @@ import {Transcribe} from './transcribe'
 import {Translate} from './translate'
 import {ConsoleWindow} from "./ConsoleWindow"
 import EventEmitter from "events";
+import openAILogo from '../assets/openai-logo-icon.png'
+import deeplLogo from '../assets/deepl-logo-icon.png'
+import configIcon from '../assets/config-icon.png'
 
 // =====================================================================================================================
 
 // Before Release
 //ToDo: Pack all files with the nodegui-packer
 //ToDo: Update final README
-//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg).
+//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg): https://github.com/eugeneware/ffmpeg-static
 //ToDo: Add system tray icon: https://github.com/sitepoint-editors/memesearchapp-nodegui-tutorial/blob/master/src/index.js#L132-L153
 
 // Prio Low
@@ -42,9 +45,9 @@ let translate: Translate = new Translate(consoleWindow, statusBar, config)
 let transcribe: Transcribe = new Transcribe(consoleWindow, statusBar, config, eventEmitter, translate)
 
 // Add the Tabs
-tabWidget.addTab(transcribe.transcribeRootWidget, new QIcon('assets/openai-logo-icon.png'), 'Transcribe')
-tabWidget.addTab(translate.translateRootWidget, new QIcon('assets/deepl-logo-icon.png'), 'Translate')
-tabWidget.addTab(config.configRootWidget, new QIcon('assets/config-icon.png'), 'Config')
+tabWidget.addTab(transcribe.transcribeRootWidget, new QIcon(openAILogo), 'Transcribe')
+tabWidget.addTab(translate.translateRootWidget, new QIcon(deeplLogo), 'Translate')
+tabWidget.addTab(config.configRootWidget, new QIcon(configIcon), 'Config')
 
 // =====================================================================================================================
 // Main Window

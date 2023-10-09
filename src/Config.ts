@@ -16,6 +16,9 @@ import * as fs from 'fs'
 import * as path from "node:path"
 import {ConsoleWindow} from "./ConsoleWindow"
 import * as os from "os";
+import greenDotIcon from '../assets/green-dot-icon.png'
+import grayDotIcon from '../assets/gray-dot-icon.png'
+import saveIcon from '../assets/save-icon.png'
 
 export class Config {
   // ConsoleWindow
@@ -221,7 +224,7 @@ export class Config {
     this.saveConfigButton = new QPushButton()
     this.saveConfigButton.setObjectName('saveConfigButton')
     this.saveConfigButton.setText("Save")
-    this.saveConfigButton.setIcon(new QIcon('assets/save-icon.ico'))
+    this.saveConfigButton.setIcon(new QIcon(saveIcon))
     this.saveConfigButton.setIconSize(new QSize(32, 32))
 
     // Save Button Widget
@@ -240,7 +243,7 @@ export class Config {
     this.configTabLayout.addWidget(this.saveConfigWidget)
 
     // Apply the Stylesheet
-    this.configRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'))
+    this.configRootWidget.setStyleSheet(fs.readFileSync('dist/css/common.css', 'utf8'))
 
     // Disable irrelevant WhisperCLI builds
     this.disableIrrelevantWhisperCLITypes()
@@ -357,9 +360,9 @@ export class Config {
 
   public getDataModelIcon(dataModelName: string): QIcon {
     if (this.isDataModelExist(dataModelName))
-      return new QIcon('assets/green-dot-icon.png')
+      return new QIcon(greenDotIcon)
     else 
-      return new QIcon('assets/gray-dot-icon.png')
+      return new QIcon(grayDotIcon)
   }
 
   private selectWhisperCLIButtonEventListener(): void {

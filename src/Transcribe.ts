@@ -27,6 +27,13 @@ import {Config} from './config'
 import {Translate} from './translate'
 import {ConsoleWindow} from "./ConsoleWindow"
 import AdmZip from "adm-zip";
+import transcribeIcon from '../assets/transcribe-icon.png'
+import cancelIcon from '../assets/cancel-icon.png'
+import translateIcon from '../assets/translate-icon.png'
+import terminalIcon from '../assets/terminal-icon.png'
+import audioFileIcon from '../assets/audio-file-icon.png'
+import subtitleFileIcon from '../assets/subtitle-file-icon.png'
+import advancedOptionsIcon from '../assets/advanced-options-icon.png'
 
 export class Transcribe {
   // ConsoleWindow
@@ -271,7 +278,7 @@ export class Transcribe {
     this.whisperOptionsToolButton = new QPushButton()
     this.whisperOptionsToolButton.setObjectName('whisperOptionsToolButton')
     this.whisperOptionsToolButton.setText('Advanced Whisper Options')
-    this.whisperOptionsToolButton.setIcon(new QIcon('assets/advanced-options-icon.ico'))
+    this.whisperOptionsToolButton.setIcon(new QIcon(advancedOptionsIcon))
     this.whisperOptionsToolButton.setIconSize(new QSize(32, 32))
     this.whisperOptionsToolButton.setCheckable(true)
     this.whisperOptionsToolButton.setChecked(false)
@@ -433,25 +440,25 @@ export class Transcribe {
     this.transcribeStartButton = new QPushButton()
     this.transcribeStartButton.setObjectName('transcribeStartButton')
     this.transcribeStartButton.setText('Start\nTranscribe')
-    this.transcribeStartButton.setIcon(new QIcon('assets/transcribe-icon.png'))
+    this.transcribeStartButton.setIcon(new QIcon(transcribeIcon))
     this.transcribeStartButton.setIconSize(new QSize(32, 32))
 
     this.transcribeCancelButton = new QPushButton()
     this.transcribeCancelButton.setObjectName('transcribeCancelButton')
     this.transcribeCancelButton.setText('Cancel\nTranscribe')
-    this.transcribeCancelButton.setIcon(new QIcon('assets/cancel-icon.png'))
+    this.transcribeCancelButton.setIcon(new QIcon(cancelIcon))
     this.transcribeCancelButton.setIconSize(new QSize(32, 32))
 
     this.transferToTranslateButton = new QPushButton()
     this.transferToTranslateButton.setObjectName('transferToTranslateButton')
     this.transferToTranslateButton.setText('Translate\nTranscribed File')
-    this.transferToTranslateButton.setIcon(new QIcon('assets/translate-icon.png'))
+    this.transferToTranslateButton.setIcon(new QIcon(translateIcon))
     this.transferToTranslateButton.setIconSize(new QSize(32, 32))
 
     this.toggleConsoleButton = new QPushButton()
     this.toggleConsoleButton.setObjectName('toggleConsoleButton')
     this.toggleConsoleButton.setText('Toggle\nConsole')
-    this.toggleConsoleButton.setIcon(new QIcon('assets/terminal-icon.png'))
+    this.toggleConsoleButton.setIcon(new QIcon(terminalIcon))
     this.toggleConsoleButton.setIconSize(new QSize(32, 32))
 
     // Space between the buttons - to be improved
@@ -483,7 +490,7 @@ export class Transcribe {
     this.transcribeTabLayout.addWidget(this.actionButtonsWidget)
 
     // Apply the Stylesheet
-    this.transcribeRootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'))
+    this.transcribeRootWidget.setStyleSheet(fs.readFileSync('dist/css/common.css', 'utf8'))
 
     // Add the event listeners
     this.audioFileButtonEventListener()
@@ -550,7 +557,7 @@ export class Transcribe {
         }
         if (selectedFile != null && !isFileAlreadyAdded) {
           let currentIndex: number = this.audioFileComboBox.currentIndex()
-          this.audioFileComboBox.addItem(new QIcon('assets/audio-file-icon.png'), selectedFile)
+          this.audioFileComboBox.addItem(new QIcon(audioFileIcon), selectedFile)
           if (currentIndex != -1)
             this.audioFileComboBox.setCurrentIndex(currentIndex + 1)
           this.transcribeStartButton.setEnabled(true)
@@ -863,7 +870,7 @@ export class Transcribe {
 
       if (!isFileAlreadyAdded) {
         let currentIndex: number = this.translate.translateFileComboBox.currentIndex()
-        this.translate.translateFileComboBox.addItem(new QIcon('assets/subtitle-file-icon.png'), subtitleFile)
+        this.translate.translateFileComboBox.addItem(new QIcon(subtitleFileIcon), subtitleFile)
         if (currentIndex != -1)
           this.translate.translateFileComboBox.setCurrentIndex(currentIndex + 1)
       }

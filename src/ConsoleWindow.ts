@@ -26,7 +26,7 @@ export class ConsoleWindow {
     this.window.setCentralWidget(this.rootWidget)
     this.rootWidget.setLayout(this.rootLayout)
     this.rootLayout.addWidget(this.consoleTextBox)
-    this.rootWidget.setStyleSheet(fs.readFileSync('css/main.css', 'utf8'))
+    this.rootWidget.setStyleSheet(fs.readFileSync('dist/css/common.css', 'utf8'))
 
     this.window.resize(WindowSize.Width || 800, WindowSize.Height || 600)
     this.window.move(50, 300)
