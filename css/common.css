@@ -1,0 +1,240 @@
+#console {
+  height: '100%';
+  width: '100%';
+}
+
+#transcribeRootWidget,
+#translateRootWidget,
+#configRootWidget {
+  padding: 5px;
+  align-items: 'center';
+}
+
+#audioFileRootWidget,
+#translateFileRootWidget {
+  padding: 15px;
+}
+
+#transcribeTitleWidget,
+#translateTitleWidget,
+#configTitleWidget {
+  padding: 10px;
+  width: '100%';
+  border: 2px ridge #bdbdbd;
+  align-items: 'center';
+}
+
+#translateFileArrowLabel {
+  padding-left: 8px;
+}
+
+#transcribeTopLabel,
+#translateTopLabel,
+#configTopLabel {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#whisperConfigLabel,
+#deeplConfigLabel,
+#configLabelLine {
+  font-size: 14px;
+  font-weight: bold;
+  padding-top: 15px;
+}
+
+#whisperConfigLabel,
+#deeplConfigLabel {
+  padding-left: 10px;
+}
+
+#whisperConfigWidget,
+#deeplConfigLabelWidget {
+  width: '100%';
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#deeplConfigLabelWidget {
+  padding-top: 25px;
+}
+
+#audioFileTopWidget, 
+#translateFileTopWidget,
+#whisperCLIConfigTopWidget,
+#deeplAPIKeyWidget,
+#whisperCLIArchWidget {
+  flex-direction: row;
+  width: '94%';
+  /*border: 2px ridge #bdbdbd;*/
+}
+
+#whisperCLIArchWidget {
+  padding-top: 20px;
+}
+
+#whisperCLIWinWCPPRadioButton,
+#whisperCLIDarwinARM64RadioButton,
+#whisperCLIDarwinX64RadioButton,
+#whisperCLILinuxX64RadioButton {
+  padding-left: 8px;
+}
+
+#deeplAPIKeyWidget {
+  padding-top: 10px;
+  padding-left: 25px;
+}
+
+#whisperCLIConfigWidget,
+#whisperCLIConfigTopWidget,
+#whisperCLIConfigL2Widget,
+#whisperCLIArchWidget {
+  padding-left: 10px;
+  width: '94%';
+  /*border: 2px ridge #bdbdbd;*/
+}
+
+#whisperCLIConfigWidget {
+  margin-top: 10px;
+}
+
+#translateFileSpacerLabel {
+  margin-right: 110px;
+}
+
+#transcribeButtonsSpacer1Label,
+#transcribeButtonsSpacer2Label,
+#transcribeButtonsSpacer3Label {
+  margin-left: 10px;
+}
+
+#audioFileLanguageLabel {
+  margin-left: 130px;
+  padding-right: 2px;
+}
+
+#translateFileArrowLabel {
+  font-size: 18px;
+}
+
+#audioFileComboBox,
+#translateFileComboBox {
+  padding: 5px;
+}
+
+#selectTranslateFileLabel,
+#selectAudioFileLabel,
+#whisperCLIPathLabel,
+#deeplAPIKeyLabel {
+  margin-right: 2px;
+}
+
+#saveConfigWidget {
+  padding: 15px;
+  align-self: 'center';
+  margin-top: 50px;
+}
+
+#whisperOptionsToolButton {
+  align-self: 'center';
+  font-size: 12px;
+  padding: 10px;
+}
+
+#whisperOptionsWidget {
+  padding: 15px;
+  border: 2px ridge #bdbdbd;
+  width: '100%';
+}
+
+#whisperOptionsL1Widget,
+#whisperOptionsL2Widget,
+#whisperCustomParamsWidget {
+  flex-direction: row;
+  padding: 5px;
+  width: '100%';
+  flex: 1;
+}
+
+#whisperDurationLineEdit {
+  width: 80px;
+}
+
+#whisperCLILineEdit {
+  margin-top: 2px;
+  width: 500px;
+}
+
+#deeplAPIKeyLineEdit {
+  width: 300px;
+}
+
+#whisperDataModelWidget {
+  padding-left: 2px;
+}
+
+#whisperDataModelWidget,
+#whisperOutputFormatWidget,
+#whisperCPUsWidget,
+#whisperThreadsWidget {
+  flex: 1;
+  padding-right: 10px;
+  flex-direction: row;
+}
+
+#whisperSegmentsLengthLineEdit {
+  width: 80px;
+}
+
+#whisperSegmentsLengthWidget,
+#whisperDurationWidget,
+#whisperDiarizeWidget {
+  flex: 1;
+  flex-direction: row;
+}
+
+#whisperCustomParamsWidget {
+  padding-top: 10px;
+}
+
+#whisperCustomParamsLineEdit {
+  width: 495px;
+}
+
+#whisperCustomParamsLabel,
+#whisperDurationLabel,
+#whisperSegmentsLengthLabel,
+#whisperModelLabel,
+#whisperOutputFormatLabel,
+#whisperCPUsLabel,
+#whisperThreadsLabel {
+  margin-right: 2px;
+}
+
+#actionButtonsWidget {
+  flex-direction: row;
+  padding: 15px;
+}
+
+#transcribeStartButton,
+#transcribeCancelButton,
+#translateButton {
+  width: 140px;
+}
+
+#deeplUsageCheckButton {
+  width: 160px;
+}
+
+#transferToTranslateButton {
+  width: 170px;
+}
+
+#toggleConsoleButton,
+#saveConfigButton {
+  width: 120px;
+}
+
+#statusBar {
+  width: '100%';
+}
