@@ -5,6 +5,11 @@
   "author": "",
   "private": true,
   "scripts": {
+    "clean-mac": "rm -rf dist && rm -rf deploy/darwin/build",
+    "clean-linux": "rm -rf dist && rm -rf deploy/linux/build",
+    "clean-win": "rd /s /q dist deploy\\win32\\build",
+    "init-packer": "npx nodegui-packer --init tt-tool",
+    "pack": "webpack --mode production && npx nodegui-packer --pack ./dist",
     "build": "webpack --mode production",
     "start": "webpack && qode ./dist/index.js",
     "debug": "webpack && qode --inspect ./dist/index.js"

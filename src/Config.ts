@@ -15,7 +15,7 @@ import {
 import * as fs from 'fs'
 import * as path from "node:path"
 import {ConsoleWindow} from "./ConsoleWindow"
-import * as os from "os";
+import * as os from "os"
 import greenDotIcon from '../assets/green-dot-icon.png'
 import grayDotIcon from '../assets/gray-dot-icon.png'
 import saveIcon from '../assets/save-icon.png'

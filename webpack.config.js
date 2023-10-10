@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
   mode: process.NODE_ENV || "development",
-  entry: ["./src", "./css/common.css"],
+  entry: ["./src", "./css/common.css", "./tt-tool-config.json"],
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -28,6 +28,21 @@ module.exports = {
         ]
       },
       {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader'
+        ]
+      },
+      // {
+      //   test: /\.json$/,
+      //   type: "javascript/auto",
+      //   loader: "file-loader",
+      //   options: {
+      //     name: "[name].[ext]"
+      //   }
+      // },
+      {
         test: /\.node$/,
         use: [
           {
@@ -35,19 +50,12 @@ module.exports = {
             options: {name: "[name]-[hash].[ext]"}
           }
         ]
-      },
-      {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader'
-        ]
       }
     ]
   },
 
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".jsx"]
+    extensions: [".tsx", ".ts", ".js", ".jsx", "*.json"]
   },
 
   plugins: [
@@ -56,4 +64,4 @@ module.exports = {
       filename: "css/common.css"
     })
   ]
-};
+}

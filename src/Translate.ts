@@ -220,7 +220,7 @@ export class Translate {
     this.translateTabLayout.addWidget(this.actionButtonsWidget)
 
     // Apply the Stylesheet
-    this.translateRootWidget.setStyleSheet(fs.readFileSync('css/common.css', 'utf8'))
+    this.translateRootWidget.setStyleSheet(fs.readFileSync('dist/css/common.css', 'utf8'))
 
     // Add the event listeners
     this.selectTranslateFileButtonEventListener()
