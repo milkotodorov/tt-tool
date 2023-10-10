@@ -12,11 +12,11 @@ import {
   QSize,
   QStatusBar,
   QWidget
-} from "@nodegui/nodegui"
+} from '@nodegui/nodegui'
 import * as fs from 'fs'
 import * as deepl from 'deepl-node'
 import localeCode from 'iso-639-1'
-import path from "node:path"
+import path from 'node:path'
 import {Config} from './config'
 import {Node, parseSync, stringifySync} from 'subtitle'
 import {NodeList} from "subtitle/src/types"

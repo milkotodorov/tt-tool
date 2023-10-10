@@ -16,6 +16,8 @@ The following two things are required before you can use the `tt-tool`:
 
   As of now the last two works faster than the original Python implementation. This will certainly change with time.
 Download the Whisper CLI from one of the options above and save it in a dedicated folder, preferably into the folder where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
+  
+  The compiled executables of the tool ports are available as zipped archives in the [Releases](https://github.com/milkotodorov/tt-tool/releases) section for Windows / MacOS (ARM & Intel) / Linux (to be added).
 
 - DeepL API or Authentication Key - it can be obtained as described in the [official DeepL Documentation](https://support.deepl.com/hc/en-us/articles/360020695820-Authentication-Key).
 
@@ -24,7 +26,7 @@ Download the Whisper CLI from one of the options above and save it in a dedicate
 - If you use `Whisper.cpp` only `wav` files are currently supported. The tool uses [`FFmpeg`](https://ffmpeg.org/) to convert/extract to the `wav` format from other formats. You need to install the `FFmpeg` prior using the tool. You can either [download `FFmpeg`](https://ffmpeg.org/download.html) and install it via the UI. Or use the console to install it with a single line:
   ```console
   # Windows
-  winget install --id=Gyan.FFmpeg  -e
+  winget install Cle--id=Gyan.FFmpeg  -e
   
   # MacOS
   brew install ffmpeg
@@ -48,30 +50,44 @@ git clone https://github.com/milkotodorov/tt-tool
 # Go into the repository
 cd tt-tool
 
-# Install dependencies
+# Install the dependencies
 npm install
 
 # Run the app
 npm start
+
+# Run the app in debug mode
+npm run debug
+```
+
+Additionally the following `npm` commands are available:
+
+```console
+# Cleanup build and distributable files for MacOS
+npm run clean-mac
+
+# Cleanup build and distributable files for Windows
+npm run clean-win
+
+# Cleanup build and distributable files for Linux
+npm run clean-linux
 ```
 
 ## Packaging app as a distributable
 
 In order to distribute your finished app, you can use [@nodegui/packer](https://github.com/nodegui/packer)
 
-Just run the pack command:
+Run the pack command as follows:
 
 ```console
-npm run build
+# Initializes the nodegui-packe (needs to be done only once)
+npm run init-packer 
+
+# Create an redistributable package
+npm run pack
 ```
 
-This will produce the js bundle along with assets inside the `./dist` directory
-
-```console
-npx nodegui-packer --pack ./dist
-```
-
-This will build the distributable using @nodegui/packer. The output of the command is found under the build directory.
+This will build the distributable using @nodegui/packer. The output of the command is found under the `deploy/<os_platform>/build` folder.
 
 More details about packer can be found here: https://github.com/nodegui/packer
 

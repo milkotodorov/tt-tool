@@ -1,10 +1,11 @@
-const path = require("path");
-const {CleanWebpackPlugin} = require("clean-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const path = require("path")
+const {CleanWebpackPlugin} = require("clean-webpack-plugin")
+const CopyPlugin = require('copy-webpack-plugin')
+const {platform, arch} = require('os')
 
 module.exports = {
   mode: process.NODE_ENV || "development",
-  entry: ["./src", "./css/common.css", "./tt-tool-config.json"],
+  entry: ["./src"],
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -28,21 +29,6 @@ module.exports = {
         ]
       },
       {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader'
-        ]
-      },
-      // {
-      //   test: /\.json$/,
-      //   type: "javascript/auto",
-      //   loader: "file-loader",
-      //   options: {
-      //     name: "[name].[ext]"
-      //   }
-      // },
-      {
         test: /\.node$/,
         use: [
           {
@@ -55,13 +41,22 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".jsx", "*.json"]
+    extensions: [".tsx", ".ts", ".js", ".jsx"]
   },
 
   plugins: [
     new CleanWebpackPlugin(),
-    new MiniCssExtractPlugin({
-      filename: "css/common.css"
+    new CopyPlugin({
+      patterns: [
+        { from: 'css', to: 'css' },
+        { from: 'assets', to: 'assets' },
+        { from: 'fonts', to: 'fonts' },
+        { from: 'tt-tool-config.json', to: 'tt-tool-config.json' },
+        // { from: 'node_modules/ffmpeg-static/ffmpeg', noErrorOnMissing: true },
+        // { from: 'node_modules/ffmpeg-static/ffmpeg.exe', noErrorOnMissing: true },
+        // { from: `node_modules/ffplay-static/bin/${platform()}/${arch()}/ffplay`, noErrorOnMissing: true },
+        // { from: `node_modules/ffplay-static/bin/${platform()}/${arch()}/ffplay.exe`, noErrorOnMissing: true }
+      ]
     })
   ]
 }

@@ -11,11 +11,11 @@ import {
   QSize,
   QStatusBar,
   QWidget
-} from "@nodegui/nodegui"
+} from '@nodegui/nodegui'
 import * as fs from 'fs'
-import * as path from "node:path"
-import {ConsoleWindow} from "./ConsoleWindow"
-import * as os from "os"
+import * as path from 'node:path'
+import {ConsoleWindow} from './ConsoleWindow'
+import * as os from 'os'
 import greenDotIcon from '../assets/green-dot-icon.png'
 import grayDotIcon from '../assets/gray-dot-icon.png'
 import saveIcon from '../assets/save-icon.png'
@@ -75,7 +75,7 @@ export class Config {
   private saveConfigLayout: FlexLayout
 
   // Configuration Objects
-  private readonly configFile: string = 'tt-tool-config.json'
+  private readonly configFile: string = 'dist/tt-tool-config.json'
   public whisperCLIPath: string
   public whisperCLIArch: string
   public deeplAPIKey: string

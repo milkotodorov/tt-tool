@@ -5,8 +5,8 @@ import {
   QMainWindow,
   QTextBrowser,
   QWidget
-} from "@nodegui/nodegui"
-import fs from "fs"
+} from '@nodegui/nodegui'
+import fs from 'fs'
 
 export class ConsoleWindow {
   private readonly window: QMainWindow

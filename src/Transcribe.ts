@@ -14,7 +14,7 @@ import {
   QSize,
   QStatusBar,
   QWidget
-} from "@nodegui/nodegui"
+} from '@nodegui/nodegui'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'node:path'
@@ -25,8 +25,8 @@ import EventEmitter from "events"
 import {spawn} from 'node:child_process'
 import {Config} from './config'
 import {Translate} from './translate'
-import {ConsoleWindow} from "./ConsoleWindow"
-import AdmZip from "adm-zip";
+import {ConsoleWindow} from './ConsoleWindow'
+import AdmZip from 'adm-zip'
 import transcribeIcon from '../assets/transcribe-icon.png'
 import cancelIcon from '../assets/cancel-icon.png'
 import translateIcon from '../assets/translate-icon.png'
