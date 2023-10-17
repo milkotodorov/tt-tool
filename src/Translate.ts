@@ -339,11 +339,11 @@ export class Translate {
 
     this.consoleWindow.log(`Translating from ${sourceLang.toUpperCase()} to ${targetLang.toUpperCase()}`)
 
-    const srcFilePPath: path.ParsedPath = path.parse(srcFile)
-    const tmpTxtFile: string = path.join(srcFilePPath.dir, srcFilePPath.name + '-SubText.txt')
-    const deeplFile: string = path.join(srcFilePPath.dir, srcFilePPath.name + '-DeepL.txt')
-    const outSubFile: string = path.join(srcFilePPath.dir, `${srcFilePPath.name}.${targetLang.toUpperCase()}${srcFilePPath.ext}`)
-    const isWebVTT: boolean = srcFilePPath.ext == '.vtt'
+    const srcFilePath: path.ParsedPath = path.parse(srcFile)
+    const tmpTxtFile: string = path.join(srcFilePath.dir, srcFilePath.name + '-SubText.txt')
+    const deeplFile: string = path.join(srcFilePath.dir, srcFilePath.name + '-DeepL.txt')
+    const outSubFile: string = path.join(srcFilePath.dir, `${srcFilePath.name}.${targetLang.toUpperCase()}${srcFilePath.ext}`)
+    const isWebVTT: boolean = srcFilePath.ext == '.vtt'
 
     if (fs.existsSync(outSubFile)) {
       const msg: string = 'Translation already exist: '
@@ -364,7 +364,7 @@ export class Translate {
       this.consoleWindow.log(errMsg, srcFile)
       this.consoleWindow.log(err)
       this.statusBar.clearMessage()
-      this.statusBar.showMessage(errMsg + srcFilePPath.base, 5000)
+      this.statusBar.showMessage(errMsg + srcFilePath.base, 5000)
       this.translateButton.setEnabled(true)
       return
     }

@@ -23,6 +23,7 @@ import wget from 'wget-improved'
 import cliProgress from 'cli-progress'
 import EventEmitter from "events"
 import {spawn} from 'node:child_process'
+import {ChildProcessWithoutNullStreams} from "child_process";
 import {Config} from './config'
 import {Translate} from './translate'
 import {ConsoleWindow} from './ConsoleWindow'
@@ -34,6 +35,7 @@ import terminalIcon from '../assets/terminal-icon.png'
 import audioFileIcon from '../assets/audio-file-icon.png'
 import subtitleFileIcon from '../assets/subtitle-file-icon.png'
 import advancedOptionsIcon from '../assets/advanced-options-icon.png'
+import pathToFfmpeg from 'ffmpeg-static'
 
 export class Transcribe {
   // ConsoleWindow
@@ -516,6 +518,54 @@ export class Transcribe {
     this.checkTransferToTranslateButton()
   }
 
+  /**
+   * Convert multimedia file into WAV file format using FFmpeg
+   *
+   * @param src
+   * Source file
+   * @param dest
+   * Destination File
+   * @private
+   *
+   * @return
+   * 0 - For successful conversion
+   * 1 - When error occurs
+   * 2 - When ffmpeg executable is not found
+   */
+  private async convert2Wav(src: string, dest: string): Promise<number> {
+    if (pathToFfmpeg == null) {
+      this.consoleWindow.log('FFmpeg binary from "ffmpeg-static" not found.')
+      return 2
+    }
+
+    let ffmpegArgs: string[] = [
+      '-i', `${src}`,
+      '-y', '-v', 'error',
+      '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le',
+      `${dest}`
+    ]
+
+    let ffmpegPrc: ChildProcessWithoutNullStreams = spawn(pathToFfmpeg, ffmpegArgs)
+
+    return new Promise((resolveFunc): void => {
+      ffmpegPrc.stderr.on('data', (data: any): void => {
+        this.consoleWindow.log(data.toString())
+      })
+
+      ffmpegPrc.stderr.on('error', (data: any): void => {
+        this.consoleWindow.log(`Error while converting ${src} file into WAV:`)
+        this.consoleWindow.log(data.stderr.toString())
+        this.consoleWindow.log('Exit code: ', data.exitCode)
+        resolveFunc(1)
+      })
+
+      ffmpegPrc.on('exit', (code: any): void => {
+        this.consoleWindow.log(`Converting ${src} file into WAV successful`)
+        resolveFunc(0)
+      })
+    })
+  }
+
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -758,8 +808,33 @@ export class Transcribe {
   }
 
   private transcribeButtonEventListener(): void {
-    this.transcribeStartButton.addEventListener('clicked', (): void => {
+    this.transcribeStartButton.addEventListener('clicked', async (): Promise<void> => {
       this.transcribeStartButton.setEnabled(false)
+
+      let wavFile: string | null = null
+
+      // When using Whisper.cpp we need to convert the video / audio file into 16-bit WAV
+      if (this.config.whisperCLIArch !== 'win-x64-gpu' ||
+          path.parse(this.audioFileComboBox.currentText()).ext !== '.wav') {
+        const srcFilePath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText())
+        wavFile = path.join(srcFilePath.dir, `${srcFilePath.name}.wav`)
+
+        this.statusBar.clearMessage()
+        this.statusBar.showMessage('Converting input file into 16-bit WAV...')
+        let convertStatus: number = await this.convert2Wav(this.audioFileComboBox.currentText(), wavFile)
+        this.statusBar.clearMessage()
+        this.statusBar.showMessage('Converting input file into 16-bit WAV... done', 5000)
+
+        if (convertStatus != 0) {
+          this.transcribeStartButton.setEnabled(true)
+          this.statusBar.clearMessage()
+          this.statusBar.showMessage('Converting input file into 16-bit WAV failed. ' +
+              'Cannot transcribe. Check Console output for details.', 5000)
+
+          return
+        }
+      }
+
       this.transcribeCancelButton.setEnabled(true)
 
       let sourceLanguage: string = 'auto'
@@ -778,14 +853,13 @@ export class Transcribe {
         '--processors', this.whisperCPUsComboBox.currentText(),
         '--threads', this.whisperThreadsComboBox.currentText(),
         '--duration', this.whisperDurationLineEdit.text(),
-        '--file', this.audioFileComboBox.currentText()
+        '--file', (wavFile == null) ? this.audioFileComboBox.currentText() : wavFile
       ]
 
       // Not available for Windows port of Whisper.cpp with GPU acceleration
       if (this.config.whisperCLIArch == 'win-x64-gpu') {
         whisperArgs.push('--no-colors') // No colors till HTML parser for BASH colors is implemented
-      }
-      else {
+      } else {
         whisperArgs.push('--print-progress')
         // No colors till HTML parser for BASH colors is implemented
         // whisperArgs.push('--print-colors')
@@ -802,11 +876,10 @@ export class Transcribe {
       this.statusBar.showMessage('Transcribing...')
 
       let whisperCLI: string = this.config.whisperCLIPath
-      if (path.dirname(whisperCLI) && !whisperCLI.startsWith('./'))
+      // In case only executable name is configured without any path
+      if (path.dirname(whisperCLI) == '.' && !whisperCLI.startsWith('./'))
         whisperCLI = './' + whisperCLI
-      this.whisperPrc = spawn(whisperCLI, whisperArgs,
-          {cwd: path.dirname(this.config.whisperCLIPath)}
-      )
+      this.whisperPrc = spawn(whisperCLI, whisperArgs, {cwd: path.dirname(whisperCLI)})
 
       this.whisperPrc.stdout.on('data', (data: any): void => {
         this.consoleWindow.log(data.toString())

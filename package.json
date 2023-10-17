@@ -9,16 +9,19 @@
     "clean-linux": "rm -rf dist && rm -rf deploy/linux/build",
     "clean-win": "rd /s /q dist deploy\\win32\\build",
     "init-packer": "npx nodegui-packer --init tt-tool",
-    "pack": "webpack --mode production && npx nodegui-packer --pack ./dist",
-    "build": "webpack --mode production",
-    "start": "webpack && qode ./dist/index.js",
-    "debug": "webpack && qode --inspect ./dist/index.js"
+    "pack": "webpack --progress --mode production && npx nodegui-packer --pack ./dist",
+    "build": "webpack --progress --mode production",
+    "start": "webpack --progress && qode ./dist/index.js",
+    "start-no-build": "qode ./dist/index.js",
+    "debug": "webpack --progress && qode --inspect ./dist/index.js",
+    "debug-no-build": "qode --inspect ./dist/index.js"
   },
   "dependencies": {
     "@nodegui/nodegui": "^0.57.3",
     "adm-zip": "^0.5.1",
     "cli-progress": "^3.12.0",
     "deepl-node": "^1.10.2",
+    "ffmpeg-static": "^5.2.0",
     "iso-639-1": "^2.1.15",
     "original-fs": "^1.2.0",
     "subtitle": "^4.2.1",
@@ -37,6 +40,7 @@
     "ts-loader": "^9.4.4",
     "typescript": "^4.9.5",
     "webpack": "^5.88.1",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-permissions-plugin": "^1.0.9"
   }
 }

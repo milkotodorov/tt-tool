@@ -16,20 +16,20 @@ import configIcon from '../assets/config-icon.png'
 
 // =====================================================================================================================
 
-// Before Release
-//ToDo: Automatically extract audio from video files (via cmd ffmpeg or better via node lib for ffmpeg): https://github.com/eugeneware/ffmpeg-static
-
-// Prio Low
-//ToDo: Add system tray icon: https://github.com/sitepoint-editors/memesearchapp-nodegui-tutorial/blob/master/src/index.js#L132-L153
-//ToDo: Upgrade to latest NodeGUI (with QT 6.x)
+//ToDo: Add app icon
+//ToDo: Upgrade to latest NodeGUI with QT 6.x
 //ToDo: ProgressBar when transcribing
-//ToDo: Available Languages for Translate & Transcode -> Configurable
-//ToDo: Set ConsoleFont MesloLGS NF with application font (work around is to install it from fonts)
 //ToDo: ConsoleWindow with color output: Parse bash output into HTML
-// Possible Library: https://www.npmjs.com/package/ansi-to-html
+//      > Possible Library: https://www.npmjs.com/package/ansi-to-html
+//ToDo: Available Languages for Translate & Transcode -> Configurable
+
+// =====================================================================================================================
+
+// App Version defined in WebPack
+declare const VERSION: string
 
 // Root EventEmitter
-let eventEmitter: EventEmitter = new EventEmitter();
+let eventEmitter: EventEmitter = new EventEmitter()
 
 // Tabs Widget
 const tabWidget: QTabWidget = new QTabWidget()
@@ -38,6 +38,7 @@ const tabWidget: QTabWidget = new QTabWidget()
 let statusBar: QStatusBar = new QStatusBar()
 statusBar.setObjectName('statusBar')
 let consoleWindow: ConsoleWindow = new ConsoleWindow({Width: 1024, Height: 768})
+consoleWindow.log('TT-Tool Version:', VERSION, '\n\n')
 let config: Config = new Config(consoleWindow, statusBar)
 let translate: Translate = new Translate(consoleWindow, statusBar, config)
 let transcribe: Transcribe = new Transcribe(consoleWindow, statusBar, config, eventEmitter, translate)
@@ -60,7 +61,8 @@ mainWindow.addEventListener(WidgetEventTypes.Close, (): void => {
   consoleWindow.close()
 })
 
-mainWindow.show();
+mainWindow.show()
+statusBar.showMessage(`TT-Tool Version: ${VERSION}`, 20000);
 
 (global as any).win = mainWindow
 

@@ -1,12 +1,14 @@
 import {
   FlexLayout,
   QFont,
+  QFontDatabase,
   QIcon,
   QMainWindow,
   QTextBrowser,
   QWidget
 } from '@nodegui/nodegui'
 import fs from 'fs'
+import path from "node:path";
 
 export class ConsoleWindow {
   private readonly window: QMainWindow
@@ -22,7 +24,12 @@ export class ConsoleWindow {
     this.rootLayout = new FlexLayout()
     this.consoleTextBox = new QTextBrowser()
     this.consoleTextBox.setObjectName('console')
-    this.consoleTextBox.setFont(new QFont("MesloLGS NF", 11))
+
+    let mesloLGSFontId: number = QFontDatabase.addApplicationFont(
+        path.join(__dirname, 'fonts/MesloLGS NF Regular.ttf'))
+    let mesloLGSFontName: string = QFontDatabase.applicationFontFamilies(mesloLGSFontId)[0]
+    this.consoleTextBox.setFont(new QFont(mesloLGSFontName, 11))
+
     this.window.setCentralWidget(this.rootWidget)
     this.rootWidget.setLayout(this.rootLayout)
     this.rootLayout.addWidget(this.consoleTextBox)

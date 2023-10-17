@@ -1,7 +1,8 @@
 const path = require("path")
 const {CleanWebpackPlugin} = require("clean-webpack-plugin")
 const CopyPlugin = require('copy-webpack-plugin')
-const {platform, arch} = require('os')
+const PermissionsOutputPlugin = require('webpack-permissions-plugin')
+const webpack = require('webpack')
 
 module.exports = {
   mode: process.NODE_ENV || "development",
@@ -45,17 +46,26 @@ module.exports = {
   },
 
   plugins: [
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(`${process.env.npm_package_version}`)
+    }),
     new CleanWebpackPlugin(),
     new CopyPlugin({
       patterns: [
         { from: 'css', to: 'css' },
         { from: 'assets', to: 'assets' },
         { from: 'fonts', to: 'fonts' },
-        { from: 'tt-tool-config.json', to: 'tt-tool-config.json' },
-        // { from: 'node_modules/ffmpeg-static/ffmpeg', noErrorOnMissing: true },
-        // { from: 'node_modules/ffmpeg-static/ffmpeg.exe', noErrorOnMissing: true },
-        // { from: `node_modules/ffplay-static/bin/${platform()}/${arch()}/ffplay`, noErrorOnMissing: true },
-        // { from: `node_modules/ffplay-static/bin/${platform()}/${arch()}/ffplay.exe`, noErrorOnMissing: true }
+        { from: 'tt-tool-config.json' },
+        { from: 'node_modules/ffmpeg-static/ffmpeg', noErrorOnMissing: true },
+        { from: 'node_modules/ffmpeg-static/ffmpeg.exe', noErrorOnMissing: true }
+      ]
+    }),
+    new PermissionsOutputPlugin({
+      buildFiles: [
+        {
+          path: path.resolve(__dirname, 'dist/ffmpeg'),
+          fileMode: '755'
+        }
       ]
     })
   ]
