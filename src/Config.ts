@@ -7,7 +7,8 @@ import {
   QIcon,
   QLabel,
   QLineEdit,
-  QPushButton, QRadioButton,
+  QPushButton,
+  QRadioButton,
   QSize,
   QStatusBar,
   QWidget

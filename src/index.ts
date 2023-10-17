@@ -3,7 +3,7 @@ import {
   QTabWidget,
   QIcon,
   QStatusBar,
-  WidgetEventTypes, FocusReason
+  WidgetEventTypes
 } from '@nodegui/nodegui'
 import {Config} from './config'
 import {Transcribe} from './transcribe'
