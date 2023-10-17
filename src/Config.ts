@@ -337,6 +337,7 @@ export class Config {
 
     // Set the current configuration active
     this.whisperCLIPath = config.whisperCLIPath
+    this.whisperCLIArch = config.whisperCLIArch
     this.deeplAPIKey = config.deeplAPIKey
 
     if (showMessage) {
