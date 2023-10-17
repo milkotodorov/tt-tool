@@ -814,7 +814,7 @@ export class Transcribe {
       let wavFile: string | null = null
 
       // When using Whisper.cpp we need to convert the video / audio file into 16-bit WAV
-      if (this.config.whisperCLIArch !== 'win-x64-gpu' ||
+      if (this.config.whisperCLIArch !== 'win-x64-gpu' &&
           path.parse(this.audioFileComboBox.currentText()).ext !== '.wav') {
         const srcFilePath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText())
         wavFile = path.join(srcFilePath.dir, `${srcFilePath.name}.wav`)
