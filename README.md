@@ -14,6 +14,8 @@ The following two things are required before you can use the `tt-tool`:
   - The C++ port of the official [OpenAI Whisper in Python](https://github.com/openai/whisper) called [Whisper.cpp](https://github.com/ggerganov/whisper.cpp).
   - [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper) with GPU acceleration support.
 
+- The above-mentioned Whisper CLI tools can be downloaded either from the links above (e.g. their official source) and compiled or in the [release section](https://github.com/milkotodorov/tt-tool/releases) there is zipped binaries for Windows and MacOS.
+
   As of now the last two works faster than the original Python implementation. This will certainly change with time.
 Download the Whisper CLI from one of the options above and save it in a dedicated folder, preferably into the folder where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
   
