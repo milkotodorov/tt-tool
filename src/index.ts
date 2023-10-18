@@ -13,15 +13,16 @@ import EventEmitter from "events";
 import openAILogo from '../assets/openai-logo-icon.png'
 import deeplLogo from '../assets/deepl-logo-icon.png'
 import configIcon from '../assets/config-icon.png'
+import ttToolIcon from '../assets/tt-tool-icon.png'
 
 // =====================================================================================================================
 
-//ToDo: Add app icon
 //ToDo: Upgrade to latest NodeGUI with QT 6.x
 //ToDo: ProgressBar when transcribing
 //ToDo: ConsoleWindow with color output: Parse bash output into HTML
 //      > Possible Library: https://www.npmjs.com/package/ansi-to-html
 //ToDo: Available Languages for Translate & Transcode -> Configurable
+//ToDo: Automate changing app icon
 
 // =====================================================================================================================
 
@@ -61,6 +62,7 @@ mainWindow.addEventListener(WidgetEventTypes.Close, (): void => {
   consoleWindow.close()
 })
 
+mainWindow.setWindowIcon(new QIcon(ttToolIcon))
 mainWindow.show()
 statusBar.showMessage(`TT-Tool Version: ${VERSION}`, 20000);
 

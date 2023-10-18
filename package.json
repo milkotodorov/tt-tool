@@ -14,7 +14,8 @@
     "start": "webpack --progress && qode ./dist/index.js",
     "start-no-build": "qode ./dist/index.js",
     "debug": "webpack --progress && qode --inspect ./dist/index.js",
-    "debug-no-build": "qode --inspect ./dist/index.js"
+    "debug-no-build": "qode --inspect ./dist/index.js",
+    "set-app-icon-win": "node src/set-app-icon.js"
   },
   "dependencies": {
     "@nodegui/nodegui": "^0.57.3",
@@ -37,6 +38,7 @@
     "css-loader": "^6.8.1",
     "file-loader": "^6.2.0",
     "native-addon-loader": "^2.0.1",
+    "rcedit": "^4.0.0",
     "ts-loader": "^9.4.4",
     "typescript": "^4.9.5",
     "webpack": "^5.88.1",
