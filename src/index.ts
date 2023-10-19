@@ -18,11 +18,13 @@ import ttToolIcon from '../assets/tt-tool-icon.png'
 // =====================================================================================================================
 
 //ToDo: Upgrade to latest NodeGUI with QT 6.x
+//ToDo: Fix MacOS .dmg creation bug
 //ToDo: ProgressBar when transcribing
 //ToDo: ConsoleWindow with color output: Parse bash output into HTML
 //      > Possible Library: https://www.npmjs.com/package/ansi-to-html
 //ToDo: Available Languages for Translate & Transcode -> Configurable
-//ToDo: Automate changing app icon
+//ToDo: Test under Linux
+//ToDo: Add app icon for Linux
 
 // =====================================================================================================================
 

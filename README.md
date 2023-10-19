@@ -43,22 +43,28 @@ npm install
 
 # Run the app
 npm start
-
-# Run the app in debug mode
-npm run debug
 ```
 
 Additionally the following `npm` commands are available:
 
 ```console
-# Cleanup build and distributable files for MacOS
-npm run clean-mac
+# Cleanup build and distributable files
+npm run clean
 
-# Cleanup build and distributable files for Windows
-npm run clean-win
+# Run the app in debug mode
+npm run debug
 
-# Cleanup build and distributable files for Linux
-npm run clean-linux
+# Compile only
+npm run build
+
+# Start the app without compiling (using the existing build)
+npm run start-no-build
+
+# Start the app in debug mode without compiling (using the existing build)
+npm run debug-no-build
+
+# Sets the app distributable binury icon
+npm run set-app-icon
 ```
 
 ## Packaging app as a distributable
