@@ -17,6 +17,7 @@ import ttToolIcon from '../assets/tt-tool-icon.png'
 
 // =====================================================================================================================
 
+//ToDo: Support dark mode for Windows
 //ToDo: Upgrade to latest NodeGUI with QT 6.x
 //ToDo: Fix MacOS .dmg creation bug
 //ToDo: ProgressBar when transcribing
