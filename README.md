@@ -63,7 +63,7 @@ npm run start-no-build
 # Start the app in debug mode without compiling (using the existing build)
 npm run debug-no-build
 
-# Sets the app distributable binary icon
+# Sets the app distributable binary icon. It's executed automaticaly with 'npm run init-packer' and it must be done only once.
 npm run set-app-icon
 ```
 
