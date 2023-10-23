@@ -74,7 +74,7 @@ In order to distribute your finished app, you can use [@nodegui/packer](https://
 Run the pack command as follows:
 
 ```console
-# Initializes the nodegui-packe (needs to be done only once)
+# Initializes the nodegui-packer (needs to be done only once)
 npm run init-packer 
 
 # Create an redistributable package
