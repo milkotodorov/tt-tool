@@ -5,9 +5,9 @@ import {
   QStatusBar,
   WidgetEventTypes
 } from '@nodegui/nodegui'
-import {Config} from './config'
-import {Transcribe} from './transcribe'
-import {Translate} from './translate'
+import {Config} from './Config'
+import {Transcribe} from './Transcribe'
+import {Translate} from './Translate'
 import {ConsoleWindow} from "./ConsoleWindow"
 import EventEmitter from "events";
 import openAILogo from '../assets/openai-logo-icon.png'

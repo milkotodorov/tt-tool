@@ -17,7 +17,7 @@ import * as fs from 'fs'
 import * as deepl from 'deepl-node'
 import localeCode from 'iso-639-1'
 import path from 'node:path'
-import {Config} from './config'
+import {Config} from './Config'
 import {Node, parseSync, stringifySync} from 'subtitle'
 import {NodeList} from "subtitle/src/types"
 import {ConsoleWindow} from "./ConsoleWindow"

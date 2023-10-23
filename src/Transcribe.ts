@@ -24,8 +24,8 @@ import cliProgress from 'cli-progress'
 import EventEmitter from "events"
 import {spawn} from 'node:child_process'
 import {ChildProcessWithoutNullStreams} from "child_process";
-import {Config} from './config'
-import {Translate} from './translate'
+import {Config} from './Config'
+import {Translate} from './Translate'
 import {ConsoleWindow} from './ConsoleWindow'
 import AdmZip from 'adm-zip'
 import transcribeIcon from '../assets/transcribe-icon.png'
