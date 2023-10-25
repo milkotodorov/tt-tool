@@ -18,8 +18,6 @@ The following two things are required before you can use the `tt-tool`:
 
   As of now the last two works faster than the original Python implementation. This will certainly change with time.
 Download the Whisper CLI from one of the options above and save it in a dedicated folder, preferably into the folder where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
-  
-  The compiled executables of the tool ports are available as zipped archives in the [Releases](https://github.com/milkotodorov/tt-tool/releases) section for Windows / MacOS (ARM & Intel) / Linux (to be added).
 
 - DeepL API or Authentication Key - it can be obtained as described in the [official DeepL Documentation](https://support.deepl.com/hc/en-us/articles/360020695820-Authentication-Key).
 
