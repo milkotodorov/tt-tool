@@ -243,7 +243,7 @@ export class Transcribe {
     // Audio File Selection Widget
     this.selectAudioFileLabel = new QLabel()
     this.selectAudioFileLabel.setObjectName('selectAudioFileLabel')
-    this.selectAudioFileLabel.setText('Audio file:')
+    this.selectAudioFileLabel.setText('Audio/Video file:')
     this.selectAudioFileButton = new QPushButton()
     this.selectAudioFileButton.setObjectName('selectAudioFileButton')
     this.selectAudioFileButton.setText("Select")
