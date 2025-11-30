@@ -81,4 +81,4 @@ This will build the distributable using @nodegui/packer. The output of the comma
 More details about packer can be found here: https://github.com/nodegui/packer
 
 ## Credits
-Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors to the great [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project!
+Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors of the [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project!
