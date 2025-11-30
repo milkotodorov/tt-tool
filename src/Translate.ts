@@ -15,6 +15,7 @@ import {
 } from '@nodegui/nodegui'
 import * as fs from 'fs'
 import * as deepl from 'deepl-node'
+import * as deepl_utils from 'deepl-node/dist/utils'
 import localeCode from 'iso-639-1'
 import path from 'node:path'
 import {Config} from './Config'
@@ -528,7 +529,7 @@ export class Translate {
 
   private translateButtonEventListener(): void {
     this.translateButton.addEventListener('clicked', (): void => {
-      const sourceLang: deepl.SourceLanguageCode = deepl.standardizeLanguageCode(
+      const sourceLang: deepl.SourceLanguageCode = deepl_utils.standardizeLanguageCode(
           localeCode.getCode(this.translateFileSourceLanguageComboBox.currentText())) as deepl.SourceLanguageCode
       let targetLangSuffix: string
       switch (localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText())) {
@@ -541,7 +542,7 @@ export class Translate {
         default:
           targetLangSuffix = ''
       }
-      const targetLang: deepl.TargetLanguageCode = deepl.standardizeLanguageCode(
+      const targetLang: deepl.TargetLanguageCode = deepl_utils.standardizeLanguageCode(
           localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText()) + targetLangSuffix) as deepl.TargetLanguageCode
       this.deeplTranslate(this.translateFileComboBox.currentText(), sourceLang, targetLang)
     })

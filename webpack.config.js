@@ -3,18 +3,23 @@ const {CleanWebpackPlugin} = require("clean-webpack-plugin")
 const CopyPlugin = require('copy-webpack-plugin')
 const PermissionsOutputPlugin = require('webpack-permissions-plugin')
 const webpack = require('webpack')
+const nodeExternals = require('webpack-node-externals') 
 
 module.exports = {
   mode: process.NODE_ENV || "development",
-  entry: ["./src"],
+  entry: ["./src/index.ts"],
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js"
   },
-
+  externals: [nodeExternals()], 
   module: {
     rules: [
+      {
+        test: /\.node$/,
+        loader: 'node-loader',
+      },
       {
         test: /\.tsx?$/,
         use: "ts-loader",

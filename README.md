@@ -10,14 +10,11 @@ The `Transcribe & Translate Tool (TT-Tool)` is a simple [NodeGUI](https://docs.n
 
 The following two things are required before you can use the `tt-tool`:
 
-- Whisper Command-Line Interface (CLI) in order to do the transcribing. You have the following two options to choose from:
-  - The C++ port of the official [OpenAI Whisper in Python](https://github.com/openai/whisper) called [Whisper.cpp](https://github.com/ggerganov/whisper.cpp).
-  - [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper) with GPU acceleration support.
+- Whisper Command-Line Interface (CLI) in order to do the transcribing. The GUI uses the C++ port of the official [OpenAI Whisper in Python](https://github.com/openai/whisper) called [Whisper.cpp](https://github.com/ggerganov/whisper.cpp).
 
-- The above-mentioned Whisper CLI tools can be downloaded either from the links above (e.g. their official source) and compiled or in the [release section](https://github.com/milkotodorov/tt-tool/releases) there is zipped binaries for Windows and MacOS.
+- The above-mentioned Whisper.cpp CLI tool can be downloaded from the [Releases](https://github.com/milkotodorov/tt-tool/releases) section of this repository. There are all the tested versions and platforms. Another option is the official `Whisper.cpp` [Releases](https://github.com/ggerganov/whisper.cpp/releases). There are zipped binaries for various platforms in the `Assets`. If the desired platform is not available (e.g. for MacOS) it can be compiled from the source.
 
-  As of now the last two works faster than the original Python implementation. This will certainly change with time.
-Download the Whisper CLI from one of the options above and save it in a dedicated folder, preferably into the folder where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
+Download the Whisper.cpp CLI tool from one of the options above, unpack it and put the executable into a separate folder, preferably into the folder where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
 
 - DeepL API or Authentication Key - it can be obtained as described in the [official DeepL Documentation](https://support.deepl.com/hc/en-us/articles/360020695820-Authentication-Key).
 
@@ -84,4 +81,4 @@ This will build the distributable using @nodegui/packer. The output of the comma
 More details about packer can be found here: https://github.com/nodegui/packer
 
 ## Credits
-Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors to the great [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project as well as to [@Const-me](https://github.com/Const-me) and his GPU accelerated [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper).
+Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors to the great [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project!

@@ -1,6 +1,6 @@
 {
   "name": "tt-tool",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "author": "",
   "private": true,
@@ -19,32 +19,33 @@
     "set-app-icon": "node src/set-app-icon.js"
   },
   "dependencies": {
-    "@nodegui/nodegui": "^0.57.3",
-    "adm-zip": "^0.5.1",
+    "@nodegui/nodegui": "^0.73.0",
+    "adm-zip": "^0.5.16",
     "cli-progress": "^3.12.0",
-    "deepl-node": "^1.10.2",
-    "ffmpeg-static": "^5.2.0",
-    "iso-639-1": "^3.1.0",
+    "deepl-node": "^1.22.0",
+    "ffmpeg-static": "^5.3.0",
+    "iso-639-1": "^3.1.5",
     "original-fs": "^1.2.0",
-    "subtitle": "^4.2.1",
+    "subtitle": "^4.2.2",
     "wget-improved": "^3.4.0"
   },
   "devDependencies": {
     "@nodegui/packer": "^1.5.0",
-    "@types/adm-zip": "^0.5.3",
-    "@types/cli-progress": "^3.11.4",
-    "@types/node": "^18.16.0",
+    "@types/adm-zip": "^0.5.7",
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^24.10.1",
     "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^11.0.0",
+    "copy-webpack-plugin": "^13.0.1",
     "file-loader": "^6.2.0",
     "native-addon-loader": "^2.0.1",
-    "rcedit": "^4.0.0",
+    "rcedit": "^5.0.2",
     "run-script-os": "^1.1.6",
     "simple-plist": "^1.3.1",
-    "ts-loader": "^9.5.0",
-    "typescript": "^5.2.2",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-permissions-plugin": "^1.0.9"
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "webpack": "^5.103.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-node-externals": "^3.0.0",
+    "webpack-permissions-plugin": "^1.0.10"
   }
 }

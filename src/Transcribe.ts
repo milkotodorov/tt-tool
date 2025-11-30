@@ -323,8 +323,7 @@ export class Transcribe {
     this.whisperOutputFormatLabel.setText('Output format:')
     this.whisperOutputFormatComboBox = new QComboBox()
     this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt'])
-    if (this.config.whisperCLIArch != 'win-x64-gpu')
-      this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
+    this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
     this.whisperOutputFormatComboBox.setCurrentText('srt')
     this.whisperOutputFormatWidget = new QWidget()
     this.whisperOutputFormatLayout = new FlexLayout()
@@ -662,7 +661,7 @@ export class Transcribe {
       const modelFile: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '.bin')
       const coreMLModel: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '-encoder.mlmodelc')
       // In case we have DataModel not for CoreML
-      if (this.config.whisperCLIArch === 'darwin-arm64' &&
+      if (process.platform === 'darwin' && process.arch === 'arm64' &&
           !fs.existsSync(coreMLModel) && fs.existsSync(modelFile))
         fs.rmSync(modelFile)
 
@@ -701,7 +700,7 @@ export class Transcribe {
       dataModelType = 'DataModel'
     }
 
-    const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/' + modelFileName
+    const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/blob/main/' + modelFileName
     const modelsFolder: string = path.join(path.dirname(this.config.whisperCLIPath), 'models')
     let modelFile: string = path.join(modelsFolder, modelFileName)
     if (!fs.existsSync(modelsFolder))
@@ -759,7 +758,7 @@ export class Transcribe {
       this.isDownloading = false
       // Download CoreML Model for Apple Silicon ARM64
       let coreMLModelFolder: string = path.join(modelsFolder, 'ggml-' + model + '-encoder.mlmodelc')
-      if (this.config.whisperCLIArch === 'darwin-arm64' && !fs.existsSync(coreMLModelFolder)) {
+      if (process.platform === 'darwin' && process.arch === 'arm64' && !fs.existsSync(coreMLModelFolder)) {
         if (coreML) {
           let coreMLZip: AdmZip = new AdmZip(modelFile)
           this.consoleWindow.log(`Extracting CoreML Model ZIP archive ${modelFile}...`)
@@ -814,8 +813,7 @@ export class Transcribe {
       let wavFile: string | null = null
 
       // When using Whisper.cpp we need to convert the video / audio file into 16-bit WAV
-      if (this.config.whisperCLIArch !== 'win-x64-gpu' &&
-          path.parse(this.audioFileComboBox.currentText()).ext !== '.wav') {
+      if (path.parse(this.audioFileComboBox.currentText()).ext !== '.wav') {
         const srcFilePath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText())
         wavFile = path.join(srcFilePath.dir, `${srcFilePath.name}.wav`)
 
@@ -842,8 +840,6 @@ export class Transcribe {
         sourceLanguage = localeCode.getCode(this.audioFileLanguageComboBox.currentText())
 
       let outputFormat: string = this.whisperOutputFormatComboBox.currentText()
-      let audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText())
-      let outputFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name)
 
       let whisperArgs: string[] = [
         '--model', 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin',
@@ -855,16 +851,6 @@ export class Transcribe {
         '--duration', this.whisperDurationLineEdit.text(),
         '--file', (wavFile == null) ? this.audioFileComboBox.currentText() : wavFile
       ]
-
-      // Not available for Windows port of Whisper.cpp with GPU acceleration
-      if (this.config.whisperCLIArch == 'win-x64-gpu') {
-        whisperArgs.push('--no-colors') // No colors till HTML parser for BASH colors is implemented
-      } else {
-        whisperArgs.push('--print-progress')
-        // No colors till HTML parser for BASH colors is implemented
-        // whisperArgs.push('--print-colors')
-        whisperArgs.push('--output-file', outputFile)
-      }
 
       if (this.whisperDiarizeCheckBox.isChecked())
         whisperArgs.push('--diarize')
@@ -1014,7 +1000,6 @@ export class Transcribe {
   public refreshSupportedSubtitlesFormats(): void {
     this.whisperOutputFormatComboBox.clear()
     this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt'])
-    if (this.config.whisperCLIArch != 'win-x64-gpu')
-      this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
+    this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
   }
 }
