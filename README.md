@@ -46,6 +46,9 @@ Additionally the following `npm` commands are available:
 # Cleanup build and distributable files
 npm run clean
 
+# Cleanup build, distribution files and node_modules + package-lock.json
+npm run clean-all
+
 # Run the app in debug mode
 npm run debug
 
@@ -61,6 +64,9 @@ npm run debug-no-build
 # Sets the app distributable binary icon. It's executed automaticaly with 'npm run init-packer' and it must be done only once.
 npm run set-app-icon
 ```
+
+## Configuring the Whisper DataModels URLs
+The Whisper.cpp CLI tool requires the Whisper DataModels to be downloaded before the transcribing can be done. The `tt-tool` allows configuring the URL from where the DataModels will be downloaded. The configuration file is `whisper-models-config.json`. Additional models can be added if needed.
 
 ## Packaging app as a distributable
 

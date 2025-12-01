@@ -33,15 +33,6 @@ module.exports = {
             options: {publicPath: "dist"}
           }
         ]
-      },
-      {
-        test: /\.node$/,
-        use: [
-          {
-            loader: "native-addon-loader",
-            options: {name: "[name]-[hash].[ext]"}
-          }
-        ]
       }
     ]
   },
@@ -61,6 +52,7 @@ module.exports = {
         { from: 'assets', to: 'assets' },
         { from: 'fonts', to: 'fonts' },
         { from: 'tt-tool-config.json' },
+        { from: 'whisper-models-config.json' },
         { from: 'node_modules/ffmpeg-static/ffmpeg', noErrorOnMissing: true },
         { from: 'node_modules/ffmpeg-static/ffmpeg.exe', noErrorOnMissing: true }
       ]
