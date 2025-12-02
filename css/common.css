@@ -61,10 +61,14 @@
   padding-top: 25px;
 }
 
-#audioFileTopWidget, 
+#audioFileTopWidget,
 #translateFileTopWidget,
 #whisperCLIConfigTopWidget,
-#deeplAPIKeyWidget,
+#deeplAPIKeyWidget {
+  flex-direction: row;
+  width: '94%';
+  /*border: 2px ridge #bdbdbd;*/
+}
 
 #whisperCLIWinWCPPRadioButton,
 #whisperCLIDarwinARM64RadioButton,
@@ -80,7 +84,11 @@
 
 #whisperCLIConfigWidget,
 #whisperCLIConfigTopWidget,
-#whisperCLIConfigL2Widget,
+#whisperCLIConfigL2Widget {
+  padding-left: 10px;
+  width: '94%';
+  /*border: 2px ridge #bdbdbd;*/
+}
 
 #whisperCLIConfigWidget {
   margin-top: 10px;
