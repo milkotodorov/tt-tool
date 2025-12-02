@@ -12,8 +12,6 @@
     "build": "webpack --progress --mode production",
     "start": "webpack --progress && qode ./dist/index.js",
     "start-no-build": "qode ./dist/index.js",
-    "debug": "webpack --progress && qode --inspect ./dist/index.js",
-    "debug-no-build": "qode --inspect ./dist/index.js",
     "set-app-icon": "node src/set-app-icon.js"
   },
   "dependencies": {
