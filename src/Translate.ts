@@ -377,12 +377,13 @@ export class Translate {
       fs.rmSync(tmpTxtFile)
     let textFile: fs.WriteStream = fs.createWriteStream(tmpTxtFile)
     try {
-      subObj.forEach(function (subEl: Node): void {
+      subObj.forEach(function (subEl: Node, index: number): void {
         if (subEl.type === 'cue') {
-          if (subEl.data.start == 0)
-            textFile.write(subEl.data.text)
+          const escapedText: string = subEl.data.text.replace(/\n/g, '<br/>')
+          if (index == 0)
+            textFile.write(escapedText)
           else
-            textFile.write('\n' + subEl.data.text)
+            textFile.write('\n' + escapedText)
         }
       })
     } catch (err) {
@@ -487,8 +488,10 @@ export class Translate {
 
       for (let i: number = 0; i < subObj.length; i++) {
         let subEl: Node = subObj[i]
-        if (subEl.type === 'cue')
-          subEl.data.text = trTextArr[i - Number(isWebVTT)]
+        if (subEl.type === 'cue') {
+          // Restore <br/> tags back to newlines
+          subEl.data.text = trTextArr[i - Number(isWebVTT)].replace(/<br\/>/g, '\n')
+        }
         subObj[i] = subEl
       }
 
@@ -575,9 +578,3 @@ export class Translate {
     })
   }
 }
-
-
-
-
-
-
