@@ -65,15 +65,6 @@
 #translateFileTopWidget,
 #whisperCLIConfigTopWidget,
 #deeplAPIKeyWidget,
-#whisperCLIArchWidget {
-  flex-direction: row;
-  width: '94%';
-  /*border: 2px ridge #bdbdbd;*/
-}
-
-#whisperCLIArchWidget {
-  padding-top: 20px;
-}
 
 #whisperCLIWinWCPPRadioButton,
 #whisperCLIDarwinARM64RadioButton,
@@ -90,11 +81,6 @@
 #whisperCLIConfigWidget,
 #whisperCLIConfigTopWidget,
 #whisperCLIConfigL2Widget,
-#whisperCLIArchWidget {
-  padding-left: 10px;
-  width: '94%';
-  /*border: 2px ridge #bdbdbd;*/
-}
 
 #whisperCLIConfigWidget {
   margin-top: 10px;
