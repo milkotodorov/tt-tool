@@ -1,0 +1,330 @@
+/* NodeGUI Compact Dark Mode for MS Windows */
+
+/* ============================================================================
+   BASE WIDGETS
+   Core styling for all widgets and containers
+   ============================================================================ */
+
+QWidget {
+  color: #FFFFFF;
+  background-color: #202020;
+}
+
+QMainWindow, QDialog {
+  background-color: #202020;
+}
+
+QFrame {
+  background-color: #2D2D2D;
+}
+
+QLabel {
+  background-color: transparent;
+  border: none;
+  padding: 1px;
+}
+
+/* ============================================================================
+   BUTTONS
+   Styling for all button states
+   ============================================================================ */
+
+QPushButton {
+  background-color: #3D3D3D;
+  color: #FFFFFF;
+  border: 1px solid #5D5D5D;
+  border-radius: 4px;
+  padding: 4px 12px;
+  min-height: 22px;
+}
+
+QPushButton:hover {
+  background-color: #4D4D4D;
+  border-color: #6D6D6D;
+}
+
+QPushButton:focus {
+  border: 1px solid #0078D4;
+}
+
+QPushButton:pressed {
+  background-color: #2D2D2D;
+  border: 1px solid #0078D4;
+}
+
+QPushButton:disabled {
+  background-color: #2D2D2D;
+  color: #6D6D6D;
+  border-color: #3D3D3D;
+}
+
+/* ============================================================================
+   INPUT FIELDS
+   Text input, text edit, and plain text edit widgets
+   ============================================================================ */
+
+QLineEdit, QTextEdit, QPlainTextEdit {
+  background-color: #3D3D3D;
+  color: #FFFFFF;
+  border: 1px solid #3D3D3D;
+  border-radius: 4px;
+  padding: 3px 6px;
+  min-height: 22px;
+  selection-background-color: #0078D4;
+  selection-color: #FFFFFF;
+}
+
+QLineEdit:focus {
+  border: 1px solid #0078D4;
+}
+
+/* ============================================================================
+   COMBO BOX
+   Dropdown selector styling
+   ============================================================================ */
+
+QComboBox {
+  background-color: #3D3D3D;
+  color: #FFFFFF;
+  border: 1px solid #5D5D5D;
+  border-radius: 4px;
+  padding: 3px 8px;
+  min-height: 22px;
+}
+
+QComboBox:hover {
+  background-color: #4D4D4D;
+}
+
+QComboBox::drop-down {
+  image: url(dist/assets/arrow-down.svg);
+  subcontrol-position: right center;
+  subcontrol-origin: padding;
+  border: none;
+  width: 13px;
+  margin-right: 3px;
+  background-color: transparent;
+}
+
+QComboBox:focus {
+  border: 1px solid #0078D4;
+}
+
+QComboBox:on {
+  border: 1px solid #0078D4;
+}
+
+QComboBox:disabled {
+  background-color: #2D2D2D;
+  color: #6D6D6D;
+}
+
+/* ============================================================================
+   SCROLLBARS
+   Vertical and horizontal scrollbar styling
+   ============================================================================ */
+
+/* Vertical Scrollbar */
+QScrollBar:vertical {
+  background-color: #1A1A1A;
+  width: 12px;
+  margin: 14px 0 14px 0;
+}
+
+QScrollBar::handle:vertical {
+  background-color: #4D4D4D;
+  min-height: 20px;
+  border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+  background-color: #6D6D6D;
+}
+
+QScrollBar::sub-line:vertical {
+  height: 14px;
+  subcontrol-position: top;
+  subcontrol-origin: margin;
+  background: transparent;
+}
+
+QScrollBar::add-line:vertical {
+  height: 14px;
+  subcontrol-position: bottom;
+  subcontrol-origin: margin;
+  background: transparent;
+}
+
+/* Horizontal Scrollbar */
+QScrollBar:horizontal {
+  background-color: #1A1A1A;
+  height: 12px;
+  margin: 0 14px 0 14px;
+}
+
+QScrollBar::handle:horizontal {
+  background-color: #4D4D4D;
+  min-width: 20px;
+  border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal:hover {
+  background-color: #6D6D6D;
+}
+
+QScrollBar::add-line:horizontal {
+  width: 14px;
+  subcontrol-position: right;
+  subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal {
+  width: 14px;
+  subcontrol-position: left;
+  subcontrol-origin: margin;
+}
+
+/* Scrollbar Arrows */
+QScrollBar::up-arrow:vertical {
+  image: url(dist/assets/arrow-up.svg);
+  width: 12px;
+  height: 12px;
+}
+
+QScrollBar::down-arrow:vertical {
+  image: url(dist/assets/arrow-down.svg);
+  width: 12px;
+  height: 12px;
+}
+
+/* ============================================================================
+   CHECKBOXES
+   Checkbox indicator styling for checked and unchecked states
+   ============================================================================ */
+
+QCheckBox::indicator {
+  width: 16px;
+  height: 16px;
+  background-color: #3D3D3D;
+  border: 1px solid #5D5D5D;
+  border-radius: 3px;
+}
+
+QCheckBox::indicator:focus {
+  border: 1px solid #0078D4;
+}
+
+QCheckBox::indicator:hover {
+  background-color: #4D4D4D;
+}
+
+QCheckBox::indicator:checked {
+  background-color: #4D4D4D;
+  image: url(dist/assets/checkmark.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+  background-color: #3D3D3D;
+  image: url(dist/assets/checkmark.svg);
+}
+
+/* Combo Box Dropdown List */
+QComboBox QAbstractItemView {
+  background-color: #3D3D3D;
+  color: #FFFFFF;
+  selection-background-color: #0078D4;
+}
+
+QComboBox QAbstractItemView QScrollBar:vertical {
+  background-color: #1A1A1A;
+  width: 12px;
+}
+
+QComboBox QAbstractItemView QScrollBar::handle:vertical {
+  background-color: #4D4D4D;
+  min-height: 20px;
+  border-radius: 5px;
+}
+
+QCheckBox:disabled {
+  color: #6D6D6D;
+}
+
+/* ============================================================================
+   TABS
+   Tab widget and tab bar styling
+   ============================================================================ */
+
+QTabWidget::pane {
+  border: 1px solid #3D3D3D;
+  border-radius: 4px;
+  background-color: #2D2D2D;
+}
+
+QTabWidget::tab-bar {
+  alignment: center;
+}
+
+QTabBar::tab {
+  background-color: #656565;
+  color: #ffffff;
+  padding: 5px 12px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+QTabBar::tab:selected {
+  background-color: #0078D4;
+  color: #FFFFFF;
+}
+
+QTabBar::tab:hover {
+  background-color: #757575;
+}
+
+QMenuBar::item:hover {
+  background-color: #3D3D3D;
+}
+
+QMenuBar::item:selected {
+  background-color: #0078D4;
+}
+
+QTabBar::tab:selected:hover {
+  background-color: #1A8FFF;
+}
+
+/* ============================================================================
+   MENUS
+   Menu bar and menu styling
+   ============================================================================ */
+
+QMenuBar {
+  background-color: #202020;
+  border-bottom: 1px solid #3D3D3D;
+}
+
+QMenuBar::item {
+  padding: 4px 8px;
+  background-color: transparent;
+}
+
+QMenu::item:hover {
+  background-color: #3D3D3D;
+}
+
+QMenu::item:selected {
+  background-color: #0078D4;
+}
+
+QMenu {
+  background-color: #2D2D2D;
+  border: 1px solid #3D3D3D;
+  padding: 2px;
+}
+
+QMenu::item {
+  padding: 4px 24px 4px 8px;
+}

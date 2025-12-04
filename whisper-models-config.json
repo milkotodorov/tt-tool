@@ -1,0 +1,25 @@
+{
+  "url": "https://huggingface.co/ggerganov/whisper.cpp/",
+  "url_path_prefix": "resolve/main/",
+  "models_vars": {
+    "prefix": "ggml-",
+    "suffix": ".bin"
+  },
+  "coreml_models_vars": {
+    "prefix": "ggml-",
+    "suffix": "-encoder.mlmodelc.zip"
+  },
+  "models_names": {
+    "tiny": "tiny",
+    "tiny.en": "tiny.en",
+    "base": "base",
+    "base.en": "base.en",
+    "small": "small",
+    "small.en": "small.en",
+    "medium": "medium",
+    "medium.en": "medium.en",
+    "large-v1": "large-v1",
+    "large-v2": "large-v2",
+    "large-v3": "large-v3"
+  }
+}

@@ -15,6 +15,7 @@ import {
 } from '@nodegui/nodegui'
 import * as fs from 'fs'
 import * as deepl from 'deepl-node'
+import * as deepl_utils from 'deepl-node/dist/utils'
 import localeCode from 'iso-639-1'
 import path from 'node:path'
 import {Config} from './Config'
@@ -376,12 +377,13 @@ export class Translate {
       fs.rmSync(tmpTxtFile)
     let textFile: fs.WriteStream = fs.createWriteStream(tmpTxtFile)
     try {
-      subObj.forEach(function (subEl: Node): void {
+      subObj.forEach(function (subEl: Node, index: number): void {
         if (subEl.type === 'cue') {
-          if (subEl.data.start == 0)
-            textFile.write(subEl.data.text)
+          const escapedText: string = subEl.data.text.replace(/\n/g, '<br/>')
+          if (index == 0)
+            textFile.write(escapedText)
           else
-            textFile.write('\n' + subEl.data.text)
+            textFile.write('\n' + escapedText)
         }
       })
     } catch (err) {
@@ -486,8 +488,10 @@ export class Translate {
 
       for (let i: number = 0; i < subObj.length; i++) {
         let subEl: Node = subObj[i]
-        if (subEl.type === 'cue')
-          subEl.data.text = trTextArr[i - Number(isWebVTT)]
+        if (subEl.type === 'cue') {
+          // Restore <br/> tags back to newlines
+          subEl.data.text = trTextArr[i - Number(isWebVTT)].replace(/<br\/>/g, '\n')
+        }
         subObj[i] = subEl
       }
 
@@ -528,7 +532,7 @@ export class Translate {
 
   private translateButtonEventListener(): void {
     this.translateButton.addEventListener('clicked', (): void => {
-      const sourceLang: deepl.SourceLanguageCode = deepl.standardizeLanguageCode(
+      const sourceLang: deepl.SourceLanguageCode = deepl_utils.standardizeLanguageCode(
           localeCode.getCode(this.translateFileSourceLanguageComboBox.currentText())) as deepl.SourceLanguageCode
       let targetLangSuffix: string
       switch (localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText())) {
@@ -541,7 +545,7 @@ export class Translate {
         default:
           targetLangSuffix = ''
       }
-      const targetLang: deepl.TargetLanguageCode = deepl.standardizeLanguageCode(
+      const targetLang: deepl.TargetLanguageCode = deepl_utils.standardizeLanguageCode(
           localeCode.getCode(this.translateFileTargetLanguageComboBox.currentText()) + targetLangSuffix) as deepl.TargetLanguageCode
       this.deeplTranslate(this.translateFileComboBox.currentText(), sourceLang, targetLang)
     })
@@ -574,9 +578,3 @@ export class Translate {
     })
   }
 }
-
-
-
-
-
-

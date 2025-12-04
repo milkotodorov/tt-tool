@@ -2,22 +2,24 @@
 
 ## Introduction
 
-The `Transcribe & Translate Tool (TT-Tool)` is a simple [NodeGUI](https://docs.nodegui.org/) UI for transcribing of audio/video files into subtitle/text and automatic machine translation of the transcribed files or separate ones. The transcribing process is using [OpenAI Whisper](https://openai.com/research/whisper) and the translation one is using the [DeepL Engine](https://www.deepl.com/whydeepl). Both processes are independent from each other, however at the moment only one can run at a time.
+The `Transcribe & Translate Tool (TT-Tool)` is a simple [NodeGUI](https://docs.nodegui.org/) UI for transcribing of audio/video files into subtitle/text and automatic machine translation of the transcribed files or separate ones. The transcribing process is using [Whisper.cpp](https://github.com/ggml-org/whisper.cpp) and the translation one is using the [DeepL Engine](https://www.deepl.com/whydeepl). Both processes are independent from each other, however at the moment only one can run at a time.
 
 ![](tt-tool.gif)
 
 ## Requirements
 
-The following two things are required before you can use the `tt-tool`:
+The following are required before the `tt-tool` can be used:
 
-- Whisper Command-Line Interface (CLI) in order to do the transcribing. You have the following two options to choose from:
-  - The C++ port of the official [OpenAI Whisper in Python](https://github.com/openai/whisper) called [Whisper.cpp](https://github.com/ggerganov/whisper.cpp).
-  - [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper) with GPU acceleration support.
+- Whisper.cpp Command-Line Interface (CLI) in order to do the transcribing. 
 
-- The above-mentioned Whisper CLI tools can be downloaded either from the links above (e.g. their official source) and compiled or in the [release section](https://github.com/milkotodorov/tt-tool/releases) there is zipped binaries for Windows and MacOS.
+    It can be downloaded from the official `Whisper.cpp` [Releases](https://github.com/ggerganov/whisper.cpp/releases).
 
-  As of now the last two works faster than the original Python implementation. This will certainly change with time.
-Download the Whisper CLI from one of the options above and save it in a dedicated folder, preferably into the folder where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
+    Download, unpack it and put the executable into a folder, preferably where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
+
+    > [!NOTE]  
+    > The windows distribution of the `tt-tool` has already the Whipser.cpp CLI included for convinience. However, it is the CPU-only version.
+
+    Whisper.cpp CLI for MacOS is available via homebrew. Install it with: `brew install whisper-cpp`
 
 - DeepL API or Authentication Key - it can be obtained as described in the [official DeepL Documentation](https://support.deepl.com/hc/en-us/articles/360020695820-Authentication-Key).
 
@@ -29,7 +31,7 @@ To clone and run this repository you'll need [Git](https://git-scm.com) and [Nod
 
 From the command line, execute as follows:
 
-```console
+```shell
 # Clone this repository
 git clone https://github.com/milkotodorov/tt-tool
 
@@ -45,9 +47,12 @@ npm start
 
 Additionally the following `npm` commands are available:
 
-```console
+```shell
 # Cleanup build and distributable files
 npm run clean
+
+# Cleanup build, distribution files and node_modules + package-lock.json
+npm run clean-all
 
 # Run the app in debug mode
 npm run debug
@@ -65,13 +70,16 @@ npm run debug-no-build
 npm run set-app-icon
 ```
 
+## Configuring the Whisper DataModels URLs
+The Whisper.cpp CLI tool requires the Whisper DataModels to be downloaded before the transcribing can be done. The `tt-tool` allows configuring the URL from where the DataModels will be downloaded. The configuration file is `whisper-models-config.json`. Additional models can be added if needed.
+
 ## Packaging app as a distributable
 
-In order to distribute your finished app, you can use [@nodegui/packer](https://github.com/nodegui/packer)
+In order to pack and distribute finished app, the [@nodegui/packer](https://github.com/nodegui/packer) is used.
 
 Run the pack command as follows:
 
-```console
+```shell
 # Initializes the nodegui-packer (needs to be done only once)
 npm run init-packer 
 
@@ -84,4 +92,4 @@ This will build the distributable using @nodegui/packer. The output of the comma
 More details about packer can be found here: https://github.com/nodegui/packer
 
 ## Credits
-Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors to the great [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project as well as to [@Const-me](https://github.com/Const-me) and his GPU accelerated [Windows port of Whisper.cpp](https://github.com/Const-me/Whisper).
+Last but not least, I would like to thank to [@ggerganov](https://github.com/ggerganov) and all the contributors of the [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) project!

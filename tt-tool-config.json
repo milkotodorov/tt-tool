@@ -1,6 +1,5 @@
 {
   "whisperCLIPath": "whisper-cli-arm64",
-  "whisperCLIArch": "darwin-arm64",
   "deeplAPIKey": "",
   "lastUsedDeepLSourceLang": "English",
   "lastUsedDeepLTargetLang": "German",

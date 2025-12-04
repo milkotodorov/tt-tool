@@ -36,6 +36,8 @@ import audioFileIcon from '../assets/audio-file-icon.png'
 import subtitleFileIcon from '../assets/subtitle-file-icon.png'
 import advancedOptionsIcon from '../assets/advanced-options-icon.png'
 import pathToFfmpeg from 'ffmpeg-static'
+import postcss from "postcss";
+import prefix = postcss.vendor.prefix;
 
 export class Transcribe {
   // ConsoleWindow
@@ -152,6 +154,10 @@ export class Transcribe {
   // Buttons Widget
   private actionButtonsWidget: QWidget
   private actionButtonsLayout: FlexLayout
+
+  // Whisper Models Config File
+  private readonly whisperModelsConfigFile: string = 'dist/whisper-models-config.json'
+  private readonly modelsConfig: any = this.readWhisperModelsConfigFile()
 
   constructor(consoleWindow: ConsoleWindow, statusBar: QStatusBar,
               config: Config, rootEM: EventEmitter, translate: Translate) {
@@ -307,7 +313,7 @@ export class Transcribe {
     this.whisperModelComboBox = new QComboBox()
     this.addDataModels()
     this.whisperModelComboBox.setToolTip('Data model will be automatically selected upon language change as follows:\n' 
-        + '"medium-en" for English and "large" for everything else.')
+        + '"medium-en" for English and "large-v3" for everything else.')
     this.whisperModelComboBox.setToolTipDuration(30000)
     this.whisperModelComboBox.setMaximumWidth(140)
     this.whisperDataModelWidget = new QWidget()
@@ -323,8 +329,7 @@ export class Transcribe {
     this.whisperOutputFormatLabel.setText('Output format:')
     this.whisperOutputFormatComboBox = new QComboBox()
     this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt'])
-    if (this.config.whisperCLIArch != 'win-x64-gpu')
-      this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
+    this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
     this.whisperOutputFormatComboBox.setCurrentText('srt')
     this.whisperOutputFormatWidget = new QWidget()
     this.whisperOutputFormatLayout = new FlexLayout()
@@ -662,13 +667,38 @@ export class Transcribe {
       const modelFile: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '.bin')
       const coreMLModel: string = path.join(path.dirname(this.config.whisperCLIPath), 'models', 'ggml-' + text + '-encoder.mlmodelc')
       // In case we have DataModel not for CoreML
-      if (this.config.whisperCLIArch === 'darwin-arm64' &&
+      if (process.platform === 'darwin' && process.arch === 'arm64' &&
           !fs.existsSync(coreMLModel) && fs.existsSync(modelFile))
         fs.rmSync(modelFile)
 
       if (!fs.existsSync(modelFile))
         this.downloadDataModel(text)
     })
+  }
+
+  private readWhisperModelsConfigFile(): any {
+    if (!fs.existsSync(this.whisperModelsConfigFile))
+      return
+
+    // Read configuration
+    let configBuffer: Buffer
+    let configJSON: any
+
+    try {
+      configBuffer = fs.readFileSync(this.whisperModelsConfigFile)
+    } catch (error) {
+      this.consoleWindow.log("Error while reading the configuration file 'whisper-models-config.json': ", error)
+      throw new Error()
+    }
+
+    try {
+      configJSON = JSON.parse(configBuffer.toString())
+    } catch (error) {
+      this.consoleWindow.log("Error while parsing the configuration file 'whisper-models-config.json': ", error)
+      throw new Error()
+    }
+
+    return configJSON
   }
 
   private downloadDataModel(model: string, coreML: boolean = false): void {
@@ -692,16 +722,23 @@ export class Transcribe {
 
     let modelFileName: string
     let dataModelType: string
+
     if (coreML) {
-      modelFileName = 'ggml-' + model + '-encoder.mlmodelc.zip'
+      modelFileName =
+          this.modelsConfig['coreml_models_vars'].prefix +
+          this.modelsConfig['models_names'][model] +
+          this.modelsConfig['coreml_models_vars'].suffix
       dataModelType = 'CoreML-Model'
     }
     else {
-      modelFileName = 'ggml-' + model + '.bin'
+      modelFileName =
+          this.modelsConfig['models_vars'].prefix +
+          this.modelsConfig['models_names'][model] +
+          this.modelsConfig['models_vars'].suffix
       dataModelType = 'DataModel'
     }
 
-    const src: string = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/' + modelFileName
+    const src: string = this.modelsConfig.url + this.modelsConfig.url_path_prefix + modelFileName
     const modelsFolder: string = path.join(path.dirname(this.config.whisperCLIPath), 'models')
     let modelFile: string = path.join(modelsFolder, modelFileName)
     if (!fs.existsSync(modelsFolder))
@@ -759,7 +796,7 @@ export class Transcribe {
       this.isDownloading = false
       // Download CoreML Model for Apple Silicon ARM64
       let coreMLModelFolder: string = path.join(modelsFolder, 'ggml-' + model + '-encoder.mlmodelc')
-      if (this.config.whisperCLIArch === 'darwin-arm64' && !fs.existsSync(coreMLModelFolder)) {
+      if (process.platform === 'darwin' && process.arch === 'arm64' && !fs.existsSync(coreMLModelFolder)) {
         if (coreML) {
           let coreMLZip: AdmZip = new AdmZip(modelFile)
           this.consoleWindow.log(`Extracting CoreML Model ZIP archive ${modelFile}...`)
@@ -800,7 +837,7 @@ export class Transcribe {
         this.whisperModelComboBox.setCurrentText('medium.en')
       }
       else
-        this.whisperModelComboBox.setCurrentText('large')
+        this.whisperModelComboBox.setCurrentText('large-v3')
 
       this.config.lastUsedWhisperLanguage = this.audioFileLanguageComboBox.currentText()
       this.config.saveConfiguration(false)
@@ -814,8 +851,7 @@ export class Transcribe {
       let wavFile: string | null = null
 
       // When using Whisper.cpp we need to convert the video / audio file into 16-bit WAV
-      if (this.config.whisperCLIArch !== 'win-x64-gpu' &&
-          path.parse(this.audioFileComboBox.currentText()).ext !== '.wav') {
+      if (path.parse(this.audioFileComboBox.currentText()).ext !== '.wav') {
         const srcFilePath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText())
         wavFile = path.join(srcFilePath.dir, `${srcFilePath.name}.wav`)
 
@@ -842,8 +878,6 @@ export class Transcribe {
         sourceLanguage = localeCode.getCode(this.audioFileLanguageComboBox.currentText())
 
       let outputFormat: string = this.whisperOutputFormatComboBox.currentText()
-      let audioFileParsedPath: path.ParsedPath = path.parse(this.audioFileComboBox.currentText())
-      let outputFile: string = path.join(audioFileParsedPath.dir, audioFileParsedPath.name)
 
       let whisperArgs: string[] = [
         '--model', 'models/ggml-' + this.whisperModelComboBox.currentText() + '.bin',
@@ -855,16 +889,6 @@ export class Transcribe {
         '--duration', this.whisperDurationLineEdit.text(),
         '--file', (wavFile == null) ? this.audioFileComboBox.currentText() : wavFile
       ]
-
-      // Not available for Windows port of Whisper.cpp with GPU acceleration
-      if (this.config.whisperCLIArch == 'win-x64-gpu') {
-        whisperArgs.push('--no-colors') // No colors till HTML parser for BASH colors is implemented
-      } else {
-        whisperArgs.push('--print-progress')
-        // No colors till HTML parser for BASH colors is implemented
-        // whisperArgs.push('--print-colors')
-        whisperArgs.push('--output-file', outputFile)
-      }
 
       if (this.whisperDiarizeCheckBox.isChecked())
         whisperArgs.push('--diarize')
@@ -976,16 +1000,10 @@ export class Transcribe {
   }
 
   private addDataModels(): void {
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('tiny'), 'tiny')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('tiny.en'), 'tiny.en')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('base'), 'base')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('base.en'), 'base.en')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('small'), 'small')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('small.en'), 'small.en')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('medium'), 'medium')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('medium.en'), 'medium.en')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('large-v1'), 'large-v1')
-    this.whisperModelComboBox.addItem(this.config.getDataModelIcon('large'), 'large')
+    const { models_names } = this.modelsConfig;
+    for (const modelKey in models_names) {
+      this.whisperModelComboBox.addItem(this.config.getDataModelIcon(modelKey), modelKey);
+    }
   }
 
   private toggleConsoleButtonEventListener(): void {
@@ -1014,7 +1032,6 @@ export class Transcribe {
   public refreshSupportedSubtitlesFormats(): void {
     this.whisperOutputFormatComboBox.clear()
     this.whisperOutputFormatComboBox.addItems(['srt', 'txt', 'vtt'])
-    if (this.config.whisperCLIArch != 'win-x64-gpu')
-      this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
+    this.whisperOutputFormatComboBox.addItems(['lrc', 'wts', 'csv', 'json'])
   }
 }
