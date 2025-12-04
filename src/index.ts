@@ -18,7 +18,6 @@ import ttToolIcon from '../assets/tt-tool-icon.png'
 import fs from "fs"
 
 // =====================================================================================================================
-//ToDo: Bugfix: Configuration Whisper.cpp Path for windows not saved correctly.
 //ToDo: Fix init-packer first run not working on Windows
 //ToDo: ProgressBar when transcribing
 //ToDo: ConsoleWindow with color output: Parse bash output into HTML
