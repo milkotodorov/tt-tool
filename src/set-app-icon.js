@@ -7,8 +7,8 @@ const rcedit = require("rcedit")
 if (os.platform() === 'win32') {
   let iconAlreadySetDummyFile = './node_modules/@nodegui/qode/win-icon-already-set.dummy'
   if (!fs.existsSync(iconAlreadySetDummyFile)) {
+    let qodeBinFile = './node_modules/@nodegui/qode/binaries/qode.exe'
     try {
-      let qodeBinFile = './node_modules/@nodegui/qode/binaries/qode.exe'
       rcedit(qodeBinFile, {icon: './assets/tt-tool-icon.ico'})
     } catch (err) {
       console.log(`Error while setting icon of the ${qodeBinFile} file`)

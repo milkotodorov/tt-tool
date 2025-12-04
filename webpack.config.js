@@ -14,7 +14,6 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js"
   },
-  externals: [nodeExternals()], 
   module: {
     rules: [
       {

@@ -1,0 +1,45 @@
+QMainWindow {
+  background-color: #ffffff;  /* Light gray background */
+}
+
+QTabWidget::tab-bar {
+  alignment: center;
+}
+
+QTabWidget::pane {
+  background-color: #F5F5F5;
+  border-radius: 4px;
+}
+
+QTabBar {
+  background-color: #bcdefb;
+}
+
+QTabBar::tab {
+  padding: 5px 12px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+QTabBar::tab:selected {
+  background-color: #0078D4;
+  color: #FFFFFF;
+}
+
+QTabBar::tab:selected:hover {
+  background-color: #1A8FFF;
+}
+
+QTabBar::tab:hover {
+  background-color: #67b5ff;
+}
+
+QMenuBar::item:selected {
+  background-color: #0078D4;
+}
+
+QMenuBar::item:hover {
+  background-color: #67b5ff;
+}
