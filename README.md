@@ -16,10 +16,10 @@ The following are required before the `tt-tool` can be used:
 
     Download, unpack it and put the executable into a folder, preferably where the `tt-tool` is located. You can configure the exact location into the `tt-tool` itself.
 
-    > [!NOTE]  
-    > The windows distribution of the `tt-tool` has already the Whipser.cpp CLI included for convinience. However, it is the CPU-only version.
-
     Whisper.cpp CLI for MacOS is available via homebrew. Install it with: `brew install whisper-cpp`
+
+> [!NOTE]  
+> The windows distribution of the `tt-tool` has already the Whipser.cpp CLI included for convinience. However, it is the CPU-only version.  
 
 - DeepL API or Authentication Key - it can be obtained as described in the [official DeepL Documentation](https://support.deepl.com/hc/en-us/articles/360020695820-Authentication-Key).
 
