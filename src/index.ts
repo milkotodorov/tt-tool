@@ -73,8 +73,15 @@ function isDarkModeWindows(): boolean {
 
 // =====================================================================================================================
 // Main Window
-const mainWinDim: {width: number, height: number} = {width: 720, height: 490}
 const mainWindow: QMainWindow = new QMainWindow()
+let mainWinDim: {width: number, height: number}
+
+if (process.platform === 'win32' && isDarkModeWindows()) {
+    mainWinDim = {width: 720, height: 550}
+} else {
+    mainWinDim = {width: 720, height: 490}
+}
+
 mainWindow.setWindowTitle("Transcribe & Translate Tool")
 mainWindow.setFixedSize(mainWinDim.width, mainWinDim.height)
 mainWindow.setStatusBar(statusBar)
