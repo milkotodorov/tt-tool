@@ -10,16 +10,14 @@ module.exports = {
   entry: ["./src/index.ts"],
   devtool: 'source-map',
   target: "node",
+  externalsPresets: { node: true },
+  externals: [nodeExternals()],  
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js"
   },
   module: {
     rules: [
-      {
-        test: /\.node$/,
-        loader: 'node-loader',
-      },
       {
         test: /\.tsx?$/,
         use: "ts-loader",
