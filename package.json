@@ -15,7 +15,7 @@
     "set-app-icon": "node src/set-app-icon.js"
   },
   "dependencies": {
-    "@nodegui/nodegui": "^0.73.0",
+    "@nodegui/nodegui": "^0.74.0",
     "adm-zip": "^0.5.16",
     "cli-progress": "^3.12.0",
     "deepl-node": "^1.22.0",
