@@ -66,7 +66,7 @@ npm run start-no-build
 # Start the app in debug mode without compiling (using the existing build)
 npm run debug-no-build
 
-# Sets the app distributable binary icon. It's executed automaticaly with 'npm run init-packer' and it must be done only once.
+# Sets the app distributable binary icon for Windows (run once after npm install)
 npm run set-app-icon
 ```
 
@@ -80,10 +80,7 @@ In order to pack and distribute finished app, the [@nodegui/packer](https://gith
 Run the pack command as follows:
 
 ```shell
-# Initializes the nodegui-packer (needs to be done only once)
-npm run init-packer 
-
-# Create an redistributable package
+# Create a redistributable package
 npm run pack
 ```
 
