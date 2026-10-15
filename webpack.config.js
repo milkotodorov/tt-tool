@@ -3,7 +3,6 @@ const {CleanWebpackPlugin} = require("clean-webpack-plugin")
 const CopyPlugin = require('copy-webpack-plugin')
 const PermissionsOutputPlugin = require('webpack-permissions-plugin')
 const webpack = require('webpack')
-const nodeExternals = require('webpack-node-externals') 
 
 module.exports = {
   mode: process.env.NODE_ENV || "development",
@@ -11,7 +10,9 @@ module.exports = {
   devtool: 'source-map',
   target: "node",
   externalsPresets: { node: true },
-  externals: [nodeExternals()],  
+  externals: {
+    "@nodegui/nodegui": "commonjs @nodegui/nodegui",
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js"
