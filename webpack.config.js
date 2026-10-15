@@ -4,10 +4,10 @@ const CopyPlugin = require('copy-webpack-plugin')
 const PermissionsOutputPlugin = require('webpack-permissions-plugin')
 const webpack = require('webpack')
 
-module.exports = {
+module.exports = (env, argv) => ({
   mode: process.env.NODE_ENV || "development",
   entry: ["./src/index.ts"],
-  devtool: 'source-map',
+  devtool: (argv && argv.mode) === 'production' ? false : 'source-map',
   target: "node",
   externalsPresets: { node: true },
   externals: {
@@ -29,7 +29,13 @@ module.exports = {
         use: [
           {
             loader: "file-loader",
-            options: {publicPath: "dist"}
+            options: {
+              // Output into dist/assets/ alongside the CopyPlugin copy so
+              // there is only one set of image files in the bundle.
+              outputPath: 'assets',
+              name: '[name].[ext]',
+              publicPath: 'dist/assets',
+            }
           }
         ]
       }
@@ -65,4 +71,4 @@ module.exports = {
       ]
     })
   ]
-}
+})

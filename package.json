@@ -7,9 +7,9 @@
   "scripts": {
     "clean": "rimraf dist deploy",
     "clean-all": "rimraf dist deploy package-lock.json node_modules",
-    "postinstall": "node node_modules/@nodegui/nodegui/scripts/setupMiniQt.js && node node_modules/@nodegui/nodegui/scripts/setupBinary.js && node node_modules/@nodegui/qode/install.js",
+    "postinstall": "node node_modules/@nodegui/nodegui/scripts/setupMiniQt.js && node node_modules/@nodegui/nodegui/scripts/setupBinary.js && node node_modules/@nodegui/qode/install.js && node node_modules/ffmpeg-static/install.js",
     "init-packer": "npx nodegui-packer --init tt-tool && npm run set-app-icon",
-    "pack": "npm run set-app-icon && npm run build && npx nodegui-packer --pack ./dist",
+    "pack": "npm run set-app-icon && npm run build && node src/pre-pack.js && npx nodegui-packer --pack ./dist && node src/post-pack.js",
     "build": "webpack --progress --mode production",
     "start": "webpack --progress && qode ./dist/index.js",
     "start-no-build": "qode ./dist/index.js",
